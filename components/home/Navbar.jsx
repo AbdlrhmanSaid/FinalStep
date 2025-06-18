@@ -59,7 +59,7 @@ export default function Navbar({
             )}
           </div>
 
-          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+          <div className="flex items-center  rtl:space-x-reverse">
             <button
               onClick={toggleLanguage}
               className="flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
