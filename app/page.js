@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Navbar from "@/components/home/Navbar";
-import Hero from "@/components/home/Hero";
-import Features from "@/components/home/Features";
-import CTA from "@/components/home/CTA";
-import About from "@/components/home/About";
-import Contact from "@/components/home/Contact";
-import Footer from "@/components/home/Footer";
-import { translations } from "@/lib/translations";
+import Navbar from "../components/home/Navbar";
+import Hero from "../components/home/Hero";
+import Features from "../components/home/Features";
+import CTA from "../components/home/CTA";
+import About from "../components/home/About";
+import Contact from "../components/home/Contact";
+import Footer from "../components/home/Footer";
+import { translations } from "../lib/translations";
 
 export default function LandingPage() {
   const [isDark, setIsDark] = useState(false);

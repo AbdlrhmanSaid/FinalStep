@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "../ui/button";
 import { Mail, Phone, MapPin } from "lucide-react";
 
 export default function Contact({ t, isRTL }) {
