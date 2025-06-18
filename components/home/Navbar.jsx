@@ -125,7 +125,7 @@ export default function Navbar({
                   onClick={() => router.push("/dashboard")}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2"
                 >
-                  {t.dashboard || "Dashboard"} // قيمة افتراضية
+                  {t.dashboard || "Dashboard"}
                 </Button>
               ) : (
                 <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">
