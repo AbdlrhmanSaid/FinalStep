@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { syncClerkUser } from "../../lib/actions/syncClerkUser";
 import { getCurrentUserData } from "../../lib/actions/user.actions";
 
+export const metadata = {
+  title: "FinalStep Dashboard",
+  description: "Modern bilingual project management dashboard",
+};
 const layout = async ({ children }) => {
   const { userId } = await auth();
 
@@ -16,12 +20,9 @@ const layout = async ({ children }) => {
   const user = await getCurrentUserData(userId);
 
   return (
-    <div className="p-3">
-      <h1>name : {user.name}</h1>
-      <h1>email : {user.email}</h1>
-      <h1>projectsLeading : {user.projectsLeading.length}</h1>
-      <h1>projectsMember : {user.projectsMember.length}</h1>
-    </div>
+    <>
+      <div className="antialiased">{children}</div>
+    </>
   );
 };
 
