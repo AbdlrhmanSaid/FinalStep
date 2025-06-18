@@ -18,14 +18,16 @@ export default function UserMenu({ t }) {
           </Button>
         </Link>
       ) : (
-        <UserButton afterSignOutUrl="/">
-          <UserButton.MenuItems>
-            <UserButton.Action
-              label={t.dashboard || "Dashboard"} // قيمة افتراضية
-              onClick={() => router.push("/dashboard")}
-            />
-          </UserButton.MenuItems>
-        </UserButton>
+        <div>
+          <UserButton afterSignOutUrl="/">
+            <UserButton.MenuItems>
+              <UserButton.Action
+                label={t.dashboard || "Dashboard"} // قيمة افتراضية
+                onClick={() => router.push("/dashboard")}
+              />
+            </UserButton.MenuItems>
+          </UserButton>
+        </div>
       )}
     </>
   );
