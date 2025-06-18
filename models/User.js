@@ -2,6 +2,11 @@ import mongoose, { Schema, models, model } from "mongoose";
 
 const UserSchema = new Schema(
   {
+    clerkId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     name: {
       type: String,
       required: true,
@@ -29,9 +34,7 @@ const UserSchema = new Schema(
       },
     ],
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const User = models.User || model("User", UserSchema);

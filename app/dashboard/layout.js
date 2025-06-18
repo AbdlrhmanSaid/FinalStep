@@ -1,6 +1,7 @@
 import React from "react";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { syncClerkUser } from "../../lib/actions/syncClerkUser";
 
 const layout = async ({ children }) => {
   const { userId } = await auth();
@@ -8,6 +9,11 @@ const layout = async ({ children }) => {
   if (!userId) {
     redirect("/login");
   }
+
+  const clerkUser = await currentUser();
+
+  await syncClerkUser(clerkUser);
+
   return <div>{children}</div>;
 };
 
