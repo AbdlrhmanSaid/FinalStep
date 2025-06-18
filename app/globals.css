@@ -123,3 +123,13 @@ html {
 .font-arabic {
   font-family: var(--font-arabic);
 }
+
+.cl-rootBox {
+  margin: auto;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.cl-cardBox {
+  width: 100%;
+}
