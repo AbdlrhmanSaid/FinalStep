@@ -1,6 +1,6 @@
-import { Calendar, CheckCircle, ShieldCheck, Users } from "lucide-react";
+import { Calendar, CheckCircle, ShieldCheck, Users, User } from "lucide-react";
 
-export default function ProjectCard({ project, content, isRTL }) {
+export default function ProjectCard({ project, content, isRTL, members }) {
   const status = project.status || (project.public ? "active" : "pending");
 
   const getStatusColor = (status) => {
@@ -59,13 +59,25 @@ export default function ProjectCard({ project, content, isRTL }) {
           >
             {project.title}
           </h3>
-          <p
-            className={`text-gray-600 dark:text-gray-300 text-sm leading-relaxed ${
-              isRTL ? "rtl:text-right" : ""
-            }`}
-          >
-            {project.description}
-          </p>
+          <div className="info flex justify-between">
+            <p
+              className={`text-gray-600 dark:text-gray-300 text-sm leading-relaxed ${
+                isRTL ? "rtl:text-right" : ""
+              }`}
+            >
+              {project.description}
+            </p>
+            <p
+              className={`text-gray-600 dark:text-gray-300 text-sm leading-relaxed flex items-center ${
+                isRTL ? "rtl:text-right" : ""
+              }`}
+            >
+              <span>{members}</span>
+              <span>
+                <User />
+              </span>
+            </p>
+          </div>
 
           {/* Footer */}
           <div
@@ -91,9 +103,7 @@ export default function ProjectCard({ project, content, isRTL }) {
               <span className="font-medium text-blue-600 dark:text-blue-400">
                 {project.tasks || 0}
               </span>
-              <span className={`${isRTL ? "mr-1" : "ml-1"}`}>
-                {content.projectCard.tasks}
-              </span>
+              <span className={`ml-1`}>{content.projectCard.tasks}</span>
             </div>
           </div>
         </div>

@@ -6,12 +6,21 @@ const fetchProjects = async () => {
   const res = await axios.get("/api/projects");
   return res.data;
 };
+const fetchProject = async (id) => {
+  const res = await axios.get(`/api/projects/${id}`);
+  return res.data;
+};
 
-const useGetProjects = () => {
+export const useGetProjects = () => {
   return useQuery({
     queryKey: ["projects"],
     queryFn: fetchProjects,
   });
 };
-
-export default useGetProjects;
+export const useGetProject = (id) => {
+  return useQuery({
+    queryKey: ["project", id],
+    queryFn: () => fetchProject(id),
+    enabled: !!id,
+  });
+};

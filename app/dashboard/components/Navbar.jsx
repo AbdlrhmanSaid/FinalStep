@@ -36,17 +36,17 @@ export default function DashboardNav() {
           <div className="hidden md:block">
             <div className={`flex items-center space-x-8 ${isRTL ? "" : ""}`}>
               <Link
-                href="/dashboard"
+                href={"/dashboard"}
                 className="text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {content.dashboardNav.home}
               </Link>
-              <a
-                href="#"
+              <Link
+                href={"/dashboard"}
                 className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {content.dashboardNav.projects}
-              </a>
+              </Link>
               <a
                 href="#"
                 className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -113,12 +113,12 @@ export default function DashboardNav() {
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 border-t border-gray-200 dark:border-gray-700">
-              <a
-                href="#"
+              <Link
+                href="/dashboard"
                 className="block text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
               >
                 {content.dashboardNav.home}
-              </a>
+              </Link>
               <a
                 href="#"
                 className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"

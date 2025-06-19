@@ -6,7 +6,7 @@ import EmptyState from "./components/EmptyState";
 import { translations } from "../../lib/translations";
 import Link from "next/link";
 import { useAppContext } from "../../contexts/AppContext";
-import useGetProjects from "../../hooks/projects/useGetProjects";
+import { useGetProjects } from "../../hooks/projects/useGetProjects";
 import Loading from "../../components/Loading";
 
 export default function Dashboard() {
@@ -79,6 +79,7 @@ export default function Dashboard() {
                     }}
                     content={content.dashboard}
                     isRTL={isRTL}
+                    members={project.members.length}
                   />
                 </Link>
               ))}
