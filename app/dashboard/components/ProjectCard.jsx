@@ -1,6 +1,8 @@
-import { Calendar, CheckCircle, Clock, Users } from "lucide-react";
+import { Calendar, CheckCircle, ShieldCheck, Users } from "lucide-react";
 
 export default function ProjectCard({ project, content, isRTL }) {
+  const status = project.status || (project.public ? "active" : "pending");
+
   const getStatusColor = (status) => {
     switch (status) {
       case "active":
@@ -8,97 +10,94 @@ export default function ProjectCard({ project, content, isRTL }) {
       case "completed":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
       case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
       case "active":
-        return <CheckCircle className="w-4 h-4" />;
       case "completed":
         return <CheckCircle className="w-4 h-4" />;
       case "pending":
-        return <Clock className="w-4 h-4" />;
       default:
-        return <Clock className="w-4 h-4" />;
+        return <ShieldCheck className="w-4 h-4" />;
     }
   };
 
   return (
-    <div
-      className={`bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 ${
-        isRTL ? "rtl" : "ltr"
-      }`}
-    >
-      {/* Project Icon */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-xl">
-          <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-        </div>
-        <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-            project.status
-          )} ${isRTL ? "rtl:mr-2" : ""}`}
-        >
-          {getStatusIcon(project.status)}
-          <span className={`${isRTL ? "mr-1" : "ml-1"}`}>
-            {content.projectCard.status[project.status]}
+    <>
+      <div
+        className={`cursor-pointer bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 ${
+          isRTL ? "rtl" : "ltr"
+        }`}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-xl">
+            <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          </div>
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+              status
+            )} ${isRTL ? "rtl:mr-2" : ""}`}
+          >
+            {getStatusIcon(status)}
+            <span className={`${isRTL ? "mr-1" : "ml-1"}`}>
+              {content.projectCard.status[status]}
+            </span>
           </span>
-        </span>
-      </div>
+        </div>
 
-      {/* Project Info */}
-      <div className="space-y-3">
-        <h3
-          className={`text-lg font-semibold text-gray-900 dark:text-white ${
-            isRTL ? "rtl:text-right" : ""
-          }`}
-        >
-          {project.title}
-        </h3>
-        <p
-          className={`text-gray-600 dark:text-gray-300 text-sm leading-relaxed ${
-            isRTL ? "rtl:text-right" : ""
-          }`}
-        >
-          {project.description}
-        </p>
+        {/* Info */}
+        <div className="space-y-3">
+          <h3
+            className={`text-lg font-semibold text-gray-900 dark:text-white ${
+              isRTL ? "rtl:text-right" : ""
+            }`}
+          >
+            {project.title}
+          </h3>
+          <p
+            className={`text-gray-600 dark:text-gray-300 text-sm leading-relaxed ${
+              isRTL ? "rtl:text-right" : ""
+            }`}
+          >
+            {project.description}
+          </p>
 
-        {/* Project Stats */}
-        <div
-          className={`flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700 ${
-            isRTL ? "rtl:flex-row-reverse" : ""
-          }`}
-        >
+          {/* Footer */}
           <div
-            className={`flex items-center text-sm text-gray-500 dark:text-gray-400 ${
+            className={`flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700 ${
               isRTL ? "rtl:flex-row-reverse" : ""
             }`}
           >
-            <Calendar className="w-4 h-4" />
-            <span className={`${isRTL ? "mr-2" : "ml-2"}`}>
-              {content.projectCard.createdAt}: {project.createdAt}
-            </span>
-          </div>
-          {project.tasks && (
+            <div
+              className={`flex items-center text-sm text-gray-500 dark:text-gray-400 ${
+                isRTL ? "rtl:flex-row-reverse" : ""
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span className={`${isRTL ? "mr-2" : "ml-2"}`}>
+                {content.projectCard.createdAt}: {project.createdAt}
+              </span>
+            </div>
             <div
               className={`flex items-center text-sm text-gray-500 dark:text-gray-400 ${
                 isRTL ? "rtl:flex-row-reverse" : ""
               }`}
             >
               <span className="font-medium text-blue-600 dark:text-blue-400">
-                {project.tasks}
+                {project.tasks || 0}
               </span>
               <span className={`${isRTL ? "mr-1" : "ml-1"}`}>
                 {content.projectCard.tasks}
               </span>
             </div>
-          )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

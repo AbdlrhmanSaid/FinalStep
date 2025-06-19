@@ -138,3 +138,23 @@ html {
 .cl-userButton-root {
   margin: 3px 0 0 0 !important;
 }
+
+:root {
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --background: #ffffff;
+  --foreground: #111827;
+  --muted: #f3f4f6;
+  --border: #e5e7eb;
+  --card: #ffffff;
+}
+
+[data-theme="dark"] {
+  --primary: #6366f1;
+  --primary-foreground: #e0e7ff;
+  --background: #111827;
+  --foreground: #f9fafb;
+  --muted: #1f2937;
+  --border: #374151;
+  --card: #1f2937;
+}

@@ -8,6 +8,14 @@ const InviteSchema = new Schema({
     default: "pending",
   },
 });
+const JoinSchema = new Schema({
+  email: { type: String, required: true },
+  status: {
+    type: String,
+    enum: ["pending", "accepted", "rejected"],
+    default: "pending",
+  },
+});
 
 const ProjectSchema = new Schema(
   {
@@ -36,12 +44,14 @@ const ProjectSchema = new Schema(
       },
     ],
     inviteRequests: [InviteSchema],
+    joinRequests: [JoinSchema],
     tasks: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Task",
       },
     ],
+    public: { type: Boolean },
   },
   {
     timestamps: true,

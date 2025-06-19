@@ -20,117 +20,138 @@ export default function Navbar({
   const router = useRouter();
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav
+      className={`bg-white dark:bg-gray-900 shadow-md border-b border-gray-200 dark:border-gray-700 ${
+        isRTL ? "rtl" : "ltr"
+      }`}
+    >
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
+          {/* Logo */}
           <div className="flex items-center space-x-4 rtl:space-x-reverse">
             <GraduationCap className="h-7 w-7 text-blue-600 dark:text-blue-400" />
-            <span className="text-xl font-bold text-gray-900 dark:text-white">
+            <Link
+              href="/"
+              className="text-xl font-bold text-gray-900 dark:text-white"
+            >
               FinalStep
-            </span>
+            </Link>
           </div>
 
-          <div className="hidden md:flex items-center gap-2 ml-16 rtl:mr-16">
-            <a
-              href="#features"
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              {t.features}
-            </a>
-            <a
-              href="#about"
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              {t.about}
-            </a>
-            <a
-              href="#contact"
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              {t.contact}
-            </a>
-            {isSignedIn && (
-              <Link
-                href={"/dashboard"}
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              >
-                {t.dashboard}
-              </Link>
-            )}
-          </div>
-
-          <div className="flex items-center  rtl:space-x-reverse">
-            <button
-              onClick={toggleLanguage}
-              className="flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Toggle language"
-            >
-              <Globe className="h-5 w-5 mx-1" />
-              <span className="text-sm font-medium">
-                {language.toUpperCase()}
-              </span>
-            </button>
-
-            <button
-              onClick={toggleTheme}
-              className="m-0 px-4 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {isDark ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </button>
-
-            <UserMenu t={t} />
-
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden px-4 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex flex-col space-y-3 px-4">
+          {/* Desktop Navigation */}
+          <div className="hidden md:block">
+            <div className={`flex items-center space-x-8 ${isRTL ? "" : ""}`}>
               <a
                 href="#features"
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {t.features}
               </a>
               <a
                 href="#about"
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {t.about}
               </a>
               <a
                 href="#contact"
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                {t.contact}
+              </a>
+              {isSignedIn && (
+                <Link
+                  href="/dashboard"
+                  className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  {t.dashboard}
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Controls */}
+          <div
+            className={`flex items-center space-x-4 ${
+              isRTL ? "rtl:space-x-reverse" : ""
+            }`}
+          >
+            {/* Language Toggle */}
+            <button
+              onClick={toggleLanguage}
+              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Toggle language"
+            >
+              <Globe className="w-5 h-5" />
+            </button>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Toggle theme"
+            >
+              {isDark ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
+            </button>
+
+            {/* Profile */}
+            <UserMenu t={t} />
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 border-t border-gray-200 dark:border-gray-700">
+              <a
+                href="#features"
+                className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+              >
+                {t.features}
+              </a>
+              <a
+                href="#about"
+                className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+              >
+                {t.about}
+              </a>
+              <a
+                href="#contact"
+                className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
               >
                 {t.contact}
               </a>
               {isSignedIn ? (
-                <Button
-                  onClick={() => router.push("/dashboard")}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2"
+                <a
+                  href="/dashboard"
+                  className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
                 >
-                  {t.dashboard || "Dashboard"}
-                </Button>
+                  {t.dashboard}
+                </a>
               ) : (
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">
-                  <Link href={"/login"}>{t.getStarted}</Link>
-                </Button>
+                <Link
+                  href="/login"
+                  className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+                >
+                  {t.getStarted}
+                </Link>
               )}
             </div>
           </div>

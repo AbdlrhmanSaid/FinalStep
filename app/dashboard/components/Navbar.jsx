@@ -4,15 +4,14 @@ import { useState } from "react";
 import { Menu, X, Sun, Moon, Globe, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import UserMenu from "../../../components/UserMenu";
+import { useAppContext } from "../../../contexts/AppContext";
+import { translations } from "../../../lib/translations";
 
-export default function dashboardNav({
-  content,
-  isRTL,
-  toggleLanguage,
-  isDark,
-  toggleTheme,
-}) {
+export default function DashboardNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isRTL, isDark, toggleLanguage, toggleTheme, language } =
+    useAppContext();
+  const content = translations[language];
 
   return (
     <nav
@@ -35,17 +34,13 @@ export default function dashboardNav({
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
-            <div
-              className={`flex items-center space-x-8 ${
-                isRTL ? "rtl:space-x-reverse" : ""
-              }`}
-            >
-              <a
-                href="#"
+            <div className={`flex items-center space-x-8 ${isRTL ? "" : ""}`}>
+              <Link
+                href="/dashboard"
                 className="text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {content.dashboardNav.home}
-              </a>
+              </Link>
               <a
                 href="#"
                 className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"

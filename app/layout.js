@@ -1,6 +1,8 @@
 import { Geist, Geist_Mono, Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import QueryProvider from "../lib/queryProvider";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +33,7 @@ export default function RootLayout({ children }) {
         <body
           className={`${geistSans.variable} ${geistMono.variable} ${notoSansArabic.variable} antialiased`}
         >
+          <Toaster />
           <main>{children}</main>
         </body>
       </html>
