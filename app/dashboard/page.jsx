@@ -14,7 +14,9 @@ export default function Dashboard() {
   const content = translations[language];
   const { data, isLoading } = useGetProjects();
 
-  const leadingProjects = data?.filter((proj) => proj.leaderId === userId);
+  const leadingProjects = data?.filter(
+    (proj) => proj.leaderId === userId || proj.members.includes(userId)
+  );
   const participatingProjects = data?.filter((proj) =>
     proj.members.includes(userId)
   );

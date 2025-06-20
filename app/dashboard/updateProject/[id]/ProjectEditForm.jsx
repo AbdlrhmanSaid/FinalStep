@@ -1,27 +1,64 @@
 "use client";
 
-import { useState } from "react";
-import { Input } from "../../../@/components/ui/input";
-import { Label } from "../../../@/components/ui/label";
-import { Switch } from "../../../components/ui/switch";
-import { Button } from "../../../components/ui/button";
-import { Textarea } from "../../../@/components/ui/textarea";
-import { Plus, Trash } from "lucide-react";
-import { useAppContext } from "../../../contexts/AppContext";
-import toast from "react-hot-toast";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { Input } from "../../../../@/components/ui/input";
+import { Label } from "../../../../@/components/ui/label";
+import { Switch } from "../../../../components/ui/switch";
+import { Button } from "../../../../components/ui/button";
+import { Textarea } from "../../../../@/components/ui/textarea";
+import { Plus, Trash } from "lucide-react";
 
-export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
-  const { userId } = useAppContext();
+export default function ProjectEditForm({
+  project,
+  onSubmit, // يجب أن تكون async function ترجع Promise
+  isPending,
+  content,
+  isRTL,
+}) {
   const router = useRouter();
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [publicProject, setPublicProject] = useState(false);
   const [invites, setInvites] = useState([""]);
   const [errors, setErrors] = useState({ invites: [] });
 
+  useEffect(() => {
+    if (project) {
+      setTitle(project.title || "");
+      setDescription(project.description || "");
+      setPublicProject(project.public || false);
+      setInvites(
+        project.inviteRequests?.map(({ email }) => email).filter(Boolean) || [
+          "",
+        ]
+      );
+    }
+  }, [project]);
+
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const updateArrayValue = (array, setArray, index, value) => {
+    const updated = [...array];
+    updated[index] = value;
+    setArray(updated);
+    setErrors((prev) => ({
+      ...prev,
+      invites: prev.invites.map((err, i) => (i === index ? "" : err)),
+    }));
+  };
+
+  const addField = (setArray) => {
+    setArray((prev) => [...prev, ""]);
+    setErrors((prev) => ({
+      ...prev,
+      invites: [...prev.invites, ""],
+    }));
+  };
+
+  const removeField = (array, setArray, index) =>
+    setArray(array.filter((_, i) => i !== index));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,56 +76,38 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
       title,
       description,
       public: publicProject,
-      leaderId: userId,
       inviteRequests: invites.filter(Boolean).map((email) => ({ email })),
     };
 
-    toast
-      .promise(
-        new Promise((resolve, reject) => {
-          onSubmit(formData, {
-            onSuccess: () => {
-              setTitle("");
-              setDescription("");
-              setPublicProject(false);
-              setInvites([""]);
-              setErrors({ invites: [] });
-              resolve();
-            },
-            onError: () => reject(),
-          });
-        }),
+    try {
+      await toast.promise(
+        onSubmit(formData), // onSubmit لازم تكون async function
         {
-          loading: "Creating project...",
-          success: "Project created successfully!",
-          error: "Failed to create project.",
+          loading: "Updating project...",
+          success: "Project updated successfully!",
+          error: "Failed to update project.",
         }
-      )
-      .then(() => {
-        router.push("/dashboard");
-      });
-  };
+      );
 
-  const updateArrayValue = (array, setArray, index, value) => {
-    const updated = [...array];
-    updated[index] = value;
-    setArray(updated);
-    setErrors((prev) => ({
-      ...prev,
-      invites: prev.invites.map((err, i) => (i === index ? "" : err)),
-    }));
-  };
+      // Reset form and redirect
+      setTitle("");
+      setDescription("");
+      setPublicProject(false);
+      setInvites([""]);
+      setErrors({ invites: [] });
 
-  const addField = (setArray) => setArray((prev) => [...prev, ""]);
-  const removeField = (array, setArray, index) =>
-    setArray(array.filter((_, i) => i !== index));
+      router.push("/dashboard");
+    } catch (err) {
+      // لا حاجة للتوست هنا لأن toast.promise تعرض الخطأ
+      console.error(err);
+    }
+  };
 
   return (
     <form
       onSubmit={handleSubmit}
       className="space-y-6 max-w-xl mx-auto dark:text-white h-screen"
     >
-      {/* title */}
       <div>
         <Label htmlFor="title" className="mb-3">
           {content.titleInput}
@@ -101,7 +120,6 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
         />
       </div>
 
-      {/* description */}
       <div>
         <Label htmlFor="description" className="mb-3">
           {content.describe}
@@ -113,7 +131,6 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
         />
       </div>
 
-      {/* public switch */}
       <div className="flex items-center justify-between">
         <Label htmlFor="public" className="mb-3">
           {content.isPublic}
@@ -126,7 +143,6 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
         />
       </div>
 
-      {/* invites */}
       <div>
         <Label className="mb-3">{content.inviteRequests}</Label>
         {invites.map((email, index) => (

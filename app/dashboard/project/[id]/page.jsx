@@ -1,7 +1,15 @@
 "use client";
-import React from "react";
-import { useParams } from "next/navigation";
-import { useGetProject } from "../../../../hooks/projects/useGetProjects";
+import { useState, useEffect } from "react";
+import { redirect, useParams } from "next/navigation";
+import {
+  useGetProject,
+  useDeleteProject,
+} from "../../../../hooks/projects/useGetProjects";
+import { useGetUsers } from "../../../../hooks/users/useGetUsers";
+import { useAppContext } from "../../../../contexts/AppContext";
+import { translations } from "../../../../lib/translations";
+
+import Loading from "../../../../components/Loading";
 import { Button } from "../../../../components/ui/button";
 import {
   Card,
@@ -12,25 +20,45 @@ import {
 import { Badge } from "../../../../@/components/ui/badge";
 import { Calendar, Users, Edit, Trash } from "lucide-react";
 import { format } from "date-fns";
-import Loading from "../../../../components/Loading";
-import { useGetUsers } from "../../../../hooks/users/useGetUsers";
-import { translations } from "../../../../lib/translations";
-import { useAppContext } from "../../../../contexts/AppContext";
 import Link from "next/link";
 
-const page = () => {
+const Page = () => {
   const { id } = useParams();
   const { data, isLoading, error } = useGetProject(id);
+  const { data: users } = useGetUsers();
   const { language } = useAppContext();
   const content = translations[language].dashboard.projectDetail;
+  const { mutate: deleteProject } = useDeleteProject();
 
-  const { data: users } = useGetUsers();
+  const [isLeader, setIsLeader] = useState(false);
+  const [isMember, setIsMember] = useState(false);
 
-  const user = users?.filter(
-    (user) => user._id.toString() === data?.leaderId.toString()
+  const currentUser = users?.find(
+    (u) =>
+      u._id.toString() === data?.leaderId?.toString() ||
+      data?.coLeaders?.includes(u._id)
   );
 
-  if (isLoading || !user) {
+  useEffect(() => {
+    if (!users || !data) return;
+
+    const user = users.find(
+      (u) => u._id.toString() === data.leaderId?.toString()
+    );
+
+    if (
+      (user && data.leaderId === user._id) ||
+      data.coLeaders.includes(user._id)
+    ) {
+      setIsLeader(true);
+    }
+
+    if (user && data.members.includes(user._id)) {
+      setIsMember(true);
+    }
+  }, [users, data]);
+
+  if (isLoading || !users || !data) {
     return <Loading />;
   }
 
@@ -42,20 +70,21 @@ const page = () => {
     );
   }
 
-  if (!data) {
+  if (!currentUser) {
     return (
       <div className="flex items-center justify-center h-screen dark:bg-gray-900 dark:text-white">
-        No project found
+        User not found
       </div>
     );
   }
 
   const handleEdit = () => {
-    console.log("Edit project:", data._id);
+    redirect(`/dashboard/updateProject/${data._id}`);
   };
 
   const handleDelete = () => {
-    console.log("Delete project:", data._id);
+    deleteProject({ id: data._id, userId: currentUser._id });
+    redirect("/dashboard");
   };
 
   return (
@@ -87,7 +116,7 @@ const page = () => {
                 <div className="flex items-center space-x-2">
                   <Users className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                   <span className="text-gray-600 dark:text-gray-300">
-                    {content.leaderName} : {user[0].name}
+                    {content.leaderName} : {currentUser.name}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -105,7 +134,7 @@ const page = () => {
                 <p className="text-gray-600 dark:text-gray-300">
                   {data.members.length > 0
                     ? `${data.members.length} members`
-                    : "No members yet"}
+                    : content.noMembers}
                 </p>
                 {data.coLeaders.length > 0 && (
                   <p className="text-gray-600 dark:text-gray-300">
@@ -120,29 +149,33 @@ const page = () => {
                 <p className="text-gray-600 dark:text-gray-300 mb-3">
                   {data.tasks.length > 0
                     ? `${data.tasks.length} tasks`
-                    : "No tasks assigned"}
+                    : content.noTasks}
                 </p>
-                <Link href={"#"}>
-                  <Button>{content.addTask}</Button>
-                </Link>
+                {isLeader && (
+                  <Link href={"#"}>
+                    <Button>{content.addTask}</Button>
+                  </Link>
+                )}
               </div>
-              <div className="flex space-x-4">
-                <Button
-                  onClick={handleEdit}
-                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-                >
-                  <Edit className="h-4 w-4" />
-                  <span>{content.edit}</span>
-                </Button>
-                <Button
-                  onClick={handleDelete}
-                  variant="destructive"
-                  className="flex items-center space-x-2"
-                >
-                  <Trash className="h-4 w-4" />
-                  <span>{content.delete}</span>
-                </Button>
-              </div>
+              {isLeader && (
+                <div className="flex space-x-4">
+                  <Button
+                    onClick={handleEdit}
+                    className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                  >
+                    <Edit className="h-4 w-4" />
+                    <span>{content.edit}</span>
+                  </Button>
+                  <Button
+                    onClick={handleDelete}
+                    variant="destructive"
+                    className="flex items-center space-x-2"
+                  >
+                    <Trash className="h-4 w-4" />
+                    <span>{content.delete}</span>
+                  </Button>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -151,4 +184,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

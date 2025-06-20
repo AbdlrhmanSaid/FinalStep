@@ -1,14 +1,16 @@
+// ✅ AppContext.jsx (جاهز للاستخدام مع Clerk)
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useMemo } from "react";
 
 const AppContext = createContext();
 
 export function AppProvider({ children, user }) {
   const [language, setLanguage] = useState("en");
   const [theme, setTheme] = useState("light");
-  const [currentUser, setCurrentUser] = useState(user);
-  const userId = currentUser._id;
+  const [currentUser, setCurrentUser] = useState(user || null);
+
+  const userId = useMemo(() => currentUser?._id ?? null, [currentUser]);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
