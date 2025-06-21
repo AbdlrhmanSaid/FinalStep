@@ -30,6 +30,14 @@ const TaskSchema = new Schema(
       ref: "User",
       required: true,
     },
+    submissionNote: {
+      type: String,
+      default: "",
+    },
+    submissionLink: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

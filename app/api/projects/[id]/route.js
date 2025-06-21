@@ -2,10 +2,10 @@ import dbConnect from "../../../../lib/db";
 import Project from "../../../../models/Project";
 import { NextResponse } from "next/server";
 
-export async function GET(request, { params }) {
+export async function GET(request, context) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = context.params;
 
     const project = await Project.findById(id);
 
@@ -22,10 +22,10 @@ export async function GET(request, { params }) {
   }
 }
 
-export async function DELETE(request, { params }) {
+export async function DELETE(request, context) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = context.params;
 
     const userId = request.headers.get("userId");
     const project = await Project.findById(id);
@@ -62,10 +62,10 @@ export async function DELETE(request, { params }) {
   }
 }
 
-export async function PUT(request, { params }) {
+export async function PUT(request, context) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = context.params;
     const userId = request.headers.get("userId");
     const body = await request.json();
 

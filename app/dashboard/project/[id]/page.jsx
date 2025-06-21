@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { redirect, useParams } from "next/navigation";
 import {
@@ -26,37 +27,38 @@ const Page = () => {
   const { id } = useParams();
   const { data, isLoading, error } = useGetProject(id);
   const { data: users } = useGetUsers();
-  const { language } = useAppContext();
+  const { language, userId } = useAppContext();
   const content = translations[language].dashboard.projectDetail;
   const { mutate: deleteProject } = useDeleteProject();
 
   const [isLeader, setIsLeader] = useState(false);
   const [isMember, setIsMember] = useState(false);
+  const [isRandomUser, setIsRandomUser] = useState(false);
 
+  // مجرد استخدامه لعرض الاسم فقط
   const currentUser = users?.find(
-    (u) =>
-      u._id.toString() === data?.leaderId?.toString() ||
-      data?.coLeaders?.includes(u._id)
+    (u) => u._id.toString() === data?.leaderId?.toString()
   );
 
   useEffect(() => {
-    if (!users || !data) return;
+    if (!users || !data || !userId) return;
 
-    const user = users.find(
-      (u) => u._id.toString() === data.leaderId?.toString()
-    );
+    const currentUserId = userId.toString();
 
     if (
-      (user && data.leaderId === user._id) ||
-      data.coLeaders.includes(user._id)
+      data.leaderId?.toString() === currentUserId ||
+      data.coLeaders?.some((id) => id.toString() === currentUserId)
     ) {
       setIsLeader(true);
-    }
-
-    if (user && data.members.includes(user._id)) {
+    } else if (data.members?.some((id) => id.toString() === currentUserId)) {
       setIsMember(true);
+    } else {
+      setIsRandomUser(true);
+      if (!data.public) {
+        redirect("/dashboard");
+      }
     }
-  }, [users, data]);
+  }, [users, data, userId]);
 
   if (isLoading || !users || !data) {
     return <Loading />;
@@ -142,21 +144,26 @@ const Page = () => {
                   </p>
                 )}
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  {content.tasks}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-3">
-                  {data.tasks.length > 0
-                    ? `${data.tasks.length} tasks`
-                    : content.noTasks}
-                </p>
-                {isLeader && (
-                  <Link href={"#"}>
-                    <Button>{content.addTask}</Button>
-                  </Link>
-                )}
-              </div>
+
+              {(isLeader || isMember) && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    {content.tasks}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-3">
+                    {data.tasks.length > 0
+                      ? `${data.tasks.length} tasks`
+                      : content.noTasks}
+                  </p>
+
+                  {isLeader && (
+                    <Link href={`/dashboard/project/${data._id}/addtask`}>
+                      <Button>{content.addTask}</Button>
+                    </Link>
+                  )}
+                </div>
+              )}
+
               {isLeader && (
                 <div className="flex space-x-4">
                   <Button
