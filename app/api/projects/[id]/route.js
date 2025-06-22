@@ -12,7 +12,8 @@ import mongoose from "mongoose";
 export async function GET(request, context) {
   try {
     await dbConnect();
-    const { id } = context.params;
+    const { params } = await context;
+    const { id } = params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -51,7 +52,8 @@ export async function GET(request, context) {
 export async function DELETE(request, context) {
   try {
     await dbConnect();
-    const { id } = context.params;
+    const { params } = await context;
+    const { id } = params;
     const userId = request.headers.get("userId");
 
     const project = await Project.findById(id);
@@ -93,7 +95,8 @@ export async function DELETE(request, context) {
 export async function PUT(request, context) {
   try {
     await dbConnect();
-    const { id } = context.params;
+    const { params } = await context;
+    const { id } = params;
     const userId = request.headers.get("userId");
     const body = await request.json();
 

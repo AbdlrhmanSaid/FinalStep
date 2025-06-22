@@ -39,6 +39,7 @@ const Page = () => {
   const { data, isLoading, error } = useGetProject(id);
   const { language, userId } = useAppContext();
   const content = translations[language].dashboard.projectDetail;
+  const modal = translations[language].dashboard.deleteModal;
   const { mutate: deleteProject } = useDeleteProject();
 
   const [isLeader, setIsLeader] = useState(false);
@@ -176,18 +177,20 @@ const Page = () => {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        هل أنت متأكد من حذف المشروع؟
-                      </AlertDialogTitle>
+                      <AlertDialogTitle>{modal.confirmTilte}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        سيتم حذف المشروع وجميع المهام المرتبطة به. لا يمكن
-                        التراجع عن هذا الإجراء.
+                        {modal.alertTitle}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDelete}>
-                        تأكيد الحذف
+                      <AlertDialogCancel className={" hover:bg-black"}>
+                        {modal.cancel}
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        className={"bg-red-700"}
+                        onClick={handleDelete}
+                      >
+                        {modal.confirm}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
