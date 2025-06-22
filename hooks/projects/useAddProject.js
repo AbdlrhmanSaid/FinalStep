@@ -16,7 +16,7 @@ export const useAddProject = () => {
       queryClient.invalidateQueries(["projects"]);
     },
     onError: (error) => {
-      options.onError?.(error);
+      console.error("Add project failed:", error);
     },
   });
 };

@@ -1,11 +1,25 @@
 import dbConnect from "../../../../lib/db";
 import Project from "../../../../models/Project";
-import { NextResponse } from "next/server";
 
+// 👇 لازم نسجل الموديلات المستخدمة في populate
+import "../../../../models/User";
+import "../../../../models/Task";
+
+import { NextResponse } from "next/server";
+import mongoose from "mongoose";
+
+// GET /api/projects/[id]
 export async function GET(request, context) {
   try {
     await dbConnect();
     const { id } = context.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { error: "Invalid project ID" },
+        { status: 400 }
+      );
+    }
 
     const project = await Project.findById(id)
       .populate("leaderId")
@@ -13,7 +27,10 @@ export async function GET(request, context) {
       .populate("members")
       .populate({
         path: "tasks",
-        populate: [{ path: "assignedTo" }, { path: "createdBy" }],
+        populate: [
+          { path: "assignedTo", strictPopulate: false },
+          { path: "createdBy", strictPopulate: false },
+        ],
       });
 
     if (!project) {
@@ -22,6 +39,7 @@ export async function GET(request, context) {
 
     return NextResponse.json(project, { status: 200 });
   } catch (error) {
+    console.error("GET /api/projects/[id] Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch project" },
       { status: 500 }
@@ -29,12 +47,13 @@ export async function GET(request, context) {
   }
 }
 
+// DELETE /api/projects/[id]
 export async function DELETE(request, context) {
   try {
     await dbConnect();
     const { id } = context.params;
-
     const userId = request.headers.get("userId");
+
     const project = await Project.findById(id);
 
     if (!project) {
@@ -42,8 +61,8 @@ export async function DELETE(request, context) {
     }
 
     const isAuthorized =
-      project.leaderId.toString() === userId?.toString() ||
-      project.coLeaders.map((id) => id.toString()).includes(userId?.toString());
+      project.leaderId.toString() === userId ||
+      project.coLeaders.map((id) => id.toString()).includes(userId);
 
     if (!isAuthorized) {
       return NextResponse.json(
@@ -62,6 +81,7 @@ export async function DELETE(request, context) {
       { status: 200 }
     );
   } catch (error) {
+    console.error("DELETE /api/projects/[id] Error:", error);
     return NextResponse.json(
       { error: "Failed to delete project" },
       { status: 500 }
@@ -69,6 +89,7 @@ export async function DELETE(request, context) {
   }
 }
 
+// PUT /api/projects/[id]
 export async function PUT(request, context) {
   try {
     await dbConnect();
@@ -83,32 +104,26 @@ export async function PUT(request, context) {
     }
 
     const isAuthorized =
-      project.leaderId.toString() === userId?.toString() ||
-      project.coLeaders.map((id) => id.toString()).includes(userId?.toString());
+      project.leaderId.toString() === userId ||
+      project.coLeaders.map((id) => id.toString()).includes(userId);
 
     if (!isAuthorized) {
-      return NextResponse.json(
-        {
-          error:
-            "Unauthorized: Only the leader or co-leaders can update this project.",
-        },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    if ("leaderId" in body) {
-      delete body.leaderId;
-    }
+    // حماية من تعديل الـ leaderId
+    if ("leaderId" in body) delete body.leaderId;
 
-    const updatedProject = await Project.findByIdAndUpdate(id, body, {
+    const updated = await Project.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
     });
 
-    return NextResponse.json(updatedProject, { status: 200 });
-  } catch (error) {
+    return NextResponse.json(updated, { status: 200 });
+  } catch (err) {
+    console.error("Update Project Error:", err);
     return NextResponse.json(
-      { error: "Failed to update project" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }

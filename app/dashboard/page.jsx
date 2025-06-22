@@ -15,10 +15,15 @@ export default function Dashboard() {
   const { data, isLoading } = useGetProjects();
 
   const leadingProjects = data?.filter(
-    (proj) => proj.leaderId === userId || proj.members.includes(userId)
+    (proj) =>
+      proj.leaderId?._id === userId ||
+      proj.coLeaders?.some((u) => u._id === userId)
   );
-  const participatingProjects = data?.filter((proj) =>
-    proj.members.includes(userId)
+
+  const participatingProjects = data?.filter(
+    (proj) =>
+      proj.members?.some((member) => member._id === userId) &&
+      !leadingProjects?.some((leadProj) => leadProj._id === proj._id)
   );
 
   if (isLoading) {
@@ -41,7 +46,7 @@ export default function Dashboard() {
           </p>
           <Link className="cursor-pointer" href="/dashboard/createProject">
             <button
-              className={`inline-flex cursor-pointer items-center px-6 py-3 border border-transparent text-base font-medium rounded-2xl text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-md hover:shadow-lg transition-all duration-300 ${
+              className={`inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-2xl text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-md hover:shadow-lg transition-all duration-300 ${
                 isRTL ? "rtl:flex-row-reverse" : ""
               }`}
             >
@@ -53,7 +58,6 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/* المشاريع التي أقودها */}
         <section className="mb-12">
           <h2
             className={`text-2xl font-bold text-gray-900 dark:text-white mb-6 ${
@@ -81,7 +85,7 @@ export default function Dashboard() {
                     }}
                     content={content.dashboard}
                     isRTL={isRTL}
-                    members={project.members.length}
+                    members={project.members?.length || 0}
                   />
                 </Link>
               ))}
@@ -91,7 +95,6 @@ export default function Dashboard() {
           )}
         </section>
 
-        {/* المشاريع التي أشارك فيها */}
         <section>
           <h2
             className={`text-2xl font-bold text-gray-900 dark:text-white mb-6 ${
@@ -114,6 +117,7 @@ export default function Dashboard() {
                   }}
                   content={content.dashboard}
                   isRTL={isRTL}
+                  members={project.members?.length || 0}
                 />
               ))}
             </div>

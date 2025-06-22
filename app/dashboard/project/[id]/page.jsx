@@ -6,7 +6,6 @@ import {
   useGetProject,
   useDeleteProject,
 } from "../../../../hooks/projects/useGetProjects";
-import { useGetUsers } from "../../../../hooks/users/useGetUsers";
 import { useAppContext } from "../../../../contexts/AppContext";
 import { translations } from "../../../../lib/translations";
 
@@ -23,10 +22,21 @@ import { Calendar, Users, Edit, Trash } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "../../../../@/components/ui/alert-dialog";
+
 const Page = () => {
   const { id } = useParams();
   const { data, isLoading, error } = useGetProject(id);
-  const { data: users } = useGetUsers();
   const { language, userId } = useAppContext();
   const content = translations[language].dashboard.projectDetail;
   const { mutate: deleteProject } = useDeleteProject();
@@ -35,22 +45,17 @@ const Page = () => {
   const [isMember, setIsMember] = useState(false);
   const [isRandomUser, setIsRandomUser] = useState(false);
 
-  // مجرد استخدامه لعرض الاسم فقط
-  const currentUser = users?.find(
-    (u) => u._id.toString() === data?.leaderId?.toString()
-  );
-
   useEffect(() => {
-    if (!users || !data || !userId) return;
+    if (!data || !userId) return;
 
-    const currentUserId = userId.toString();
+    const uid = userId.toString();
 
     if (
-      data.leaderId?.toString() === currentUserId ||
-      data.coLeaders?.some((id) => id.toString() === currentUserId)
+      data.leaderId?._id === uid ||
+      data.coLeaders?.some((u) => u._id === uid)
     ) {
       setIsLeader(true);
-    } else if (data.members?.some((id) => id.toString() === currentUserId)) {
+    } else if (data.members?.some((u) => u._id === uid)) {
       setIsMember(true);
     } else {
       setIsRandomUser(true);
@@ -58,34 +63,15 @@ const Page = () => {
         redirect("/dashboard");
       }
     }
-  }, [users, data, userId]);
+  }, [data, userId]);
 
-  if (isLoading || !users || !data) {
-    return <Loading />;
-  }
+  if (isLoading || !data) return <Loading />;
+  if (error)
+    return <div className="text-center p-10">Error: {error.message}</div>;
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-screen dark:bg-gray-900 dark:text-white">
-        Error: {error.message}
-      </div>
-    );
-  }
-
-  if (!currentUser) {
-    return (
-      <div className="flex items-center justify-center h-screen dark:bg-gray-900 dark:text-white">
-        User not found
-      </div>
-    );
-  }
-
-  const handleEdit = () => {
-    redirect(`/dashboard/updateProject/${data._id}`);
-  };
-
+  const handleEdit = () => redirect(`/dashboard/updateProject/${data._id}`);
   const handleDelete = () => {
-    deleteProject({ id: data._id, userId: currentUser._id });
+    deleteProject({ id: data._id, userId });
     redirect("/dashboard");
   };
 
@@ -103,87 +89,111 @@ const Page = () => {
               </Badge>
             </div>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  {content.description}
-                </h3>
+          <CardContent className="p-6 space-y-6">
+            {/* الوصف */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                {content.description}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                {data.description || content.noDescription}
+              </p>
+            </div>
+
+            {/* القائد وتاريخ الإنشاء */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center space-x-2">
+                <Users className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                <span className="text-gray-600 dark:text-gray-300">
+                  {content.leaderName}: {data.leaderId?.name || "Unknown"}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                <span className="text-gray-600 dark:text-gray-300">
+                  {content.created}: {format(new Date(data.createdAt), "PPP")}
+                </span>
+              </div>
+            </div>
+
+            {/* الفريق */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                {content.team}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                {data.members?.length > 0
+                  ? `${data.members.length} members`
+                  : content.noMembers}
+              </p>
+              {data.coLeaders?.length > 0 && (
                 <p className="text-gray-600 dark:text-gray-300">
-                  {data.description}
+                  {content.coLeaders}:
+                  {data.coLeaders.map((u) => ` ${u.name}`).join(",")}
                 </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Users className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                  <span className="text-gray-600 dark:text-gray-300">
-                    {content.leaderName} : {currentUser.name}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                  <span className="text-gray-600 dark:text-gray-300">
-                    {content.created}: {format(new Date(data.createdAt), "PPP")}
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  {content.team}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {data.members.length > 0
-                    ? `${data.members.length} members`
-                    : content.noMembers}
-                </p>
-                {data.coLeaders.length > 0 && (
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {content.coLeaders}: {data.coLeaders.join(", ")}
-                  </p>
-                )}
-              </div>
-
-              {(isLeader || isMember) && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    {content.tasks}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-3">
-                    {data.tasks.length > 0
-                      ? `${data.tasks.length} tasks`
-                      : content.noTasks}
-                  </p>
-
-                  {isLeader && (
-                    <Link href={`/dashboard/project/${data._id}/addtask`}>
-                      <Button>{content.addTask}</Button>
-                    </Link>
-                  )}
-                </div>
-              )}
-
-              {isLeader && (
-                <div className="flex space-x-4">
-                  <Button
-                    onClick={handleEdit}
-                    className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
-                  >
-                    <Edit className="h-4 w-4" />
-                    <span>{content.edit}</span>
-                  </Button>
-                  <Button
-                    onClick={handleDelete}
-                    variant="destructive"
-                    className="flex items-center space-x-2"
-                  >
-                    <Trash className="h-4 w-4" />
-                    <span>{content.delete}</span>
-                  </Button>
-                </div>
               )}
             </div>
+
+            {/* المهام */}
+            {(isLeader || isMember) && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  {content.tasks}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-3">
+                  {data.tasks?.length > 0
+                    ? `${data.tasks.length} tasks`
+                    : content.noTasks}
+                </p>
+
+                {isLeader && (
+                  <Link href={`/dashboard/project/${data._id}/addtask`}>
+                    <Button>{content.addTask}</Button>
+                  </Link>
+                )}
+              </div>
+            )}
+
+            {isLeader && (
+              <div className="flex flex-wrap gap-4">
+                <Button
+                  onClick={handleEdit}
+                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                >
+                  <Edit className="h-4 w-4" />
+                  <span>{content.edit}</span>
+                </Button>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      className="flex items-center space-x-2"
+                    >
+                      <Trash className="h-4 w-4" />
+                      <span>{content.delete}</span>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        هل أنت متأكد من حذف المشروع؟
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        سيتم حذف المشروع وجميع المهام المرتبطة به. لا يمكن
+                        التراجع عن هذا الإجراء.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>
+                        تأكيد الحذف
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
