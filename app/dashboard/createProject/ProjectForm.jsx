@@ -65,7 +65,7 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
         }
       )
       .then(() => {
-        router.push("/dashboard");
+        router.push("/dashboard/project");
       });
   };
 
