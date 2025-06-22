@@ -7,7 +7,14 @@ export async function GET(request, context) {
     await dbConnect();
     const { id } = context.params;
 
-    const project = await Project.findById(id);
+    const project = await Project.findById(id)
+      .populate("leaderId")
+      .populate("coLeaders")
+      .populate("members")
+      .populate({
+        path: "tasks",
+        populate: [{ path: "assignedTo" }, { path: "createdBy" }],
+      });
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });

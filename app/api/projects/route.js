@@ -5,7 +5,10 @@ export async function GET() {
   try {
     await dbConnect();
 
-    const projects = await Project.find();
+    const projects = await Project.find()
+      .populate("leaderId")
+      .populate("coLeaders")
+      .populate("members");
 
     return Response.json(projects);
   } catch (error) {
