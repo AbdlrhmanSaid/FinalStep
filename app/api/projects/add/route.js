@@ -7,9 +7,9 @@ export async function POST(request) {
     await dbConnect();
 
     const body = await request.json();
+    console.log("BODY =>", body);
     const { title, leaderId, inviteRequests = [], ...rest } = body;
 
-    // التحقق من الحقول المطلوبة
     if (!title || !leaderId) {
       return Response.json(
         { error: "Missing required fields" },
@@ -17,19 +17,21 @@ export async function POST(request) {
       );
     }
 
-    // إنشاء المشروع
+    // إنشاء المشروع وإضافة الدعوات داخل حقل inviteRequests
     const newProject = await Project.create({
       title,
       leaderId,
       ...rest,
+      inviteRequests: inviteRequests.map((i) => ({ email: i.email })),
     });
 
-    // إنشاء الدعوات
+    // إنشاء الدعوات في جدول InviteRequest
     if (inviteRequests.length > 0) {
-      const invites = inviteRequests.map((invite) => ({
-        email: invite.email,
+      const invites = inviteRequests.map(({ email }) => ({
+        email,
         projectId: newProject._id,
         invitedBy: leaderId,
+        status: "pending",
       }));
 
       await InviteRequest.insertMany(invites);

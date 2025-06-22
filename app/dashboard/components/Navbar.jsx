@@ -42,10 +42,16 @@ export default function DashboardNav() {
                 {content.dashboardNav.home}
               </Link>
               <Link
-                href={"/dashboard"}
+                href={"/dashboard/project"}
                 className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {content.dashboardNav.projects}
+              </Link>
+              <Link
+                href={"/dashboard/invitations"}
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                {content.dashboardNav.invitations}
               </Link>
               <a
                 href="#"
@@ -114,24 +120,35 @@ export default function DashboardNav() {
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 border-t border-gray-200 dark:border-gray-700">
               <Link
+                onClick={() => setIsMenuOpen(false)}
                 href="/dashboard"
                 className="block text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
               >
                 {content.dashboardNav.home}
               </Link>
-              <a
-                href="#"
+              <Link
+                onClick={() => setIsMenuOpen(false)}
+                href={"/dashboard/project"}
                 className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
               >
                 {content.dashboardNav.projects}
-              </a>
+              </Link>
+              <Link
+                onClick={() => setIsMenuOpen(false)}
+                href={"/dashboard/invitations"}
+                className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+              >
+                {content.dashboardNav.invitations}
+              </Link>
               <a
+                onClick={() => setIsMenuOpen(false)}
                 href="#"
                 className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
               >
                 {content.dashboardNav.team}
               </a>
               <a
+                onClick={() => setIsMenuOpen(false)}
                 href="#"
                 className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
               >

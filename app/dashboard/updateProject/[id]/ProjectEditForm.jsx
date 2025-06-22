@@ -96,7 +96,7 @@ export default function ProjectEditForm({
       setInvites([""]);
       setErrors({ invites: [] });
 
-      router.push("/dashboard");
+      router.push("/dashboard/project");
     } catch (err) {
       // لا حاجة للتوست هنا لأن toast.promise تعرض الخطأ
       console.error(err);

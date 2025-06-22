@@ -1,4 +1,5 @@
 import { FolderOpen } from "lucide-react";
+import Link from "next/link";
 
 export default function EmptyState({ content, isRTL }) {
   return (
@@ -12,6 +13,12 @@ export default function EmptyState({ content, isRTL }) {
       <p className={`text-gray-600 dark:text-gray-300 mb-6 `}>
         {content.emptyState.description}
       </p>
+      <Link
+        href={"/dashboard/createProject"}
+        className="bg-blue-700 px-3 py-1 rounded text-white "
+      >
+        {content.emptyState.action}
+      </Link>
     </div>
   );
 }

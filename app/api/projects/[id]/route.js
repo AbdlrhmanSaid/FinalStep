@@ -4,6 +4,7 @@ import Project from "../../../../models/Project";
 // 👇 لازم نسجل الموديلات المستخدمة في populate
 import "../../../../models/User";
 import "../../../../models/Task";
+import InviteRequest from "../../../../models/InviteRequest";
 
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
@@ -95,13 +96,13 @@ export async function DELETE(request, context) {
 export async function PUT(request, context) {
   try {
     await dbConnect();
-    const { params } = await context;
+
+    const { params } = context;
     const { id } = params;
     const userId = request.headers.get("userId");
     const body = await request.json();
 
     const project = await Project.findById(id);
-
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
@@ -114,15 +115,37 @@ export async function PUT(request, context) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    // حماية من تعديل الـ leaderId
+    // منع تعديل leaderId
     if ("leaderId" in body) delete body.leaderId;
 
-    const updated = await Project.findByIdAndUpdate(id, body, {
+    const { inviteRequests = [], ...updateFields } = body;
+
+    // حذف الدعوات القديمة
+    await InviteRequest.deleteMany({ projectId: id });
+
+    // إضافة الدعوات الجديدة في جدول InviteRequest
+    if (inviteRequests.length > 0) {
+      const invites = inviteRequests.map(({ email }) => ({
+        email,
+        projectId: id,
+        invitedBy: userId,
+        status: "pending",
+      }));
+      await InviteRequest.insertMany(invites);
+    }
+
+    // تحديث حقل الدعوات داخل المشروع نفسه
+    updateFields.inviteRequests = inviteRequests.map((i) => ({
+      email: i.email,
+    }));
+
+    // تحديث بيانات المشروع
+    const updatedProject = await Project.findByIdAndUpdate(id, updateFields, {
       new: true,
       runValidators: true,
     });
 
-    return NextResponse.json(updated, { status: 200 });
+    return NextResponse.json(updatedProject, { status: 200 });
   } catch (err) {
     console.error("Update Project Error:", err);
     return NextResponse.json(
