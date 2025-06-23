@@ -1,5 +1,6 @@
 import dbConnect from "../../../lib/db";
 import Project from "../../../models/Project";
+import User from "../../../models/User";
 
 export async function GET() {
   try {
