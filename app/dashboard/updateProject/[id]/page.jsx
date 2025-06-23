@@ -12,7 +12,7 @@ import { translations } from "../../../../lib/translations";
 const Page = () => {
   const { id } = useParams();
   const { data: project, isLoading, error } = useGetProject(id);
-  const { userId, language } = useAppContext();
+  const { userId, language, isRTL } = useAppContext();
   const { mutate: updateProject, isPending } = useUpdateProject();
 
   const content = translations[language].dashboard.updateProject;
@@ -44,7 +44,7 @@ const Page = () => {
           project={project}
           onSubmit={onSubmit}
           isPending={isPending}
-          isRTL={true}
+          isRTL={isRTL}
           content={content}
         />
       </div>
