@@ -18,7 +18,15 @@ import {
   CardTitle,
 } from "../../../../@/components/ui/card";
 import { Badge } from "../../../../@/components/ui/badge";
-import { Calendar, Users, Edit, Trash, User, Crown } from "lucide-react";
+import {
+  Calendar,
+  Users,
+  Edit,
+  Trash,
+  User,
+  Crown,
+  CheckCircle,
+} from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 
@@ -34,6 +42,9 @@ import {
   AlertDialogAction,
 } from "../../../../@/components/ui/alert-dialog";
 
+import { useLeaveProject } from "../../../../hooks/invitations/useLeaveProject";
+import { useUpdateProjectStatus } from "../../../../hooks/projects/useUpdateProjectStatus";
+
 const ProjectDetailPage = () => {
   const { id } = useParams();
   const { data, isLoading, error } = useGetProject(id);
@@ -41,6 +52,8 @@ const ProjectDetailPage = () => {
   const content = translations[language].dashboard.projectDetail;
   const modal = translations[language].dashboard.deleteModal;
   const { mutate: deleteProject } = useDeleteProject();
+  const { mutate: leaveProject } = useLeaveProject();
+  const { mutate: updateStatus } = useUpdateProjectStatus();
 
   const [isLeader, setIsLeader] = useState(false);
   const [isMember, setIsMember] = useState(false);
@@ -50,7 +63,6 @@ const ProjectDetailPage = () => {
     if (!data || !userId) return;
 
     const uid = userId.toString();
-
     if (
       data.leaderId?._id === uid ||
       data.coLeaders?.some((u) => u._id === uid)
@@ -60,9 +72,7 @@ const ProjectDetailPage = () => {
       setIsMember(true);
     } else {
       setIsRandomUser(true);
-      if (!data.public) {
-        redirect("/dashboard/project");
-      }
+      if (!data.public) redirect("/dashboard/project");
     }
   }, [data, userId]);
 
@@ -79,6 +89,18 @@ const ProjectDetailPage = () => {
     deleteProject({ id: data._id, userId });
     redirect("/dashboard/project");
   };
+  const handleLeave = () => {
+    leaveProject({ projectId: data._id, userId });
+    redirect("/dashboard/project");
+  };
+
+  const toggleStatus = () => {
+    const newStatus = data.status === "open" ? "finished" : "open";
+    updateStatus({ projectId: data._id, userId, status: newStatus });
+    redirect("/dashboard/project");
+  };
+
+  const isFinished = data.status === "finished";
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 dark:text-white flex flex-col items-center p-6 transition-colors">
@@ -90,14 +112,23 @@ const ProjectDetailPage = () => {
                 <Users className="w-6 h-6 text-blue-500" />
                 {data.title}
               </CardTitle>
-              <Badge
-                variant={data.public ? "default" : "secondary"}
-                className={data.public ? "bg-green-500" : "bg-gray-500"}
-              >
-                {data.public ? content.public : content.private}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant={data.public ? "default" : "secondary"}
+                  className={data.public ? "bg-green-500" : "bg-gray-500"}
+                >
+                  {data.public ? content.public : content.private}
+                </Badge>
+                <Badge
+                  variant="secondary"
+                  className={isFinished ? "bg-red-600" : "bg-green-600"}
+                >
+                  {isFinished ? content.statusFinished : content.statusOpen}
+                </Badge>
+              </div>
             </div>
           </CardHeader>
+
           <CardContent className="p-6 space-y-8">
             {/* Description */}
             <div>
@@ -110,7 +141,7 @@ const ProjectDetailPage = () => {
               </p>
             </div>
 
-            {/* Leader and Creation Date */}
+            {/* Leader + Date */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex items-center gap-3">
                 <Crown className="w-5 h-5 text-yellow-500" />
@@ -128,53 +159,57 @@ const ProjectDetailPage = () => {
               </div>
             </div>
 
-            {/* Team */}
+            {/* Co-Leaders */}
+            {data.coLeaders?.length > 0 && (
+              <div className="mt-4">
+                <p className="text-gray-600 dark:text-gray-300 font-semibold">
+                  {content.coLeaders}:
+                </p>
+                <ul className="list-none space-y-2">
+                  {data.coLeaders.map((coLeader) => (
+                    <li
+                      key={coLeader._id}
+                      className="flex items-center gap-2 text-gray-600 dark:text-gray-300"
+                    >
+                      <Crown className="w-4 h-4 text-yellow-400" />
+                      {coLeader.name !== "null null"
+                        ? coLeader.name
+                        : coLeader.email.split("@")[0].replace(/[0-9]/g, "")}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Members */}
             <div>
               <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                 <Users className="w-5 h-5 text-gray-500" />
                 {content.team}
               </h3>
-              <div className="space-y-2">
-                {data.members?.length > 0 ? (
-                  <ul className="list-none space-y-2">
-                    {data.members.map((member) => (
-                      <li
-                        key={member._id}
-                        className="flex items-center gap-2 text-gray-600 dark:text-gray-300"
-                      >
-                        <User className="w-4 h-4 text-blue-400" />
-                        {member.name}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {content.noMembers}
-                  </p>
-                )}
-                {data.coLeaders?.length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-gray-600 dark:text-gray-300 font-semibold">
-                      {content.coLeaders}:
-                    </p>
-                    <ul className="list-none space-y-2">
-                      {data.coLeaders.map((coLeader) => (
-                        <li
-                          key={coLeader._id}
-                          className="flex items-center gap-2 text-gray-600 dark:text-gray-300"
-                        >
-                          <Crown className="w-4 h-4 text-yellow-400" />
-                          {coLeader.name}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
+              {data.members?.length > 0 ? (
+                <ul className="list-none space-y-2">
+                  {data.members.map((member) => (
+                    <li
+                      key={member._id}
+                      className="flex items-center gap-2 text-gray-600 dark:text-gray-300"
+                    >
+                      <User className="w-4 h-4 text-blue-400" />
+                      {member.name !== "null null"
+                        ? member.name
+                        : member.email.split("@")[0].replace(/[0-9]/g, "")}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-600 dark:text-gray-300">
+                  {content.noMembers}
+                </p>
+              )}
             </div>
 
             {/* Tasks */}
-            {(isLeader || isMember) && (
+            {(isLeader || isMember) && !isFinished && (
               <div>
                 <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                   <Edit className="w-5 h-5 text-gray-500" />
@@ -197,23 +232,22 @@ const ProjectDetailPage = () => {
             )}
 
             {/* Leader Actions */}
-            {isLeader && (
+            {isLeader && !isFinished && (
               <div className="flex flex-wrap gap-4">
                 <Button
                   onClick={handleEdit}
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                  className="bg-blue-600 hover:bg-blue-700"
                 >
-                  <Edit className="w-4 h-4" />
-                  {content.edit}
+                  <Edit className="w-4 h-4" /> {content.edit}
                 </Button>
+
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
                       variant="destructive"
-                      className="flex items-center gap-2 bg-red-600 hover:bg-red-700"
+                      className="bg-red-600 hover:bg-red-700"
                     >
-                      <Trash className="w-4 h-4" />
-                      {content.delete}
+                      <Trash className="w-4 h-4" /> {content.delete}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent className="bg-white dark:bg-gray-800">
@@ -226,14 +260,54 @@ const ProjectDetailPage = () => {
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel className="hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white">
-                        {modal.cancel}
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        className="bg-red-600 hover:bg-red-700"
-                        onClick={handleDelete}
-                      >
+                      <AlertDialogCancel>{modal.cancel}</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>
                         {modal.confirm}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            )}
+
+            {/* Toggle Status Button (Leader only) */}
+            {isLeader && (
+              <Button
+                className={`mt-4 ${
+                  isFinished ? "bg-green-600" : "bg-red-600"
+                } hover:opacity-90`}
+                onClick={toggleStatus}
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                {isFinished ? content.reopenProject : content.finishProject}
+              </Button>
+            )}
+
+            {/* Leave Project */}
+            {isMember && !isFinished && (
+              <div className="pt-6 border-t border-gray-300 dark:border-gray-700">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="text-red-600 border-red-600 hover:bg-red-100 dark:hover:bg-red-800"
+                    >
+                      {content.leave}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-white dark:bg-gray-800">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="dark:text-white">
+                        {content.leaveConfirmTitle}
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="dark:text-gray-300">
+                        {content.leaveConfirmDesc}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{modal.cancel}</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleLeave}>
+                        {content.leaveConfirm}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>

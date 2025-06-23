@@ -1,18 +1,21 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, redirect } from "next/navigation"; // 👈 أضف redirect هنا
 import { useUpdateProject } from "../../../../hooks/projects/useUpdateProject";
 import ProjectEditForm from "./ProjectEditForm";
 import Loading from "../../../../components/Loading";
 import CheckUserRole from "../../../../lib/actions/checkUserRole";
 import { useAppContext } from "../../../../contexts/AppContext";
 import { useGetProject } from "../../../../hooks/projects/useGetProjects";
+import { translations } from "../../../../lib/translations";
 
 const Page = () => {
   const { id } = useParams();
   const { data: project, isLoading, error } = useGetProject(id);
-  const { userId } = useAppContext();
+  const { userId, language } = useAppContext();
   const { mutate: updateProject, isPending } = useUpdateProject();
+
+  const content = translations[language].dashboard.updateProject;
 
   const onSubmit = (formData) => {
     return new Promise((resolve, reject) => {
@@ -30,6 +33,10 @@ const Page = () => {
   if (error) return <div>Error: {error.message}</div>;
   if (!project) return null;
 
+  if (project.status === "finished") {
+    redirect("/dashboard/project");
+  }
+
   return (
     <CheckUserRole>
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white p-6 transition-colors duration-200">
@@ -38,15 +45,7 @@ const Page = () => {
           onSubmit={onSubmit}
           isPending={isPending}
           isRTL={true}
-          content={{
-            titleInput: "عنوان المشروع",
-            describe: "وصف المشروع",
-            isPublic: "مشروع عام؟",
-            inviteRequests: "دعوات الأعضاء",
-            addinvite: "إضافة دعوة",
-            pindingProject: "جارٍ التعديل...",
-            createProject: "تعديل المشروع",
-          }}
+          content={content}
         />
       </div>
     </CheckUserRole>

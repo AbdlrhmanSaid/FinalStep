@@ -8,11 +8,14 @@ import { Label } from "../../../../@/components/ui/label";
 import { Switch } from "../../../../components/ui/switch";
 import { Button } from "../../../../components/ui/button";
 import { Textarea } from "../../../../@/components/ui/textarea";
-import { Plus, Trash } from "lucide-react";
+import { Plus, Trash, ShieldCheck, ArrowDown, ArrowUp } from "lucide-react";
+
+import { useDeleteMember } from "../../../../hooks/projects/useDeleteMember";
+import { useUpdateMemberRole } from "../../../../hooks/projects/useUpdateMemberRole";
 
 export default function ProjectEditForm({
   project,
-  onSubmit, // يجب أن تكون async function ترجع Promise
+  onSubmit,
   isPending,
   content,
   isRTL,
@@ -23,6 +26,9 @@ export default function ProjectEditForm({
   const [publicProject, setPublicProject] = useState(false);
   const [invites, setInvites] = useState([""]);
   const [errors, setErrors] = useState({ invites: [] });
+
+  const { mutate: deleteMember } = useDeleteMember();
+  const { mutate: updateMemberRole } = useUpdateMemberRole();
 
   useEffect(() => {
     if (project) {
@@ -80,16 +86,12 @@ export default function ProjectEditForm({
     };
 
     try {
-      await toast.promise(
-        onSubmit(formData), // onSubmit لازم تكون async function
-        {
-          loading: "Updating project...",
-          success: "Project updated successfully!",
-          error: "Failed to update project.",
-        }
-      );
+      await toast.promise(onSubmit(formData), {
+        loading: "Updating project...",
+        success: "Project updated successfully!",
+        error: "Failed to update project.",
+      });
 
-      // Reset form and redirect
       setTitle("");
       setDescription("");
       setPublicProject(false);
@@ -98,16 +100,28 @@ export default function ProjectEditForm({
 
       router.push("/dashboard/project");
     } catch (err) {
-      // لا حاجة للتوست هنا لأن toast.promise تعرض الخطأ
       console.error(err);
     }
+  };
+
+  const handleDelete = (userId) => {
+    deleteMember({ projectId: project._id, userId });
+  };
+
+  const handlePromote = (userId) => {
+    updateMemberRole({ projectId: project._id, userId, action: "promote" });
+  };
+
+  const handleDemote = (userId) => {
+    updateMemberRole({ projectId: project._id, userId, action: "demote" });
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-6 max-w-xl mx-auto dark:text-white h-screen"
+      className="space-y-6 max-w-2xl mx-auto dark:text-white pb-10"
     >
+      {/* Inputs */}
       <div>
         <Label htmlFor="title" className="mb-3">
           {content.titleInput}
@@ -143,6 +157,7 @@ export default function ProjectEditForm({
         />
       </div>
 
+      {/* Invitations */}
       <div>
         <Label className="mb-3">{content.inviteRequests}</Label>
         {invites.map((email, index) => (
@@ -181,7 +196,109 @@ export default function ProjectEditForm({
         </Button>
       </div>
 
-      <Button type="submit" className="w-full" disabled={isPending}>
+      {/* ✅ Team Members Section */}
+      <div className="mt-8 border-t pt-6 border-gray-300 dark:border-gray-700">
+        <h3 className="text-lg font-semibold mb-4">{content.teamwork}</h3>
+
+        {/* Co-Leaders */}
+        {project.coLeaders?.length > 0 ? (
+          <div className="mb-6">
+            <p className="mb-2 font-semibold text-yellow-500">
+              {content.admins}
+            </p>
+            {project.coLeaders.map((user) => (
+              <div
+                key={user._id}
+                className="flex justify-between items-center bg-gray-100 dark:bg-gray-800 p-3 rounded-md mb-2"
+              >
+                <span>
+                  {user.name !== "null null"
+                    ? user.name
+                    : user.email.split("@")[0].replace(/[0-9]/g, "")}
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleDemote(user._id)}
+                  >
+                    <ArrowDown size={16} /> {content.demotion}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(user._id)}
+                  >
+                    <Trash size={16} />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center text-yellow-400 italic mb-6">
+            {content.noAdmins}
+          </div>
+        )}
+
+        {/* Members */}
+        {project.members?.length > 0 &&
+        project.members.some(
+          (member) =>
+            !project.coLeaders?.some((coLeader) => coLeader._id === member._id)
+        ) ? (
+          <div>
+            <p className="mb-2 font-semibold text-blue-500">
+              {content.members}
+            </p>
+            {project.members
+              .filter(
+                (member) =>
+                  !project.coLeaders?.some(
+                    (coLeader) => coLeader._id === member._id
+                  )
+              )
+              .map((user) => (
+                <div
+                  key={user._id}
+                  className="flex justify-between items-center bg-gray-100 dark:bg-gray-800 p-3 rounded-md mb-2"
+                >
+                  <span>
+                    {user.name !== "null null"
+                      ? user.name
+                      : user.email.split("@")[0].replace(/[0-9]/g, "")}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handlePromote(user._id)}
+                    >
+                      <ArrowUp size={16} /> {content.promotion}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(user._id)}
+                    >
+                      <Trash size={16} />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        ) : (
+          <div className="text-center text-blue-400 italic">
+            {content.noAMembers}
+          </div>
+        )}
+      </div>
+
+      <Button type="submit" className="w-full mt-4" disabled={isPending}>
         {isPending ? content.pindingProject : content.createProject}
       </Button>
     </form>

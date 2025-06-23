@@ -26,7 +26,7 @@ export default function WelcomePage() {
         </p>
         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-8 bg-gray-50 dark:bg-gray-800 shadow-sm">
           <p className="text-lg">
-            {content.welcome.p[0]}
+            {content.welcome.p[0]}{" "}
             <Link
               href="/dashboard/invitations"
               className="text-blue-500 hover:underline"

@@ -25,16 +25,29 @@ export async function POST(request) {
       inviteRequests: inviteRequests.map((i) => ({ email: i.email })),
     });
 
-    // إنشاء الدعوات في جدول InviteRequest
     if (inviteRequests.length > 0) {
-      const invites = inviteRequests.map(({ email }) => ({
-        email,
-        projectId: newProject._id,
-        invitedBy: leaderId,
-        status: "pending",
-      }));
+      const invites = [];
 
-      await InviteRequest.insertMany(invites);
+      for (const { email } of inviteRequests) {
+        const existing = await InviteRequest.findOne({
+          email,
+          projectId: newProject._id,
+          status: "pending",
+        });
+
+        if (!existing) {
+          invites.push({
+            email,
+            projectId: newProject._id,
+            invitedBy: leaderId,
+            status: "pending",
+          });
+        }
+      }
+
+      if (invites.length > 0) {
+        await InviteRequest.insertMany(invites);
+      }
     }
 
     return Response.json(newProject, { status: 201 });

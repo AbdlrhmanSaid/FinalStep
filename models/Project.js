@@ -8,6 +8,7 @@ const InviteSchema = new Schema({
     default: "pending",
   },
 });
+
 const JoinSchema = new Schema({
   email: { type: String, required: true },
   status: {
@@ -52,6 +53,11 @@ const ProjectSchema = new Schema(
       },
     ],
     public: { type: Boolean },
+    status: {
+      type: String,
+      enum: ["open", "finished"],
+      default: "open",
+    },
   },
   {
     timestamps: true,

@@ -1,4 +1,3 @@
-// app/api/invite/respond/route.js
 import dbConnect from "../../../../lib/db";
 import InviteRequest from "../../../../models/InviteRequest";
 import Project from "../../../../models/Project";
@@ -17,19 +16,47 @@ export async function PUT(req) {
     invite.status = action;
     await invite.save();
 
-    if (action === "accepted") {
-      const user = await User.findOne({ email: invite.email });
-      await Project.findByIdAndUpdate(invite.projectId, {
-        $addToSet: { members: user._id },
-      });
+    const project = await Project.findById(invite.projectId);
+    if (!project) {
+      return Response.json({ error: "Project not found" }, { status: 404 });
     }
 
-    return Response.json({ success: true }, { status: 200 });
-  } catch (error) {
-    console.error("Respond Invite Error:", error);
-    return Response.json(
-      { error: "Failed to respond to invite" },
-      { status: 500 }
+    const invitedUser = await User.findOne({ email: invite.email });
+    if (!invitedUser) {
+      return Response.json(
+        { error: "Invited user not found" },
+        { status: 404 }
+      );
+    }
+
+    if (action === "accepted") {
+      const isAlreadyMember =
+        project.members.some(
+          (memberId) => memberId.toString() === invitedUser._id.toString()
+        ) ||
+        project.coLeaders.some(
+          (co) => co.toString() === invitedUser._id.toString()
+        ) ||
+        project.leaderId.toString() === invitedUser._id.toString();
+
+      if (!isAlreadyMember) {
+        project.members.push(invitedUser._id);
+      }
+    }
+
+    // ✅ إزالة الدعوة من project.inviteRequests إذا كانت موجودة
+    project.inviteRequests = project.inviteRequests.filter(
+      (req) => req.email !== invite.email
     );
+
+    await project.save();
+
+    return Response.json(
+      { message: "Invite response processed" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Invite Response Error:", error);
+    return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
