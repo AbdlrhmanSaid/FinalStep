@@ -1,4 +1,4 @@
-import mongoose, { Schema, models, model } from "mongoose";
+import mongoose, { Schema, model, models } from "mongoose";
 
 const TaskSchema = new Schema(
   {
@@ -18,30 +18,36 @@ const TaskSchema = new Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+        required: true,
       },
     ],
-    status: {
-      type: String,
-      enum: ["pending", "in_progress", "completed"],
-      default: "pending",
-    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    submissionNote: {
+    status: {
       type: String,
-      default: "",
+      enum: ["open", "submitted", "rejected", "completed"],
+      default: "open",
     },
-    submissionLink: {
+    priority: {
       type: String,
-      default: "",
+      enum: ["low", "medium", "high"],
+      default: "medium",
+    },
+    submission: {
+      description: { type: String },
+      links: [String],
+      submittedAt: { type: Date },
+    },
+    review: {
+      reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      reviewedAt: { type: Date },
+      note: { type: String },
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const Task = models.Task || model("Task", TaskSchema);

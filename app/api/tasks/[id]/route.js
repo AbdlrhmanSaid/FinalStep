@@ -1,73 +1,67 @@
 import { NextResponse } from "next/server";
 import dbConnect from "../../../../lib/db";
 import Task from "../../../../models/Task";
+import User from "../../../../models/User";
+import Project from "../../../../models/Project";
 
-// GET /api/tasks/[id]
-export async function GET(_, context) {
+export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { id } = context.params;
-    const task = await Task.findById(id)
-      .populate("assignedTo")
+    const task = await Task.findById(params.id)
       .populate("projectId")
-      .populate("createdBy");
+      .populate("assignedTo")
+      .populate("createdBy")
+      .populate("review.reviewedBy");
 
     if (!task) {
-      return NextResponse.json({ message: "Task not found" }, { status: 404 });
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
-    return NextResponse.json(task, { status: 200 });
+    return NextResponse.json(task);
   } catch (error) {
-    return NextResponse.json(
-      { message: "Failed to fetch task" },
-      { status: 500 }
-    );
+    console.error("GET Task Error:", error);
+    return NextResponse.json({ error: "Failed to get task" }, { status: 500 });
   }
 }
 
-// PUT /api/tasks/[id]
-export async function PUT(req, context) {
+export async function PUT(request, { params }) {
   try {
     await dbConnect();
-    const { id } = context.params;
-    const updates = await req.json();
+    const body = await request.json();
 
-    const updatedTask = await Task.findByIdAndUpdate(id, updates, {
+    const updated = await Task.findByIdAndUpdate(params.id, body, {
       new: true,
       runValidators: true,
     });
 
-    if (!updatedTask) {
-      return NextResponse.json({ message: "Task not found" }, { status: 404 });
+    if (!updated) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
-    return NextResponse.json(updatedTask, { status: 200 });
+    return NextResponse.json(updated);
   } catch (error) {
+    console.error("PUT Task Error:", error);
     return NextResponse.json(
-      { message: "Failed to update task" },
+      { error: "Failed to update task" },
       { status: 500 }
     );
   }
 }
 
-// DELETE /api/tasks/[id]
-export async function DELETE(_, context) {
+export async function DELETE(request, { params }) {
   try {
     await dbConnect();
-    const { id } = context.params;
+    const deleted = await Task.findByIdAndDelete(params.id);
 
-    const deletedTask = await Task.findByIdAndDelete(id);
-    if (!deletedTask) {
-      return NextResponse.json({ message: "Task not found" }, { status: 404 });
+    if (!deleted) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { message: "Task deleted successfully" },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "Task deleted" });
   } catch (error) {
+    console.error("DELETE Task Error:", error);
     return NextResponse.json(
-      { message: "Failed to delete task" },
+      { error: "Failed to delete task" },
       { status: 500 }
     );
   }

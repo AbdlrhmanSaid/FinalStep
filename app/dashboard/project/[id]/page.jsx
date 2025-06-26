@@ -44,10 +44,14 @@ import {
 
 import { useLeaveProject } from "../../../../hooks/invitations/useLeaveProject";
 import { useUpdateProjectStatus } from "../../../../hooks/projects/useUpdateProjectStatus";
+import { useGetTasks, useDeleteTask } from "../../../../hooks/tasks/useTasks";
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
   const { data, isLoading, error } = useGetProject(id);
+  const { data: tasks, refetch } = useGetTasks();
+  const { mutate: deleteTask } = useDeleteTask();
+
   const { language, userId } = useAppContext();
   const content = translations[language].dashboard.projectDetail;
   const modal = translations[language].dashboard.deleteModal;
@@ -85,10 +89,12 @@ const ProjectDetailPage = () => {
     );
 
   const handleEdit = () => redirect(`/dashboard/updateProject/${data._id}`);
+
   const handleDelete = () => {
     deleteProject({ id: data._id, userId });
     redirect("/dashboard/project");
   };
+
   const handleLeave = () => {
     leaveProject({ projectId: data._id, userId });
     redirect("/dashboard/project");
@@ -128,7 +134,6 @@ const ProjectDetailPage = () => {
               </div>
             </div>
           </CardHeader>
-
           <CardContent className="p-6 space-y-8">
             {/* Description */}
             <div>
@@ -140,7 +145,6 @@ const ProjectDetailPage = () => {
                 {data.description || content.noDescription}
               </p>
             </div>
-
             {/* Leader + Date */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex items-center gap-3">
@@ -158,7 +162,6 @@ const ProjectDetailPage = () => {
                 </span>
               </div>
             </div>
-
             {/* Co-Leaders */}
             {data.coLeaders?.length > 0 && (
               <div className="mt-4">
@@ -180,7 +183,6 @@ const ProjectDetailPage = () => {
                 </ul>
               </div>
             )}
-
             {/* Members */}
             <div>
               <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -207,30 +209,99 @@ const ProjectDetailPage = () => {
                 </p>
               )}
             </div>
-
-            {/* Tasks */}
-            {(isLeader || isMember) && !isFinished && (
-              <div>
+            {/* Tasks + List */}
+            {(isLeader || isMember) && (
+              <div className="space-y-4">
                 <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                   <Edit className="w-5 h-5 text-gray-500" />
                   {content.tasks}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  {data.tasks?.length > 0
-                    ? `${data.tasks.length} tasks`
-                    : content.noTasks}
-                </p>
-                {isLeader && (
+                {/* زر إضافة مهمة للقائد */}
+                {isLeader && !isFinished && (
                   <Link href={`/dashboard/project/${data._id}/addtask`}>
-                    <Button className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2">
+                    <Button className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2 mb-4">
                       <Edit className="w-4 h-4" />
                       {content.addTask}
                     </Button>
                   </Link>
                 )}
+                {/* فلترة المهام حسب الدور */}
+                {tasks &&
+                tasks.some((task) =>
+                  isLeader
+                    ? task.projectId._id === data._id
+                    : task.projectId._id === data._id &&
+                      task.assignedTo?.some((user) => user._id === userId)
+                ) ? (
+                  tasks
+                    .filter((task) =>
+                      isLeader
+                        ? task.projectId._id === data._id
+                        : task.projectId._id === data._id &&
+                          task.assignedTo?.some((user) => user._id === userId)
+                    )
+                    .map((task) => (
+                      <div
+                        key={task._id}
+                        className="bg-gray-100 dark:bg-gray-700 p-4 rounded-md shadow flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+                      >
+                        <div>
+                          <h4 className="text-xl font-semibold">
+                            {task.title}
+                          </h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">
+                            {task.description?.slice(0, 100) ||
+                              "No description."}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
+                          <Link href={`/dashboard/task/${task._id}`} passHref>
+                            <Button
+                              variant="outline"
+                              className="text-blue-600 border-blue-600"
+                            >
+                              {content.view}
+                            </Button>
+                          </Link>
+
+                          {isLeader && (
+                            <>
+                              <Link
+                                href={`/dashboard/task/${task._id}/edit`}
+                                passHref
+                              >
+                                <Button
+                                  variant="outline"
+                                  className="text-yellow-600 border-yellow-600"
+                                >
+                                  {content.edit}
+                                </Button>
+                              </Link>
+
+                              <Button
+                                variant="destructive"
+                                onClick={() => {
+                                  if (confirm(content.confirmDeleteTask)) {
+                                    deleteTask(task._id);
+                                    refetch();
+                                  }
+                                }}
+                              >
+                                {content.delete}
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {content.noTasks}
+                  </p>
+                )}
               </div>
             )}
-
             {/* Leader Actions */}
             {isLeader && !isFinished && (
               <div className="flex flex-wrap gap-4">
@@ -269,7 +340,6 @@ const ProjectDetailPage = () => {
                 </AlertDialog>
               </div>
             )}
-
             {/* Toggle Status Button (Leader only) */}
             {isLeader && (
               <Button
@@ -282,7 +352,6 @@ const ProjectDetailPage = () => {
                 {isFinished ? content.reopenProject : content.finishProject}
               </Button>
             )}
-
             {/* Leave Project */}
             {isMember && !isFinished && (
               <div className="pt-6 border-t border-gray-300 dark:border-gray-700">
