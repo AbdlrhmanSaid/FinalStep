@@ -273,7 +273,7 @@ const TaskDetailPage = () => {
               </div>
             </div>
 
-            {task.submission && (
+            {task.submission !== " " && (
               <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
                   {content.submissionDetails}
