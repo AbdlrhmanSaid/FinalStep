@@ -65,7 +65,11 @@ export default function ProjectCard({ project, content, isRTL, members }) {
                 isRTL ? "rtl:text-right" : ""
               }`}
             >
-              {project.description}
+              {project.description
+                ? project.description.length > 15
+                  ? `${project.description.slice(0, 15)}...`
+                  : project.description
+                : "No description"}
             </p>
             <p
               className={`text-gray-600 dark:text-gray-300 text-sm leading-relaxed flex items-center ${

@@ -146,9 +146,17 @@ export default function CreateTaskPage() {
                 onChange={(e) => setForm({ ...form, priority: e.target.value })}
                 className="w-full h-11 px-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="low">🔵 {content.priorityLow}</option>
-                <option value="medium">🟡 {content.priorityMedium}</option>
-                <option value="high">🔴 {content.priorityHigh}</option>
+                <option value="low" className="text-blue-500">
+                  {" "}
+                  {content.priorityLow}
+                </option>
+                <option value="medium" className="text-yellow-500">
+                  {" "}
+                  {content.priorityMedium}
+                </option>
+                <option value="high" className="text-red-500">
+                  {content.priorityHigh}
+                </option>
               </select>
             </div>
 

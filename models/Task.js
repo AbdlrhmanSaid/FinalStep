@@ -5,9 +5,11 @@ const TaskSchema = new Schema(
     title: {
       type: String,
       required: true,
+      trim: true,
     },
     description: {
       type: String,
+      trim: true,
     },
     projectId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -37,18 +39,72 @@ const TaskSchema = new Schema(
       default: "medium",
     },
     submission: {
-      description: { type: String },
-      links: [String],
-      submittedAt: { type: Date },
+      description: {
+        type: String,
+        trim: true,
+      },
+      links: [
+        {
+          type: String,
+          trim: true,
+          validate: {
+            validator: function (v) {
+              try {
+                new URL(v);
+                return true;
+              } catch {
+                return false;
+              }
+            },
+            message: (props) => `${props.value} is not a valid URL!`,
+          },
+        },
+      ],
+      submittedAt: {
+        type: Date,
+        default: null,
+      },
     },
     review: {
-      reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      reviewedAt: { type: Date },
-      note: { type: String },
+      reviewedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      reviewedAt: {
+        type: Date,
+        default: null,
+      },
+      note: {
+        type: String,
+        trim: true,
+      },
+    },
+    dueDate: {
+      type: Date,
+      default: null,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
+
+TaskSchema.index({ title: "text", description: "text" });
+
+TaskSchema.virtual("assignedUsers", {
+  ref: "User",
+  localField: "assignedTo",
+  foreignField: "_id",
+});
+
+TaskSchema.virtual("project", {
+  ref: "Project",
+  localField: "projectId",
+  foreignField: "_id",
+  justOne: true,
+});
 
 const Task = models.Task || model("Task", TaskSchema);
 export default Task;

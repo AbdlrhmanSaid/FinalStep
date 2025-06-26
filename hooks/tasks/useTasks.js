@@ -1,12 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export const useGetTasks = () => {
   return useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
-      const res = await axios.get("/api/tasks");
-      return res.data;
+      try {
+        const res = await axios.get("/api/tasks");
+        return res.data;
+      } catch (error) {
+        toast.error("Failed to fetch tasks");
+        throw error;
+      }
     },
   });
 };
@@ -15,8 +21,13 @@ export const useGetTask = (id) => {
   return useQuery({
     queryKey: ["task", id],
     queryFn: async () => {
-      const res = await axios.get(`/api/tasks/${id}`);
-      return res.data;
+      try {
+        const res = await axios.get(`/api/tasks/${id}`);
+        return res.data;
+      } catch (error) {
+        toast.error("Failed to fetch task details");
+        throw error;
+      }
     },
     enabled: !!id,
   });
@@ -27,8 +38,13 @@ export const useCreateTask = () => {
 
   return useMutation({
     mutationFn: async (taskData) => {
-      const res = await axios.post("/api/tasks", taskData);
-      return res.data;
+      try {
+        const res = await axios.post("/api/tasks", taskData);
+        return res.data;
+      } catch (error) {
+        toast.error("Failed to create task");
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["tasks"]);
@@ -40,12 +56,17 @@ export const useUpdateTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }) => {
-      const res = await axios.put(`/api/tasks/${id}`, data);
-      return res.data;
+    mutationFn: async ({ taskId, data }) => {
+      try {
+        const res = await axios.put(`/api/tasks/${taskId}`, data);
+        return res.data;
+      } catch (error) {
+        toast.error(error.response?.data?.error || "Failed to update task");
+        throw error;
+      }
     },
-    onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries(["task", id]);
+    onSuccess: (_, { taskId }) => {
+      queryClient.invalidateQueries(["task", taskId]);
       queryClient.invalidateQueries(["tasks"]);
     },
   });
@@ -56,8 +77,14 @@ export const useDeleteTask = () => {
 
   return useMutation({
     mutationFn: async (id) => {
-      const res = await axios.delete(`/api/tasks/${id}`);
-      return res.data;
+      try {
+        const res = await axios.delete(`/api/tasks/${id}`);
+        toast.success("Task deleted successfully");
+        return res.data;
+      } catch (error) {
+        toast.error("Failed to delete task");
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["tasks"]);
