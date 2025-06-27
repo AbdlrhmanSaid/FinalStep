@@ -9,7 +9,7 @@ export default function WelcomePage() {
   const content = translations[language].dashboard;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 dark:text-white flex flex-col items-center justify-center p-6 transition-colors">
+    <div className="min-h-screen bgMain flex flex-col items-center justify-center p-6 transition-colors">
       <div className="w-full max-w-2xl text-center space-y-6">
         <div className="flex justify-center items-center gap-3">
           <Home className="w-10 h-10 text-blue-500" />

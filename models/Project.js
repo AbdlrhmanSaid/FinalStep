@@ -1,4 +1,5 @@
 import mongoose, { Schema, models, model } from "mongoose";
+import Task from "./Task";
 
 const InviteSchema = new Schema({
   email: { type: String, required: true },
@@ -24,9 +25,7 @@ const ProjectSchema = new Schema(
       type: String,
       required: true,
     },
-    description: {
-      type: String,
-    },
+    description: String,
     leaderId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -63,6 +62,13 @@ const ProjectSchema = new Schema(
     timestamps: true,
   }
 );
+
+ProjectSchema.post("findOneAndDelete", async function (doc) {
+  if (doc?._id) {
+    await Task.deleteMany({ projectId: doc._id });
+    console.log(`✅ Tasks for project ${doc._id} were deleted.`);
+  }
+});
 
 const Project = models.Project || model("Project", ProjectSchema);
 export default Project;

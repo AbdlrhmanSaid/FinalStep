@@ -53,18 +53,18 @@ export default function DashboardNav() {
               >
                 {content.dashboardNav.invitations}
               </Link>
-              <a
-                href="#"
+              <Link
+                href={"/dashboard/tasks"}
                 className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {content.dashboardNav.team}
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                href={"/dashboard/profile"}
                 className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {content.dashboardNav.settings}
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -140,20 +140,20 @@ export default function DashboardNav() {
               >
                 {content.dashboardNav.invitations}
               </Link>
-              <a
+              <Link
                 onClick={() => setIsMenuOpen(false)}
-                href="#"
+                href={"/dashboard/tasks"}
                 className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
               >
                 {content.dashboardNav.team}
-              </a>
-              <a
+              </Link>
+              <Link
                 onClick={() => setIsMenuOpen(false)}
-                href="#"
+                href={"/dashboard/profile"}
                 className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
               >
                 {content.dashboardNav.settings}
-              </a>
+              </Link>
             </div>
           </div>
         )}

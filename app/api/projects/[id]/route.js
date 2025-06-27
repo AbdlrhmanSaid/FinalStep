@@ -77,10 +77,11 @@ export async function DELETE(request, context) {
       );
     }
 
-    await Project.findByIdAndDelete(id);
+    // ✅ هنا التعديل المهم: استخدم findOneAndDelete لتفعيل الـ hook
+    await Project.findOneAndDelete({ _id: id });
 
     return NextResponse.json(
-      { message: "Project deleted successfully" },
+      { message: "Project and its related tasks deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
@@ -124,7 +125,10 @@ export async function PUT(request, context) {
     if ("status" in updateFields) {
       const validStatuses = ["open", "finished"];
       if (!validStatuses.includes(updateFields.status)) {
-        return NextResponse.json({ error: "Invalid status value" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Invalid status value" },
+          { status: 400 }
+        );
       }
     }
 
