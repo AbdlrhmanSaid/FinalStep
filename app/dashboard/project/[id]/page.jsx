@@ -256,16 +256,16 @@ const ProjectDetailPage = () => {
                 {tasks &&
                 tasks.some((task) =>
                   isLeader
-                    ? task.projectId._id === data._id
-                    : task.projectId._id === data._id &&
+                    ? task?.projectId?._id === data?._id
+                    : task?.projectId?._id === data?._id &&
                       task.assignedTo?.some((user) => user._id === userId)
                 ) ? (
                   <div className="space-y-3">
                     {tasks
                       .filter((task) =>
                         isLeader
-                          ? task.projectId._id === data._id
-                          : task.projectId._id === data._id &&
+                          ? task?.projectId?._id === data?._id
+                          : task?.projectId?._id === data?._id &&
                             task.assignedTo?.some((user) => user._id === userId)
                       )
                       .map((task) => (

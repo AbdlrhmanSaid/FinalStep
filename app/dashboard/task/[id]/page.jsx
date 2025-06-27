@@ -273,7 +273,7 @@ const TaskDetailPage = () => {
               </div>
             </div>
 
-            {task.submission !== " " && (
+            {task.submission?.description && (
               <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
                   {content.submissionDetails}
@@ -284,11 +284,7 @@ const TaskDetailPage = () => {
                     {content.submissionDescription}
                   </h4>
                   <p className="text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded">
-                    {task.submission.description || (
-                      <span className="italic text-gray-500">
-                        {content.noDescriptionProvided}
-                      </span>
-                    )}
+                    {task.submission.description}
                   </p>
                 </div>
 
@@ -318,14 +314,16 @@ const TaskDetailPage = () => {
                   )}
                 </div>
 
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {content.submittedAt}
-                  </h4>
-                  <p className="text-gray-700 dark:text-gray-300">
-                    {format(new Date(task.submission.submittedAt), "PPPp")}
-                  </p>
-                </div>
+                {task.submission.submittedAt && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      {content.submittedAt}
+                    </h4>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {format(new Date(task.submission.submittedAt), "PPPp")}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -387,38 +385,6 @@ const TaskDetailPage = () => {
                     {isUpdating ? content.processing : content.confirmSubmit}
                   </Button>
                 </div>
-              </div>
-            )}
-
-            {task.submission?.links?.length > 0 && (
-              <div className="pt-4 border-t border-gray-300 dark:border-gray-600">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                  {content.submittedLinks}:
-                </h3>
-                <ul className="list-disc pl-6 text-blue-600 dark:text-blue-400">
-                  {task.submission.links.map((link, index) => (
-                    <li key={index}>
-                      <a
-                        href={link}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="hover:underline break-all"
-                      >
-                        {link}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-                {task.submission.description && (
-                  <div className="mt-2">
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {content.submissionNotes}:
-                    </h4>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      {task.submission.description}
-                    </p>
-                  </div>
-                )}
               </div>
             )}
 
