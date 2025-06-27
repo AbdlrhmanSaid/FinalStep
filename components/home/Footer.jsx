@@ -24,7 +24,7 @@ export default function Footer({ t, isRTL }) {
 
           <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6 rtl:space-x-reverse text-sm text-gray-600 dark:text-gray-300">
             <span className="text-center md:text-left">
-              © {new Date().getFullYear()} FinalStep. {t.rights}
+              © FinalStep. {t.rights}
             </span>
           </div>
         </div>
