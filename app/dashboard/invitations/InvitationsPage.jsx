@@ -80,7 +80,7 @@ export default function InvitationsPage() {
         ) : (
           <div className="text-center py-12">
             <Mail className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-lg">No invitations found</p>
+            <p className="text-lg">{content.empty}</p>
           </div>
         )}
       </div>

@@ -66,7 +66,6 @@ const ProjectSchema = new Schema(
 ProjectSchema.post("findOneAndDelete", async function (doc) {
   if (doc?._id) {
     await Task.deleteMany({ projectId: doc._id });
-    console.log(`✅ Tasks for project ${doc._id} were deleted.`);
   }
 });
 
