@@ -151,11 +151,33 @@ export async function PUT(request, context) {
       email: i.email,
     }));
 
-    // تحديث بيانات المشروع
+    // ✅ الاحتفاظ بقائمة الأعضاء القديمة قبل التحديث
+    const oldMembers = project.members.map((id) => id.toString());
+    const oldCoLeaders = project.coLeaders.map((id) => id.toString());
+
+    // تحديث المشروع
     const updatedProject = await Project.findByIdAndUpdate(id, updateFields, {
       new: true,
       runValidators: true,
     });
+
+    // ✅ بعد التحديث، نحصل على القيم الجديدة
+    const newMembers = updatedProject.members.map((id) => id.toString());
+    const newCoLeaders = updatedProject.coLeaders.map((id) => id.toString());
+
+    // تحديد المستخدمين اللي تم حذفهم
+    const removedUsers = [
+      ...oldMembers.filter((id) => !newMembers.includes(id)),
+      ...oldCoLeaders.filter((id) => !newCoLeaders.includes(id)),
+    ];
+
+    // ✅ إزالة المستخدمين المحذوفين من المهام
+    if (removedUsers.length > 0) {
+      await Task.updateMany(
+        { projectId: id },
+        { $pull: { assignedTo: { $in: removedUsers } } }
+      );
+    }
 
     return NextResponse.json(updatedProject, { status: 200 });
   } catch (err) {
