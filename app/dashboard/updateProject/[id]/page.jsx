@@ -1,4 +1,5 @@
-import UpdateProjectPage from "./UpdateProjectPage";
+import UpdateProjectPage from "./U
+updateProjectPage";
 
 const page = () => {
   return <UpdateProjectPage />;
