@@ -1,7 +1,5 @@
 import UpdateProjectPage from "./UpdateProjectPage";
 
-const page = () => {
+export default function Page() {
   return <UpdateProjectPage />;
-};
-
-export default page;
+}
