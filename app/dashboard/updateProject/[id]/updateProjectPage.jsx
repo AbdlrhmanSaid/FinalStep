@@ -9,7 +9,7 @@ import { useAppContext } from "../../../../contexts/AppContext";
 import { useGetProject } from "../../../../hooks/projects/useGetProjects";
 import { translations } from "../../../../lib/translations";
 
-const UpdateProjectPage = () => {
+export default function UpdateProjectPage() {
   const { id } = useParams();
   const { data: project, isLoading, error } = useGetProject(id);
   const { userId, language, isRTL } = useAppContext();
@@ -50,6 +50,4 @@ const UpdateProjectPage = () => {
       </div>
     </CheckUserRole>
   );
-};
-
-export default UpdateProjectPage;
+}
