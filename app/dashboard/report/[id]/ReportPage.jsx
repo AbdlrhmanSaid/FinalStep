@@ -7,21 +7,27 @@ import { Printer } from "lucide-react";
 import CheckUserRole from "../../../../lib/actions/checkUserRole";
 import html2pdf from "html2pdf.js";
 import { Button } from "../../../../components/ui/button";
-import "./ReportPage.css"; // استيراد ملف CSS
+import { useAppContext } from "../../../../contexts/AppContext";
+import { translations } from "../../../../lib/translations";
+import "./ReportPage.css";
 
 const ReportPage = () => {
   const { id } = useParams();
   const { data, isLoading, error } = useProjectReport(id);
+  const { language } = useAppContext();
+  const content = translations[language]?.dashboard?.report || {};
 
   if (isLoading) return <ModernLoading />;
 
   if (error)
     return (
-      <div className="error-message">فشل تحميل التقرير: {error.message}</div>
+      <div className="error-message">
+        {content.errorLoading || "Error loading"}: {error.message}
+      </div>
     );
 
   if (!data?.projectTitle)
-    return <div className="error-message">لا توجد بيانات للمشروع</div>;
+    return <div className="error-message">{content.noData}</div>;
 
   const handlePrint = async () => {
     const element = document.getElementById("page");
@@ -42,76 +48,93 @@ const ReportPage = () => {
     }
   };
 
+  const safeValue = (val, fallback = "-") =>
+    val === null || val === undefined || val === "null null" ? fallback : val;
+
+  const getPriorityLabel = (priority) => {
+    if (language === "ar") {
+      if (priority === "high") return "عالي";
+      if (priority === "medium") return "متوسط";
+      return "منخفض";
+    } else {
+      return priority?.charAt(0).toUpperCase() + priority?.slice(1);
+    }
+  };
+
   return (
     <CheckUserRole projectId={id}>
       <div className="report-container">
         <Button onClick={handlePrint} className="print-button">
           <Printer size={18} />
-          Print
+          {content.print}
         </Button>
+
         <div id="page" className="report-page">
           {/* عنوان التقرير */}
           <div className="report-header">
-            <h1>تقرير المشروع</h1>
-            <h2>{data.projectTitle}</h2>
+            <h1>{content.title}</h1>
+            <h2>{safeValue(data.projectTitle)}</h2>
           </div>
 
           {/* معلومات القائد */}
           <div className="leader-info">
-            <h3>قائد المشروع:</h3>
-            <p>{data.leader}</p>
+            <h3>{content.leader}</h3>
+            <p>{safeValue(data.leader)}</p>
           </div>
 
-          {/* مساعدو القائد (إذا وجدوا) */}
-          {data.coLeaders.length > 0 && (
+          {/* مساعدو القائد */}
+          {data.coLeaders?.filter((n) => n && n !== "null null").length > 0 && (
             <div className="coleaders-info">
-              <h3>مساعدو القائد:</h3>
-              <p>{data.coLeaders.join("، ")}</p>
+              <h3>{content.coLeaders}</h3>
+              <p>
+                {data.coLeaders
+                  .filter((n) => n && n !== "null null")
+                  .join("، ")}
+              </p>
             </div>
           )}
 
-          {/* إحصائيات المهام */}
+          {/* الإحصائيات */}
           <div className="tasks-stats">
             <div className="stat-card total-tasks">
-              <h4>إجمالي المهام</h4>
-              <p>{data.totalTasks}</p>
+              <h4>{content.totalTasks}</h4>
+              <p>{data.totalTasks || 0}</p>
             </div>
             <div className="stat-card completed-tasks">
-              <h4>المهام المكتملة</h4>
-              <p>{data.completedTasks}</p>
+              <h4>{content.completedTasks}</h4>
+              <p>{data.completedTasks || 0}</p>
             </div>
             <div className="stat-card remaining-tasks">
-              <h4>المهام المتبقية</h4>
-              <p>{data.remainingTasks}</p>
+              <h4>{content.remainingTasks}</h4>
+              <p>{data.remainingTasks || 0}</p>
             </div>
           </div>
 
-          {/* قائمة المهام */}
+          {/* المهام */}
           <div className="tasks-list">
-            <h3>تفاصيل المهام</h3>
+            <h3>{content.taskDetails}</h3>
             <div className="tasks-container">
-              {data.tasks.map((task, index) => (
+              {data.tasks?.map((task, index) => (
                 <div key={index} className="task-item">
                   <div className="task-header">
-                    <h4>{task.title}</h4>
+                    <h4>{safeValue(task.title)}</h4>
                     <span className={`status ${task.status}`}>
-                      {task.status === "completed" ? "مكتمل" : "مفتوح"}
+                      {task.status === "completed"
+                        ? content.statusCompleted
+                        : content.statusOpen}
                     </span>
                   </div>
 
                   <div className="task-details">
                     <span className={`priority ${task.priority}`}>
-                      أولوية:{" "}
-                      {task.priority === "high"
-                        ? "عالي"
-                        : task.priority === "medium"
-                        ? "متوسط"
-                        : "منخفض"}
+                      {content.priority}: {getPriorityLabel(task.priority)}
                     </span>
-
-                    {task.assignedTo.length > 0 && (
+                    {task.assignedTo?.length > 0 && (
                       <span className="assigned-to">
-                        مسؤول: {task.assignedTo.join("، ")}
+                        {content.assignedTo}:{" "}
+                        {task.assignedTo
+                          .filter((n) => n && n !== "null null")
+                          .join("، ")}
                       </span>
                     )}
                   </div>
@@ -122,13 +145,17 @@ const ReportPage = () => {
 
           {/* ملخص التقرير */}
           <div className="report-summary">
-            <h3>ملخص التقرير</h3>
+            <h3>{content.summary}</h3>
             <p>
-              نسبة الإنجاز:{" "}
-              {Math.round((data.completedTasks / data.totalTasks) * 100)}%
+              {content.progress}:{" "}
+              {data.totalTasks > 0
+                ? `${Math.round(
+                    (data.completedTasks / data.totalTasks) * 100
+                  )}%`
+                : "0%"}
             </p>
             {data.remainingTasks > 0 && (
-              <p>هناك {data.remainingTasks} مهام تحتاج إلى متابعة.</p>
+              <p>{content.remainingMessage(data.remainingTasks)}</p>
             )}
           </div>
         </div>

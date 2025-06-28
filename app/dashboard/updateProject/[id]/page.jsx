@@ -1,7 +1,7 @@
-import updateProjectPage from "./updateProjectPage";
+import UpdateProjectPage from "./UpdateProjectPage";
 
 const page = () => {
-  return <updateProjectPage />;
+  return <UpdateProjectPage />;
 };
 
 export default page;

@@ -59,7 +59,7 @@ export default function ProjectsList() {
               href="/dashboard/createProject"
               className="flex-grow sm:flex-grow-0"
             >
-              <button className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors w-full sm:w-auto">
+              <button className=" bg-blue-600  px-4 py-2 rounded-md hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white ">
                 <CirclePlus className="w-5 h-5" />
               </button>
             </Link>
