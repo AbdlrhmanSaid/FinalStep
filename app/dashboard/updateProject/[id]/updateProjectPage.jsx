@@ -9,7 +9,7 @@ import { useAppContext } from "../../../../contexts/AppContext";
 import { useGetProject } from "../../../../hooks/projects/useGetProjects";
 import { translations } from "../../../../lib/translations";
 
-const updateProjectPage = () => {
+const UpdateProjectPage = () => {
   const { id } = useParams();
   const { data: project, isLoading, error } = useGetProject(id);
   const { userId, language, isRTL } = useAppContext();
@@ -52,4 +52,4 @@ const updateProjectPage = () => {
   );
 };
 
-export default updateProjectPage;
+export default UpdateProjectPage;
