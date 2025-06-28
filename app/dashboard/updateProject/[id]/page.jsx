@@ -1,4 +1,4 @@
-import UpdateProjectPage from "./UpdateProjectPage";
+import UpdateProjectPage from "./UpdateProject";
 
 export default function Page() {
   return <UpdateProjectPage />;
