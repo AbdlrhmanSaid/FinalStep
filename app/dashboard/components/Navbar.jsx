@@ -37,7 +37,7 @@ export default function DashboardNav() {
             <div className={`flex items-center space-x-8 ${isRTL ? "" : ""}`}>
               <Link
                 href={"/dashboard"}
-                className="text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {content.dashboardNav.home}
               </Link>
