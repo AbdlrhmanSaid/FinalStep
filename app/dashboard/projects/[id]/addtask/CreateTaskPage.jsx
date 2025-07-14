@@ -73,7 +73,7 @@ export default function CreateTaskPage() {
       {
         onSuccess: () => {
           toast.success(content.successMessage);
-          router.push(`/dashboard/project/${projectId}`);
+          router.push(`/dashboard/projects/${projectId}`);
         },
         onError: (error) => {
           toast.error(

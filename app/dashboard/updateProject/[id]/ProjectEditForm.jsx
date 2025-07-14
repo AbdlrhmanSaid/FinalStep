@@ -8,7 +8,7 @@ import { Label } from "../../../../@/components/ui/label";
 import { Switch } from "../../../../components/ui/switch";
 import { Button } from "../../../../components/ui/button";
 import { Textarea } from "../../../../@/components/ui/textarea";
-import { Plus, Trash, ShieldCheck, ArrowDown, ArrowUp } from "lucide-react";
+import { Plus, Trash, ArrowDown, ArrowUp } from "lucide-react";
 
 import { useDeleteMember } from "../../../../hooks/projects/useDeleteMember";
 import { useUpdateMemberRole } from "../../../../hooks/projects/useUpdateMemberRole";
@@ -56,6 +56,7 @@ export default function ProjectEditForm({
   };
 
   const addField = (setArray) => {
+    if (invites[invites.length - 1] === "") return;
     setArray((prev) => [...prev, ""]);
     setErrors((prev) => ({
       ...prev,
@@ -98,7 +99,7 @@ export default function ProjectEditForm({
       setInvites([""]);
       setErrors({ invites: [] });
 
-      router.push("/dashboard/project");
+      router.push("/dashboard/projects");
     } catch (err) {
       console.error(err);
     }

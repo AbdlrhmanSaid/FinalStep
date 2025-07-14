@@ -42,7 +42,7 @@ export default function DashboardNav() {
                 {content.dashboardNav.home}
               </Link>
               <Link
-                href={"/dashboard/project"}
+                href={"/dashboard/projects"}
                 className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {content.dashboardNav.projects}
@@ -128,7 +128,7 @@ export default function DashboardNav() {
               </Link>
               <Link
                 onClick={() => setIsMenuOpen(false)}
-                href={"/dashboard/project"}
+                href={"/dashboard/projects"}
                 className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
               >
                 {content.dashboardNav.projects}

@@ -76,7 +76,7 @@ const ProjectDetailPage = () => {
       setIsMember(true);
     } else {
       setIsRandomUser(true);
-      if (!data.public) redirect("/dashboard/project");
+      if (!data.public) redirect("/dashboard/projects");
     }
   }, [data, userId]);
 
@@ -93,18 +93,18 @@ const ProjectDetailPage = () => {
 
   const handleDelete = () => {
     deleteProject({ id: data._id, userId });
-    redirect("/dashboard/project");
+    redirect("/dashboard/projects");
   };
 
   const handleLeave = () => {
     leaveProject({ projectId: data._id, userId });
-    redirect("/dashboard/project");
+    redirect("/dashboard/projects");
   };
 
   const toggleStatus = () => {
     const newStatus = data.status === "open" ? "finished" : "open";
     updateStatus({ projectId: data._id, userId, status: newStatus });
-    redirect("/dashboard/project");
+    redirect("/dashboard/projects");
   };
 
   const isFinished = data.status === "finished";
@@ -254,7 +254,7 @@ const ProjectDetailPage = () => {
                   </CardTitle>
                 </div>
                 {isLeader && !isFinished && (
-                  <Link href={`/dashboard/project/${data._id}/addtask`}>
+                  <Link href={`/dashboard/projects/${data._id}/addtask`}>
                     <Button className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2">
                       <Plus className="w-4 h-4" />
                       {content.addTask}

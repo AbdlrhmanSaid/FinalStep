@@ -30,11 +30,15 @@ export default function InvitationsPage() {
   if (isLoading || isFetching) return <Loading />;
 
   return (
-    <div className="min-h-screen bgMain flex flex-col items-center justify-center p-6 transition-colors">
+    <div
+      className={`min-h-screen bgMain flex flex-col items-center p-6 transition-colors ${
+        !invites?.length ? "justify-center" : ""
+      }`}
+    >
       <div className="w-full max-w-2xl space-y-6">
         {invites?.length ? (
           <>
-            <div className="flex items-center gap-3">
+            <div className="flex  gap-3">
               <Mail className="w-8 h-8 text-blue-500" />
               <h2 className="text-2xl font-bold">{content.UrTitle}</h2>
             </div>

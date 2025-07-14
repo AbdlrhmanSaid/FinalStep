@@ -33,8 +33,8 @@ export default function ProjectsList() {
     project.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredParticipatingProjects = participatingProjects?.filter((project) =>
-    project.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredParticipatingProjects = participatingProjects?.filter(
+    (project) => project.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading) {
@@ -85,7 +85,9 @@ export default function ProjectsList() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder={isRTL ? "البحث في المشاريع..." : "Search projects..."}
+              placeholder={
+                isRTL ? "البحث في المشاريع..." : "Search projects..."
+              }
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -117,7 +119,7 @@ export default function ProjectsList() {
               {filteredLeadingProjects.map((project) => (
                 <Link
                   key={project._id}
-                  href={`/dashboard/project/${project._id}`}
+                  href={`/dashboard/projects/${project._id}`}
                   className="group"
                 >
                   <ProjectCard
@@ -142,10 +144,9 @@ export default function ProjectsList() {
             <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
               <Search className="w-10 h-10 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 dark:text-gray-400 text-lg">
-                {isRTL 
+                {isRTL
                   ? `لا توجد نتائج للبحث عن "${searchTerm}" في المشاريع القيادية`
-                  : `No results found for "${searchTerm}" in leading projects`
-                }
+                  : `No results found for "${searchTerm}" in leading projects`}
               </p>
             </div>
           ) : (
@@ -178,7 +179,7 @@ export default function ProjectsList() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredParticipatingProjects.map((project) => (
                 <Link
-                  href={`/dashboard/project/${project._id}`}
+                  href={`/dashboard/projects/${project._id}`}
                   key={project._id}
                   className="group"
                 >
@@ -204,10 +205,9 @@ export default function ProjectsList() {
             <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
               <Search className="w-10 h-10 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 dark:text-gray-400 text-lg">
-                {isRTL 
+                {isRTL
                   ? `لا توجد نتائج للبحث عن "${searchTerm}" في المشاريع المشاركة`
-                  : `No results found for "${searchTerm}" in participating projects`
-                }
+                  : `No results found for "${searchTerm}" in participating projects`}
               </p>
             </div>
           ) : (

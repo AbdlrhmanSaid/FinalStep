@@ -224,7 +224,7 @@ export default function WelcomePage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <Link
-              href="/dashboard/project"
+              href="/dashboard/projects"
               className="p-4 border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-3"
             >
               <Briefcase className="w-5 h-5 text-blue-500" />

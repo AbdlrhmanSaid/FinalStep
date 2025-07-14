@@ -54,7 +54,7 @@ export default function EditTaskPage() {
       {
         onSuccess: () => {
           toast.success("Task updated successfully");
-          router.push(`/dashboard/project/${task.projectId._id}`);
+          router.push(`/dashboard/projects/${task.projectId._id}`);
         },
         onError: (error) => {
           toast.error(
