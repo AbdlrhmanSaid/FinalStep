@@ -1,5 +1,6 @@
 import mongoose, { Schema, models, model } from "mongoose";
 import Task from "./Task";
+import InviteRequest from "./InviteRequest";
 
 const InviteSchema = new Schema({
   email: { type: String, required: true },
@@ -65,7 +66,15 @@ const ProjectSchema = new Schema(
 
 ProjectSchema.post("findOneAndDelete", async function (doc) {
   if (doc?._id) {
-    await Task.deleteMany({ projectId: doc._id });
+    try {
+      await Task.deleteMany({ projectId: doc._id });
+
+      await InviteRequest.deleteMany({ projectId: doc._id });
+
+      console.log(`Deleted tasks and invites for project ${doc._id}`);
+    } catch (error) {
+      console.error("Error in post-delete hook:", error);
+    }
   }
 });
 
