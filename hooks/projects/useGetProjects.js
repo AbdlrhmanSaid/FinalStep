@@ -2,8 +2,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
-const fetchProjects = async () => {
-  const res = await axios.get("/api/projects");
+const fetchProjects = async (userId) => {
+  const res = await axios.get("/api/projects", {
+    headers: {
+      userId,
+    },
+  });
   return res.data;
 };
 
@@ -21,10 +25,11 @@ const deleteProject = async ({ id, userId }) => {
   return res.data;
 };
 
-export const useGetProjects = () => {
+export const useGetProjects = (userId) => {
   return useQuery({
-    queryKey: ["projects"],
-    queryFn: fetchProjects,
+    queryKey: ["projects", userId],
+    queryFn: () => fetchProjects(userId),
+    enabled: !!userId,
   });
 };
 

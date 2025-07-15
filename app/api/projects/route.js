@@ -2,16 +2,25 @@ import dbConnect from "../../../lib/db";
 import Project from "../../../models/Project";
 import User from "../../../models/User";
 
-export async function GET() {
+export async function GET(req) {
   try {
     await dbConnect();
 
-    const projects = await Project.find()
+    const userId = req.headers.get("userId");
+
+    if (!userId) {
+      return Response.json({ error: "User ID is required" }, { status: 400 });
+    }
+
+    // رجع المشاريع اللي فيها المستخدم كـ Leader أو Co-Leader أو Member
+    const projects = await Project.find({
+      $or: [{ leaderId: userId }, { coLeaders: userId }, { members: userId }],
+    })
       .populate("leaderId")
       .populate("coLeaders")
       .populate("members");
 
-    // فلترة الدعوات الغير منطقية (المكررة)
+    // فلترة الدعوات الغير منطقية (دعوات لأشخاص فعليًا أعضاء)
     for (const project of projects) {
       const memberEmails = [
         project.leaderId?.email,

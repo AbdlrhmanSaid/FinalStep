@@ -13,6 +13,7 @@ import { translations } from "../../lib/translations";
 import Link from "next/link";
 import { useDashboard } from "../../hooks/useDashboard";
 import Loading from "../../components/Loading";
+import { Button } from "../../@/components/ui/button";
 
 export default function WelcomePage() {
   const { email, language } = useAppContext();
@@ -79,14 +80,21 @@ export default function WelcomePage() {
               </h1>
               <p className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                 <User className="w-4 h-4" />
-                {content.welcome.login}{" "}
                 <strong className="text-blue-500">{email || "Guest"}</strong>
               </p>
             </div>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 max-w-md text-sm md:text-right">
-            {content.welcome.subtitle}
-          </p>
+          <Link
+            href="/dashboard/how-it-works"
+            className="text-gray-500 dark:text-gray-400 max-w-md text-sm md:text-right"
+          >
+            <Button
+              variant="outline"
+              className="text-gray-500 dark:text-gray-400 max-w-md text-sm md:text-right"
+            >
+              {content.welcome.subtitle}
+            </Button>
+          </Link>
         </div>
 
         {/* Stats Grid */}
