@@ -41,7 +41,6 @@ export default function ProjectsList() {
     sort: "newest",
   });
 
-  // حساب تقدم المشروع
   const calculateProjectProgress = (project) => {
     if (!project.tasks || project.tasks.length === 0) return 0;
     const completedTasks = project.tasks.filter(
@@ -50,7 +49,6 @@ export default function ProjectsList() {
     return Math.round((completedTasks / project.tasks.length) * 100);
   };
 
-  // تصفية المشاريع
   const leadingProjects = data?.filter(
     (proj) =>
       proj.leaderId?._id === userId ||
@@ -63,13 +61,11 @@ export default function ProjectsList() {
       !leadingProjects?.some((leadProj) => leadProj._id === proj._id)
   );
 
-  // تطبيق الفلاتر والبحث
   const filterProjects = (projects) => {
     if (!projects) return [];
 
     let filtered = [...projects];
 
-    // تطبيق البحث
     if (searchTerm) {
       filtered = filtered.filter(
         (project) =>
@@ -87,7 +83,6 @@ export default function ProjectsList() {
       });
     }
 
-    // تطبيق الترتيب
     if (filters.sort === "newest") {
       filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     } else if (filters.sort === "oldest") {
@@ -144,7 +139,6 @@ export default function ProjectsList() {
         </div>
       </header>
 
-      {/* Search and Filters Section */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-4 px-4 sm:px-6 lg:px-8">
         <div className="max-w-screen-xl mx-auto space-y-4">
           <div className="relative">
@@ -219,9 +213,14 @@ export default function ProjectsList() {
       <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-8 bg-gray-100 dark:bg-gray-800">
-            <TabsTrigger value="leading" className="flex items-center gap-2">
-              <Folder className="w-4 h-4" />
-              {content.dashboard.sections.leading}
+            <TabsTrigger
+              value="leading"
+              className="flex items-center justify-center gap-2 min-w-0"
+            >
+              <Folder className="w-4 h-4 hidden md:block" />
+              <span className="block text-xs sm:text-sm md:text-base text-center">
+                {content.dashboard.sections.leading}
+              </span>
               {filteredLeadingProjects?.length > 0 && (
                 <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full">
                   {filteredLeadingProjects.length}
@@ -230,10 +229,12 @@ export default function ProjectsList() {
             </TabsTrigger>
             <TabsTrigger
               value="participating"
-              className="flex items-center gap-2"
+              className="flex items-center justify-center gap-2 min-w-0"
             >
-              <Users className="w-4 h-4" />
-              {content.dashboard.sections.participating}
+              <Users className="w-4 h-4 hidden md:block" />
+              <span className="block text-xs sm:text-sm md:text-base text-center">
+                {content.dashboard.sections.participating}
+              </span>
               {filteredParticipatingProjects?.length > 0 && (
                 <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full">
                   {filteredParticipatingProjects.length}
