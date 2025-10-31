@@ -21,9 +21,30 @@ const notoSansArabic = Noto_Sans_Arabic({
 });
 
 export const metadata = {
-  title: "FinalStep - Graduation Project Management",
-  description:
-    "The ultimate platform for students to manage and collaborate on graduation projects.",
+  title: "Final Step | Project Management Platform",
+  description: "Manage your projects, tasks, and teams easily with Final Step.",
+  keywords: [
+    "project management",
+    "teamwork",
+    "tasks",
+    "Next.js",
+    "Final Step",
+  ],
+  openGraph: {
+    title: "Final Step",
+    description: "Simplify your project management workflow.",
+    url: "https://final-step.vercel.app",
+    siteName: "Final Step",
+    images: [
+      {
+        url: "https://final-step.vercel.app/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }) {

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://final-step.vercel.app/sitemap.xml
