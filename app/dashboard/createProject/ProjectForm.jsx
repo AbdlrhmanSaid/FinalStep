@@ -136,7 +136,9 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
       </div>
 
       {/* Public Project Switch */}
-      <div className="flex items-center justify-between p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
+      <div
+        className={`flex items-center justify-between p-2 rounded-lg bg-gray-100 dark:bg-gray-800 $`}
+      >
         <Label htmlFor="public" className="text-sm font-medium">
           {content.isPublic}
         </Label>
@@ -144,7 +146,7 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
           id="public"
           checked={publicProject}
           onCheckedChange={setPublicProject}
-          className={`${isRTL ? "ml-2" : "mr-2"}`}
+          className={`${isRTL ? "ml-2 flex-row-reverse" : "mr-2"}`}
         />
       </div>
 

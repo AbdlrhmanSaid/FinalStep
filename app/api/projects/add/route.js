@@ -7,7 +7,6 @@ export async function POST(request) {
     await dbConnect();
 
     const body = await request.json();
-    console.log("BODY =>", body);
     const { title, leaderId, inviteRequests = [], ...rest } = body;
 
     if (!title || !leaderId) {

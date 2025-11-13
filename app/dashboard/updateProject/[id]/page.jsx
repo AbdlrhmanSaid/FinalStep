@@ -1,5 +1,18 @@
-import UpdateProjectPage from "./UpdateProject";
+"use client";
 
-export default function Page() {
+import dynamic from "next/dynamic";
+
+const UpdateProjectPage = dynamic(() => import("./UpdateProject"), {
+  loading: () => (
+    <div className="flex items-center justify-center py-10 text-sm text-gray-500">
+      Loading project editor...
+    </div>
+  ),
+  ssr: false,
+});
+
+const Page = () => {
   return <UpdateProjectPage />;
-}
+};
+
+export default Page;

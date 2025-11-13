@@ -16,9 +16,6 @@ import {
   Grid,
   List,
   ChevronDown,
-  Calendar,
-  Flag,
-  CheckCircle,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -32,7 +29,6 @@ export default function ProjectsList() {
   const { language, isRTL, userId } = useAppContext();
   const content = translations[language];
   const { data, isLoading } = useGetProjects(userId);
-  console.log(data);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState("grid");
   const [activeTab, setActiveTab] = useState("leading");
@@ -211,32 +207,39 @@ export default function ProjectsList() {
 
       {/* Main Content */}
       <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-8 bg-gray-100 dark:bg-gray-800">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full"
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          {/* Tabs List */}
+          <TabsList className="grid grid-cols-2 w-full h-fit max-w-md mx-auto mb-8 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg gap-1">
             <TabsTrigger
               value="leading"
-              className="flex items-center justify-center gap-2 min-w-0"
+              className="flex items-center justify-center gap-2 py-2 px-3 rounded-md transition-all data-[state=active]:bg-white data-[state=active]:dark:bg-gray-700 data-[state=active]:shadow-sm data-[state=active]:font-semibold"
             >
-              <Folder className="w-4 h-4 hidden md:block" />
-              <span className="block text-xs sm:text-sm md:text-base text-center">
+              <Folder className="w-4 h-4 hidden md:block text-gray-600 dark:text-gray-300" />
+              <span className="text-xs sm:text-sm md:text-base font-medium text-gray-700 dark:text-gray-200 text-center truncate">
                 {content.dashboard.sections.leading}
               </span>
               {filteredLeadingProjects?.length > 0 && (
-                <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-semibold bg-blue-100 dark:bg-blue-900/70 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded-full min-w-[1.5rem] text-center">
                   {filteredLeadingProjects.length}
                 </span>
               )}
             </TabsTrigger>
+
             <TabsTrigger
               value="participating"
-              className="flex items-center justify-center gap-2 min-w-0"
+              className="flex items-center justify-center gap-2 py-2 px-3 rounded-md transition-all data-[state=active]:bg-white data-[state=active]:dark:bg-gray-700 data-[state=active]:shadow-sm data-[state=active]:font-semibold"
             >
-              <Users className="w-4 h-4 hidden md:block" />
-              <span className="block text-xs sm:text-sm md:text-base text-center">
+              <Users className="w-4 h-4 hidden md:block text-gray-600 dark:text-gray-300" />
+              <span className="text-xs sm:text-sm md:text-base font-medium text-gray-700 dark:text-gray-200 text-center truncate">
                 {content.dashboard.sections.participating}
               </span>
               {filteredParticipatingProjects?.length > 0 && (
-                <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-semibold bg-blue-100 dark:bg-blue-900/70 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded-full min-w-[1.5rem] text-center">
                   {filteredParticipatingProjects.length}
                 </span>
               )}
@@ -244,7 +247,7 @@ export default function ProjectsList() {
           </TabsList>
 
           {/* Leading Projects Tab */}
-          <TabsContent value="leading">
+          <TabsContent value="leading" className="mt-6">
             {filteredLeadingProjects?.length > 0 ? (
               viewMode === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -252,7 +255,7 @@ export default function ProjectsList() {
                     <Link
                       key={project._id}
                       href={`/dashboard/projects/${project._id}`}
-                      className="group"
+                      className="group block"
                     >
                       <ProjectCard
                         project={{
@@ -268,7 +271,7 @@ export default function ProjectsList() {
                         content={content.dashboard}
                         isRTL={isRTL}
                         members={project.members?.length || 0}
-                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:border-blue-500 dark:group-hover:border-blue-400 hover:-translate-y-1"
+                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:border-blue-500 dark:group-hover:border-blue-400 hover:-translate-y-1 h-full"
                         viewMode={viewMode}
                       />
                     </Link>
@@ -305,31 +308,36 @@ export default function ProjectsList() {
               )
             ) : searchTerm ? (
               <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
-                <Search className="w-10 h-10 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 dark:text-gray-400 text-lg">
+                <Search className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-200">
                   {isRTL
-                    ? `لا توجد نتائج للبحث عن "${searchTerm}" في المشاريع القيادية`
-                    : `No results found for "${searchTerm}" in leading projects`}
+                    ? `لا توجد نتائج لـ "${searchTerm}" في المشاريع القيادية`
+                    : `No results for "${searchTerm}" in leading projects`}
+                </p>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  {isRTL ? "جرب كلمات مفتاحية أخرى" : "Try different keywords"}
                 </p>
               </div>
             ) : (
               <EmptyState
                 content={content.dashboard}
                 isRTL={isRTL}
-                icon={<Folder className="w-10 h-10 text-gray-400 mx-auto" />}
-                title={isRTL ? "لا توجد مشاريع قيادية" : "No leading projects"}
+                icon={
+                  <Folder className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto" />
+                }
+                title={isRTL ? "لا توجد مشاريع قيادية" : "No Leading Projects"}
                 description={
                   isRTL
-                    ? "يمكنك إنشاء مشروع جديد بالضغط على الزر أعلاه"
-                    : "You can create a new project by clicking the button above"
+                    ? "ابدأ بإنشاء مشروع جديد لتتمكن من قيادته"
+                    : "Start by creating a new project to lead"
                 }
-                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6"
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center"
               />
             )}
           </TabsContent>
 
           {/* Participating Projects Tab */}
-          <TabsContent value="participating">
+          <TabsContent value="participating" className="mt-6">
             {filteredParticipatingProjects?.length > 0 ? (
               viewMode === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -337,7 +345,7 @@ export default function ProjectsList() {
                     <Link
                       key={project._id}
                       href={`/dashboard/projects/${project._id}`}
-                      className="group"
+                      className="group block"
                     >
                       <ProjectCard
                         project={{
@@ -353,7 +361,7 @@ export default function ProjectsList() {
                         content={content.dashboard}
                         isRTL={isRTL}
                         members={project.members?.length || 0}
-                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:border-blue-500 dark:group-hover:border-blue-400 hover:-translate-y-1"
+                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:border-blue-500 dark:group-hover:border-blue-400 hover:-translate-y-1 h-full"
                         viewMode={viewMode}
                       />
                     </Link>
@@ -390,27 +398,32 @@ export default function ProjectsList() {
               )
             ) : searchTerm ? (
               <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center">
-                <Search className="w-10 h-10 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 dark:text-gray-400 text-lg">
+                <Search className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-200">
                   {isRTL
-                    ? `لا توجد نتائج للبحث عن "${searchTerm}" في المشاريع المشاركة`
-                    : `No results found for "${searchTerm}" in participating projects`}
+                    ? `لا توجد نتائج لـ "${searchTerm}" في المشاريع المشاركة`
+                    : `No results for "${searchTerm}" in participating projects`}
+                </p>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  {isRTL ? "جرب كلمات أخرى" : "Try different keywords"}
                 </p>
               </div>
             ) : (
               <EmptyState
                 content={content.dashboard}
                 isRTL={isRTL}
-                icon={<Users className="w-10 h-10 text-gray-400 mx-auto" />}
+                icon={
+                  <Users className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto" />
+                }
                 title={
-                  isRTL ? "لا توجد مشاريع مشاركة" : "No participating projects"
+                  isRTL ? "لا توجد مشاريع مشاركة" : "No Participating Projects"
                 }
                 description={
                   isRTL
-                    ? "سيظهر هنا المشاريع التي تنضم إليها عندما تتم دعوتك"
-                    : "Projects you join will appear here when you're invited"
+                    ? "ستظهر المشاريع التي تنضم إليها هنا بعد قبول الدعوات"
+                    : "Projects you join will appear here after accepting invitations"
                 }
-                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6"
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-12 px-6 text-center"
               />
             )}
           </TabsContent>

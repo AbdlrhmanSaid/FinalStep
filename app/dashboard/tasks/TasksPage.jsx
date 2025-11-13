@@ -27,8 +27,8 @@ const TasksClient = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br bgMain">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br bgMain h-screen ">
+      <div className="max-w-4xl mx-auto h-screen">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold bg-clip-text  dark:text-white text-gray-800">
             {content.pageTitle}
@@ -85,8 +85,8 @@ const TasksClient = () => {
                             task.status === "completed"
                               ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                               : task.status === "in-progress"
-                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                              : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                           }`}
                         >
                           {content.statusValues[task.status] ?? task.status}

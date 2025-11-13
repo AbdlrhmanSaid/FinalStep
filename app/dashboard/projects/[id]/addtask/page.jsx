@@ -1,7 +1,18 @@
-import CreateTaskPage from "./CreateTaskPage";
+"use client";
 
-const page = () => {
+import dynamic from "next/dynamic";
+
+const CreateTaskPage = dynamic(() => import("./CreateTaskPage"), {
+  loading: () => (
+    <div className="flex items-center justify-center py-10 text-sm text-gray-500">
+      Loading task form...
+    </div>
+  ),
+  ssr: false,
+});
+
+const Page = () => {
   return <CreateTaskPage />;
 };
 
-export default page;
+export default Page;

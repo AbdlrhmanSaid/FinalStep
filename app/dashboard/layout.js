@@ -3,6 +3,7 @@ import { getFullUserOrRedirect } from "../../lib/getFullUser";
 import QueryProvider from "../../lib/queryProvider";
 import { AppProvider } from "../../contexts/AppContext";
 import Navbar from "./components/Navbar";
+import Footer from "../../components/home/Footer";
 
 export const metadata = {
   title: "FinalStep Dashboard",
@@ -15,11 +16,14 @@ const layout = async ({ children }) => {
   return (
     <QueryProvider>
       <AppProvider user={user}>
-        <nav>
-          <Navbar />
-        </nav>
-        <div className="antialiased">
-          <main>{children}</main>
+        <div className="antialiased min-h-screen flex flex-col">
+          <nav>
+            <Navbar />
+          </nav>
+          <main className="flex-1">{children}</main>
+          <footer>
+            <Footer />
+          </footer>
         </div>
       </AppProvider>
     </QueryProvider>

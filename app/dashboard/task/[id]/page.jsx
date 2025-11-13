@@ -1,7 +1,18 @@
-import TaskDetailPage from "./TaskDetailPage";
+"use client";
 
-const page = () => {
+import dynamic from "next/dynamic";
+
+const TaskDetailPage = dynamic(() => import("./TaskDetailPage"), {
+  loading: () => (
+    <div className="flex items-center justify-center py-10 text-sm text-gray-500">
+      Loading task details...
+    </div>
+  ),
+  ssr: false,
+});
+
+const Page = () => {
   return <TaskDetailPage />;
 };
 
-export default page;
+export default Page;

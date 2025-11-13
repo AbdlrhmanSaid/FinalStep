@@ -59,7 +59,7 @@ export default function CreateProjectPage() {
   };
 
   return (
-    <div className="p-6 bgMain">
+    <div className="p-6 bgMain h-screen">
       <h1 className="text-2xl font-semibold mb-4 mx-auto text-center dark:text-white">
         {content.title}
       </h1>

@@ -70,8 +70,6 @@ ProjectSchema.post("findOneAndDelete", async function (doc) {
       await Task.deleteMany({ projectId: doc._id });
 
       await InviteRequest.deleteMany({ projectId: doc._id });
-
-      console.log(`Deleted tasks and invites for project ${doc._id}`);
     } catch (error) {
       console.error("Error in post-delete hook:", error);
     }
