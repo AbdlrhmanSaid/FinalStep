@@ -1,11 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Loading from "../../components/Loading";
 
 const WelcomePage = dynamic(() => import("./WelcomePage"), {
   loading: () => (
     <div className="flex items-center justify-center py-10 text-sm text-gray-500">
-      Loading dashboard...
+      <Loading />
     </div>
   ),
   ssr: false,
