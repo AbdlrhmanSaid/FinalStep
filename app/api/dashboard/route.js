@@ -27,10 +27,21 @@ export async function GET() {
 
   const finishedTasks = allTasks.filter((task) => task.status === "completed");
 
+  // جلب آخر 3 دعوات pending
   const pendingInvites = await InviteRequest.find({
     email: user.email,
     status: "pending",
-  });
+  })
+    .populate("projectId", "title")
+    .sort({ createdAt: -1 })
+    .limit(3);
+
+  // جلب آخر 3 مهام
+  const recentTasks = await Task.find({
+    assignedTo: { $in: [user._id] },
+  })
+    .sort({ createdAt: -1 })
+    .limit(3);
 
   return NextResponse.json({
     projectsCount: allProjects.length,
@@ -38,5 +49,7 @@ export async function GET() {
     tasksCount: allTasks.length,
     finishedTasksCount: finishedTasks.length,
     pendingInvitesCount: pendingInvites.length,
+    recentInvites: pendingInvites,
+    recentTasks: recentTasks,
   });
 }

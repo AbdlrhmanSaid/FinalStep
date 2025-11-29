@@ -3,15 +3,40 @@
 import { useState } from "react";
 import { Menu, X, Sun, Moon, Globe, GraduationCap } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import UserMenu from "../../../components/UserMenu";
 import { useAppContext } from "../../../contexts/AppContext";
 import { translations } from "../../../lib/translations";
 
 export default function DashboardNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
   const { isRTL, isDark, toggleLanguage, toggleTheme, language } =
     useAppContext();
   const content = translations[language];
+
+  const isActive = (path) => {
+    if (path === "/dashboard") {
+      return pathname === path;
+    }
+    return pathname?.startsWith(path);
+  };
+
+  const getLinkClasses = (path) => {
+    const baseClasses = "px-3 py-2 rounded-md text-sm font-medium transition-colors";
+    const activeClasses = "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
+    const inactiveClasses = "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400";
+    
+    return `${baseClasses} ${isActive(path) ? activeClasses : inactiveClasses}`;
+  };
+
+  const getMobileLinkClasses = (path) => {
+    const baseClasses = "block px-3 py-2 rounded-md text-base font-medium";
+    const activeClasses = "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
+    const inactiveClasses = "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400";
+    
+    return `${baseClasses} ${isActive(path) ? activeClasses : inactiveClasses}`;
+  };
 
   return (
     <nav
@@ -37,31 +62,31 @@ export default function DashboardNav() {
             <div className={`flex items-center space-x-8 ${isRTL ? "" : ""}`}>
               <Link
                 href={"/dashboard"}
-                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className={getLinkClasses("/dashboard")}
               >
                 {content.dashboardNav.home}
               </Link>
               <Link
                 href={"/dashboard/projects"}
-                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className={getLinkClasses("/dashboard/projects")}
               >
                 {content.dashboardNav.projects}
               </Link>
               <Link
                 href={"/dashboard/invitations"}
-                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className={getLinkClasses("/dashboard/invitations")}
               >
                 {content.dashboardNav.invitations}
               </Link>
               <Link
                 href={"/dashboard/tasks"}
-                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className={getLinkClasses("/dashboard/tasks")}
               >
                 {content.dashboardNav.team}
               </Link>
               <Link
                 href={"/dashboard/profile"}
-                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className={getLinkClasses("/dashboard/profile")}
               >
                 {content.dashboardNav.settings}
               </Link>
@@ -122,35 +147,35 @@ export default function DashboardNav() {
               <Link
                 onClick={() => setIsMenuOpen(false)}
                 href="/dashboard"
-                className="block text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+                className={getMobileLinkClasses("/dashboard")}
               >
                 {content.dashboardNav.home}
               </Link>
               <Link
                 onClick={() => setIsMenuOpen(false)}
                 href={"/dashboard/projects"}
-                className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+                className={getMobileLinkClasses("/dashboard/projects")}
               >
                 {content.dashboardNav.projects}
               </Link>
               <Link
                 onClick={() => setIsMenuOpen(false)}
                 href={"/dashboard/invitations"}
-                className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+                className={getMobileLinkClasses("/dashboard/invitations")}
               >
                 {content.dashboardNav.invitations}
               </Link>
               <Link
                 onClick={() => setIsMenuOpen(false)}
                 href={"/dashboard/tasks"}
-                className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+                className={getMobileLinkClasses("/dashboard/tasks")}
               >
                 {content.dashboardNav.team}
               </Link>
               <Link
                 onClick={() => setIsMenuOpen(false)}
                 href={"/dashboard/profile"}
-                className="block text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+                className={getMobileLinkClasses("/dashboard/profile")}
               >
                 {content.dashboardNav.settings}
               </Link>

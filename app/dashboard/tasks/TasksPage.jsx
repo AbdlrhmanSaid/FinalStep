@@ -1,26 +1,69 @@
 "use client";
 
 import { useAppContext } from "../../../contexts/AppContext";
-import { useGetTasks } from "../../../hooks/tasks/useTasks";
+import { useGetTasks, useUpdateTask } from "../../../hooks/tasks/useTasks";
 import { translations } from "../../../lib/translations";
 import Loading from "../../../components/Loading";
-import { ArrowRight } from "lucide-react";
-import { useMemo } from "react";
+import { ArrowRight, Search, RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../@/components/ui/select";
+import { Button } from "../../../@/components/ui/button";
 
 const TasksClient = () => {
   const { userId, language } = useAppContext();
-  const { data: tasks, isLoading } = useGetTasks();
+  const { data: tasks, isLoading, refetch, isFetching } = useGetTasks();
+  const { mutate: updateTask } = useUpdateTask();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const content = translations[language].dashboard.tasks;
 
-  const myTasks = useMemo(() => {
+  // ترتيب وفلترة المهام
+  const filteredAndSortedTasks = useMemo(() => {
     if (!tasks || !userId) return [];
 
-    return tasks.filter((task) =>
+    // فلترة المهام الخاصة بالمستخدم
+    let myTasks = tasks.filter((task) =>
       task.assignedTo?.some((user) => user._id === userId)
     );
-  }, [tasks, userId]);
+
+    // البحث
+    if (searchQuery.trim()) {
+      myTasks = myTasks.filter(
+        (task) =>
+          task.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          task.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // ترتيب من الأحدث للأقدم
+    return myTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, [tasks, userId, searchQuery]);
+
+  const handleStatusChange = (taskId, newStatus) => {
+    updateTask(
+      {
+        taskId,
+        data: { status: newStatus },
+      },
+      {
+        onSuccess: () => {
+          toast.success(content.statusUpdated || "تم تحديث الحالة بنجاح");
+          refetch();
+        },
+        onError: () => {
+          toast.error("فشل في تحديث الحالة");
+        },
+      }
+    );
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -33,15 +76,38 @@ const TasksClient = () => {
           <h1 className="text-3xl font-bold bg-clip-text  dark:text-white text-gray-800">
             {content.pageTitle}
           </h1>
-          {myTasks.length > 0 && (
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-              {myTasks.length}{" "}
-              {myTasks.length === 1 ? content.task : content.tasks}
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {filteredAndSortedTasks.length > 0 && (
+              <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                {filteredAndSortedTasks.length}{" "}
+                {filteredAndSortedTasks.length === 1 ? content.task : content.tasks}
+              </span>
+            )}
+            <Button
+              onClick={() => refetch()}
+              disabled={isFetching}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </div>
 
-        {myTasks.length === 0 ? (
+        {/* Search Bar */}
+        <div className="mb-6 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder={content.searchPlaceholder}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          />
+        </div>
+
+        {filteredAndSortedTasks.length === 0 ? (
           <div className="text-center py-12">
             <div className="mx-auto w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
               <svg
@@ -60,15 +126,15 @@ const TasksClient = () => {
               </svg>
             </div>
             <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-2">
-              {content.emptyTitle}
+              {searchQuery ? content.noResults : content.emptyTitle}
             </h3>
             <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-              {content.emptyDescription || content.empty}
+              {searchQuery ? content.tryDifferentSearch : content.emptyDescription}
             </p>
           </div>
         ) : (
           <div className="grid gap-4">
-            {myTasks.map((task) => (
+            {filteredAndSortedTasks.map((task) => (
               <div
                 key={task._id}
                 className="group relative overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-800/50"
@@ -80,21 +146,42 @@ const TasksClient = () => {
                         <h2 className="text-lg font-semibold text-gray-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                           {task.title}
                         </h2>
-                        <span
-                          className={`px-2 py-1 text-xs rounded-full ${
-                            task.status === "completed"
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                              : task.status === "in-progress"
-                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                                : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-                          }`}
-                        >
-                          {content.statusValues[task.status] ?? task.status}
-                        </span>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-300 line-clamp-2">
+                      <p className="text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
                         {task.description}
                       </p>
+                      
+                      {/* Status Selector */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {content.status || "الحالة"}:
+                        </span>
+                        <Select
+                          value={task.status}
+                          onValueChange={(value) => handleStatusChange(task._id, value)}
+                        >
+                          <SelectTrigger className="w-[180px] h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="open">
+                              {content.statusValues?.open || "مفتوحة"}
+                            </SelectItem>
+                            <SelectItem value="in-progress">
+                              {content.statusValues?.["in-progress"] || "قيد التنفيذ"}
+                            </SelectItem>
+                            <SelectItem value="submitted">
+                              {content.statusValues?.submitted || "مُسلّمة"}
+                            </SelectItem>
+                            <SelectItem value="completed">
+                              {content.statusValues?.completed || "مكتملة"}
+                            </SelectItem>
+                            <SelectItem value="rejected">
+                              {content.statusValues?.rejected || "مرفوضة"}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
                     <Link
