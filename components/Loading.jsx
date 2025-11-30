@@ -51,33 +51,7 @@ export default function ModernLoading() {
             ? "bg-gray-800/80 border-gray-700/50 shadow-2xl shadow-blue-500/10" 
             : "bg-white/80 border-gray-200/50 shadow-2xl shadow-blue-500/20"
         }`}>
-          {/* Decorative Elements */}
-          <div className="absolute -top-6 -right-6">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-              className={`w-12 h-12 rounded-full ${
-                isDark ? "bg-gradient-to-br from-blue-500 to-purple-600" : "bg-gradient-to-br from-blue-400 to-purple-500"
-              } flex items-center justify-center shadow-lg`}
-            >
-              <Sparkles className="w-6 h-6 text-white" />
-            </motion.div>
-          </div>
 
-          <div className="absolute -bottom-6 -left-6">
-            <motion.div
-              animate={{ 
-                scale: [1, 1.2, 1],
-                rotate: [0, 180, 360]
-              }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className={`w-12 h-12 rounded-full ${
-                isDark ? "bg-gradient-to-br from-purple-500 to-pink-600" : "bg-gradient-to-br from-purple-400 to-pink-500"
-              } flex items-center justify-center shadow-lg`}
-            >
-              <Zap className="w-6 h-6 text-white" />
-            </motion.div>
-          </div>
 
           <div className="flex flex-col items-center gap-8 min-w-[320px]">
             {/* Animated Logo/Icon */}

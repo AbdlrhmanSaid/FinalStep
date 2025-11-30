@@ -151,37 +151,6 @@ const TasksClient = () => {
                         {task.description}
                       </p>
                       
-                      {/* Status Selector */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {content.status || "الحالة"}:
-                        </span>
-                        <Select
-                          value={task.status}
-                          onValueChange={(value) => handleStatusChange(task._id, value)}
-                        >
-                          <SelectTrigger className="w-[180px] h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="open">
-                              {content.statusValues?.open || "مفتوحة"}
-                            </SelectItem>
-                            <SelectItem value="in-progress">
-                              {content.statusValues?.["in-progress"] || "قيد التنفيذ"}
-                            </SelectItem>
-                            <SelectItem value="submitted">
-                              {content.statusValues?.submitted || "مُسلّمة"}
-                            </SelectItem>
-                            <SelectItem value="completed">
-                              {content.statusValues?.completed || "مكتملة"}
-                            </SelectItem>
-                            <SelectItem value="rejected">
-                              {content.statusValues?.rejected || "مرفوضة"}
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
                     </div>
 
                     <Link

@@ -165,7 +165,7 @@ export default function WelcomePage() {
               onClick={() => refetch()}
               disabled={isFetching}
               variant="outline"
-              className="flex items-center gap-2 text-gray-50 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                className="text-gray-500 dark:text-gray-400 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
               {isFetching ? content.updating : content.update}
@@ -366,21 +366,7 @@ export default function WelcomePage() {
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 line-clamp-1">
                       {task.description}
                     </p>
-                    <Select
-                      value={task.status}
-                      onValueChange={(value) => handleTaskStatusChange(task._id, value)}
-                    >
-                      <SelectTrigger className="w-full h-8 text-xs bg-white dark:bg-gray-700">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="open">{content.taskDetails.status.open}</SelectItem>
-                        <SelectItem value="in-progress">{content.taskDetails.status.inProgress}</SelectItem>
-                        <SelectItem value="submitted">{content.taskDetails.status.submitted}</SelectItem>
-                        <SelectItem value="completed">{content.taskDetails.status.completed}</SelectItem>
-                        <SelectItem value="rejected">{content.taskDetails.status.rejected}</SelectItem>
-                      </SelectContent>
-                    </Select>
+
                   </div>
                 ))}
               </div>
