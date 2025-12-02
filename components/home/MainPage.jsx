@@ -9,6 +9,7 @@ import About from "./About";
 import Contact from "./Contact";
 import Footer from "./Footer";
 import { translations } from "../../lib/translations";
+import "./home.css";
 
 export default function LandingPage() {
   const [isDark, setIsDark] = useState(false);
@@ -62,7 +63,7 @@ export default function LandingPage() {
 
   return (
     <div
-      className={`min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300 ${
+      className={`min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300  ${
         isRTL ? "font-arabic" : ""
       }`}
     >

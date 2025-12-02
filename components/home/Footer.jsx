@@ -18,7 +18,7 @@ export default function Footer({ t, isRTL }) {
             className="flex items-center space-x-3 rtl:space-x-reverse"
           >
             <span className="text-lg font-bold text-gray-900 dark:text-white">
-              Abdelrhman Saeid - Maram Mohamed
+              WebSync
             </span>
           </Link>
 
