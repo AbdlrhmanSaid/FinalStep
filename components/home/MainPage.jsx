@@ -63,7 +63,7 @@ export default function LandingPage() {
 
   return (
     <div
-      className={`min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300  ${
+      className={`home-page-wrapper min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300  ${
         isRTL ? "font-arabic" : ""
       }`}
     >
