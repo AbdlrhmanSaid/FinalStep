@@ -4,3 +4,4 @@ const page = () => {
   return <LandingPage />;
 };
 export default page;
+

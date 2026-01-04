@@ -2,7 +2,7 @@
 import { useAppContext } from "../../../contexts/AppContext";
 import { useGetUserInvites } from "../../../hooks/invitations/useGetUserInvites";
 import Loading from "../../../components/Loading";
-import { Button } from "../../../@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { Mail, CheckCircle, XCircle, Folder, RefreshCw } from "lucide-react";
 import { translations } from "../../../lib/translations";
@@ -23,19 +23,21 @@ export default function InvitationsPage() {
   // ترتيب الدعوات من الأحدث للأقدم
   const sortedInvites = useMemo(() => {
     if (!invites) return [];
-    return [...invites].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return [...invites].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
   }, [invites]);
 
   const handleRespond = async (inviteId, action) => {
     try {
       await axios.put(`/api/invite/respond`, { inviteId, action });
-      
+
       if (action === "accepted") {
         toast.success(content.acceptSuccess || "تم قبول الدعوة بنجاح!");
       } else if (action === "rejected") {
         toast.success(content.rejectSuccess || "تم رفض الدعوة");
       }
-      
+
       await refetch();
     } catch (err) {
       console.error("Failed to respond:", err);
@@ -65,7 +67,9 @@ export default function InvitationsPage() {
                 variant="outline"
                 className="flex items-center gap-2"
               >
-                <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`}
+                />
                 {isFetching ? "جاري التحديث..." : "تحديث"}
               </Button>
             </div>

@@ -7,10 +7,10 @@ import { useAppContext } from "../../../../../contexts/AppContext";
 import Loading from "../../../../../components/Loading";
 import CheckUserRole from "../../../../../lib/actions/checkUserRole";
 import toast from "react-hot-toast";
-import { Input } from "../../../../../@/components/ui/input";
-import { Button } from "../../../../../@/components/ui/button";
-import { Label } from "../../../../../@/components/ui/label";
-import { Textarea } from "../../../../../@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { translations } from "../../../../../lib/translations";
 
 export default function EditTaskPage() {

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "../../../@/components/ui/input";
-import { Label } from "../../../@/components/ui/label";
-import { Switch } from "../../../components/ui/switch";
-import { Button } from "../../../components/ui/button";
-import { Textarea } from "../../../@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash } from "lucide-react";
 import { useAppContext } from "../../../contexts/AppContext";
 import toast from "react-hot-toast";

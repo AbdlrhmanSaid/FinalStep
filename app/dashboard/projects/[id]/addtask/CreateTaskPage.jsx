@@ -9,17 +9,17 @@ import { useParams, useRouter } from "next/navigation";
 import CheckUserRole from "../../../../../lib/actions/checkUserRole";
 import Loading from "../../../../../components/Loading";
 
-import { Input } from "../../../../../@/components/ui/input";
-import { Button } from "../../../../../@/components/ui/button";
-import { Label } from "../../../../../@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Command,
   CommandInput,
   CommandItem,
   CommandList,
-} from "../../../../../@/components/ui/command";
-import { Badge } from "../../../../../@/components/ui/badge";
-import { Textarea } from "../../../../../@/components/ui/textarea";
+} from "@/components/ui/command";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 
 export default function CreateTaskPage() {

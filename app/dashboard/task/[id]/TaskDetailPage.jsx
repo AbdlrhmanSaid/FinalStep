@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import { useGetTask, useUpdateTask } from "../../../../hooks/tasks/useTasks";
 import { translations } from "../../../../lib/translations";
-import { Button } from "../../../../@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardHeader,
   CardContent,
-} from "../../../../@/components/ui/card";
+} from "@/components/ui/card";
 import { format } from "date-fns";
 import Loading from "../../../../components/Loading";
 import { useAppContext } from "../../../../contexts/AppContext";

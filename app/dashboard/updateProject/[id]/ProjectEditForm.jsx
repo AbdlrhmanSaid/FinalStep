@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { Input } from "../../../../@/components/ui/input";
-import { Label } from "../../../../@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Switch } from "../../../../components/ui/switch";
 import { Button } from "../../../../components/ui/button";
-import { Textarea } from "../../../../@/components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash, ArrowDown, ArrowUp } from "lucide-react";
 
 import { useDeleteMember } from "../../../../hooks/projects/useDeleteMember";

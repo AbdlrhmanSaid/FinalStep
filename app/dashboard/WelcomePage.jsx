@@ -19,7 +19,7 @@ import { translations } from "../../lib/translations";
 import Link from "next/link";
 import { useDashboard } from "../../hooks/useDashboard";
 import Loading from "../../components/Loading";
-import { Button } from "../../@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useUpdateTask } from "../../hooks/tasks/useTasks";
@@ -619,3 +619,4 @@ export default function WelcomePage() {
     </div>
   );
 }
+

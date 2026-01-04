@@ -1,28 +1,16 @@
 import { NextResponse } from "next/server";
-import dbConnect from "../../../lib/db";
-import Task from "../../../models/Task";
-import Project from "../../../models/Project";
-import User from "../../../models/User";
+import { createTask, getAllTasks } from "@/lib/server/tasks";
 
 export async function POST(req) {
   try {
-    await dbConnect();
     const body = await req.json();
-
-    const task = await Task.create(body);
-
-    // ✅ أضف الـ task إلى المشروع
-    if (task.projectId) {
-      await Project.findByIdAndUpdate(task.projectId, {
-        $push: { tasks: task._id },
-      });
-    }
+    const task = await createTask(body);
 
     return NextResponse.json(task, { status: 201 });
   } catch (error) {
     console.error("POST Task Error:", error);
     return NextResponse.json(
-      { error: "Failed to create task" },
+      { error: error.message || "Failed to create task" },
       { status: 500 }
     );
   }
@@ -30,18 +18,12 @@ export async function POST(req) {
 
 export async function GET() {
   try {
-    await dbConnect();
-    const tasks = await Task.find()
-      .populate("projectId")
-      .populate("assignedTo")
-      .populate("createdBy")
-      .populate("review.reviewedBy");
-
+    const tasks = await getAllTasks();
     return NextResponse.json(tasks, { status: 200 });
   } catch (error) {
     console.error("GET Tasks Error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch tasks" },
+      { error: error.message || "Failed to fetch tasks" },
       { status: 500 }
     );
   }

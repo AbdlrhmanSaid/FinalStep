@@ -15,8 +15,8 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../../../@/components/ui/card";
-import { Badge } from "../../../../@/components/ui/badge";
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Calendar,
   Users,
@@ -41,7 +41,7 @@ import {
   AlertDialogFooter,
   AlertDialogCancel,
   AlertDialogAction,
-} from "../../../../@/components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import { useLeaveProject } from "../../../../hooks/invitations/useLeaveProject";
 import { useUpdateProjectStatus } from "../../../../hooks/projects/useUpdateProjectStatus";
 import { useGetTasks, useDeleteTask } from "../../../../hooks/tasks/useTasks";

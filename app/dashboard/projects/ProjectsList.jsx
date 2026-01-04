@@ -22,7 +22,7 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
-} from "../../../@/components/ui/tabs";
+} from "@/components/ui/tabs";
 
 export default function ProjectsList() {
   const { language, isRTL, userId } = useAppContext();
@@ -449,3 +449,4 @@ export default function ProjectsList() {
     </div>
   );
 }
+

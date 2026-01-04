@@ -14,8 +14,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../../@/components/ui/select";
-import { Button } from "../../../@/components/ui/button";
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 const TasksClient = () => {
   const { userId, language } = useAppContext();
@@ -174,3 +174,4 @@ const TasksClient = () => {
 };
 
 export default TasksClient;
+
