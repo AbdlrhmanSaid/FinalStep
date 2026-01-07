@@ -1,5 +1,3 @@
-"use client";
-
 import dynamic from "next/dynamic";
 
 const EditTaskPage = dynamic(() => import("./EditTaskPage"), {
@@ -8,7 +6,7 @@ const EditTaskPage = dynamic(() => import("./EditTaskPage"), {
       Loading task editor...
     </div>
   ),
-  ssr: false,
+  ssr: true,
 });
 
 const Page = () => {

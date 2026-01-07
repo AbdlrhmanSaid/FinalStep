@@ -1,7 +1,14 @@
-"use client";
-
 import dynamic from "next/dynamic";
 import Loading from "../../../components/Loading";
+
+export const metadata = {
+  title: "Create Project",
+  description: "Create a new project and start collaborating with your team.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 const CreateProjectPage = dynamic(() => import("./CreateProjectPage"), {
   loading: () => (
@@ -9,7 +16,7 @@ const CreateProjectPage = dynamic(() => import("./CreateProjectPage"), {
       <Loading />
     </div>
   ),
-  ssr: false,
+  ssr: true,
 });
 
 const Page = () => {
@@ -17,4 +24,3 @@ const Page = () => {
 };
 
 export default Page;
-

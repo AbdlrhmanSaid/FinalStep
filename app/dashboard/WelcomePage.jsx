@@ -205,7 +205,9 @@ export default function WelcomePage() {
             icon={<Mail className="w-6 h-6 text-white" />}
             gradient="from-amber-500 to-amber-600"
             subtext={
-              data?.pendingInvitesCount > 0 ? "تحتاج للمراجعة" : "لا توجد دعوات"
+              data?.pendingInvitesCount > 0
+                ? "تحتاج للمراجعة"
+                : content.stats.noInvites
             }
           />
         </div>
@@ -619,4 +621,3 @@ export default function WelcomePage() {
     </div>
   );
 }
-

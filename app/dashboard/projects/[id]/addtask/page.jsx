@@ -1,5 +1,3 @@
-"use client";
-
 import dynamic from "next/dynamic";
 
 const CreateTaskPage = dynamic(() => import("./CreateTaskPage"), {
@@ -8,7 +6,7 @@ const CreateTaskPage = dynamic(() => import("./CreateTaskPage"), {
       Loading task form...
     </div>
   ),
-  ssr: false,
+  ssr: true,
 });
 
 const Page = () => {

@@ -1,7 +1,14 @@
-"use client";
-
 import dynamic from "next/dynamic";
 import Loading from "../../../components/Loading";
+
+export const metadata = {
+  title: "Invitations",
+  description: "Manage your project invitations and join new teams.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 const InvitationsPage = dynamic(() => import("./InvitationsPage"), {
   loading: () => (
@@ -9,7 +16,7 @@ const InvitationsPage = dynamic(() => import("./InvitationsPage"), {
       <Loading />
     </div>
   ),
-  ssr: false,
+  ssr: true,
 });
 
 const Page = () => {
@@ -17,4 +24,3 @@ const Page = () => {
 };
 
 export default Page;
-

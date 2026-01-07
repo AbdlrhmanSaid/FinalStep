@@ -1,7 +1,14 @@
-"use client";
-
 import dynamic from "next/dynamic";
 import Loading from "../../components/Loading";
+
+export const metadata = {
+  title: "Dashboard",
+  description: "Manage your projects and tasks from your personal dashboard.",
+  robots: {
+    index: false, // Dashboard pages shouldn't be indexed
+    follow: false,
+  },
+};
 
 const WelcomePage = dynamic(() => import("./WelcomePage"), {
   loading: () => (
@@ -9,7 +16,7 @@ const WelcomePage = dynamic(() => import("./WelcomePage"), {
       <Loading />
     </div>
   ),
-  ssr: false,
+  ssr: true, // Enable SSR for better performance
 });
 
 const Page = () => {
@@ -17,4 +24,3 @@ const Page = () => {
 };
 
 export default Page;
-
