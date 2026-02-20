@@ -16,7 +16,6 @@ export async function POST(request) {
       );
     }
 
-    // إنشاء المشروع وإضافة الدعوات داخل حقل inviteRequests
     const newProject = await Project.create({
       title,
       leaderId,

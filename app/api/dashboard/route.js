@@ -27,7 +27,6 @@ export async function GET() {
 
   const finishedTasks = allTasks.filter((task) => task.status === "completed");
 
-  // جلب آخر 3 دعوات pending
   const pendingInvites = await InviteRequest.find({
     email: user.email,
     status: "pending",
@@ -36,7 +35,6 @@ export async function GET() {
     .sort({ createdAt: -1 })
     .limit(3);
 
-  // جلب آخر 3 مهام
   const recentTasks = await Task.find({
     assignedTo: { $in: [user._id] },
   })
