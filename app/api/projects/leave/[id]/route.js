@@ -1,5 +1,6 @@
 import dbConnect from "../../../../../lib/db";
 import Project from "../../../../../models/Project";
+import Task from "../../../../../models/Task";
 
 export async function PUT(request, { params }) {
   try {
@@ -19,16 +20,17 @@ export async function PUT(request, { params }) {
       return Response.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // حذف العضو من المصفوفة
     project.members = project.members.filter(
-      (memberId) => memberId.toString() !== userId
+      (memberId) => memberId.toString() !== userId,
     );
+
+    await Task.updateMany({ projectId }, { $pull: { assignedTo: userId } });
 
     await project.save();
 
     return Response.json(
       { message: "Left project successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Leave Project Error:", error);
