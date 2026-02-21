@@ -77,7 +77,7 @@ export const metadata = {
     images: ["/og-image.png"],
   },
   verification: {
-    google: "your-google-verification-code",
+    google: "geLAyuipWlwOYyOPDh4KQKVAj6BFRA7RXxkZLqLYins",
   },
 };
 
