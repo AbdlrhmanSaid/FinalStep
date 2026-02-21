@@ -9,6 +9,7 @@ import { Switch } from "../../../../components/ui/switch";
 import { Button } from "../../../../components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash, ArrowDown, ArrowUp } from "lucide-react";
+import DatePicker from "../../../../components/ui/DatePicker";
 
 import { useDeleteMember } from "../../../../hooks/projects/useDeleteMember";
 import { useUpdateMemberRole } from "../../../../hooks/projects/useUpdateMemberRole";
@@ -24,6 +25,7 @@ export default function ProjectEditForm({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [publicProject, setPublicProject] = useState(false);
+  const [deadline, setDeadline] = useState("");
   const [invites, setInvites] = useState([""]);
   const [errors, setErrors] = useState({ invites: [] });
 
@@ -35,10 +37,15 @@ export default function ProjectEditForm({
       setTitle(project.title || "");
       setDescription(project.description || "");
       setPublicProject(project.public || false);
+      setDeadline(
+        project.deadline
+          ? new Date(project.deadline).toISOString().split("T")[0]
+          : "",
+      );
       setInvites(
         project.inviteRequests?.map(({ email }) => email).filter(Boolean) || [
           "",
-        ]
+        ],
       );
     }
   }, [project]);
@@ -71,7 +78,7 @@ export default function ProjectEditForm({
     e.preventDefault();
 
     const inviteErrors = invites.map((email) =>
-      email && !validateEmail(email) ? "Invalid email" : ""
+      email && !validateEmail(email) ? "Invalid email" : "",
     );
 
     if (inviteErrors.some(Boolean)) {
@@ -83,6 +90,7 @@ export default function ProjectEditForm({
       title,
       description,
       public: publicProject,
+      deadline: deadline || null,
       inviteRequests: invites.filter(Boolean).map((email) => ({ email })),
     };
 
@@ -96,6 +104,7 @@ export default function ProjectEditForm({
       setTitle("");
       setDescription("");
       setPublicProject(false);
+      setDeadline("");
       setInvites([""]);
       setErrors({ invites: [] });
 
@@ -156,6 +165,24 @@ export default function ProjectEditForm({
           onCheckedChange={setPublicProject}
           className={`${isRTL && "flex-row-reverse"}`}
         />
+      </div>
+
+      {/* Project Deadline */}
+      <div>
+        <Label htmlFor="deadline" className="mb-3 block">
+          {content.deadline}
+        </Label>
+        <DatePicker
+          value={deadline}
+          onChange={setDeadline}
+          placeholder={content.deadlinePlaceholder || "Pick a deadline date..."}
+          locale={isRTL ? "ar" : "en"}
+        />
+        {deadline && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {content.deadlineHint}
+          </p>
+        )}
       </div>
 
       {/* Invitations */}
@@ -248,7 +275,7 @@ export default function ProjectEditForm({
         {project.members?.length > 0 &&
         project.members.some(
           (member) =>
-            !project.coLeaders?.some((coLeader) => coLeader._id === member._id)
+            !project.coLeaders?.some((coLeader) => coLeader._id === member._id),
         ) ? (
           <div>
             <p className="mb-2 font-semibold text-blue-500">
@@ -258,8 +285,8 @@ export default function ProjectEditForm({
               .filter(
                 (member) =>
                   !project.coLeaders?.some(
-                    (coLeader) => coLeader._id === member._id
-                  )
+                    (coLeader) => coLeader._id === member._id,
+                  ),
               )
               .map((user) => (
                 <div

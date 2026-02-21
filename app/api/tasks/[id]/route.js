@@ -34,10 +34,28 @@ export async function PUT(request, { params }) {
   try {
     await dbConnect();
     const body = await request.json();
+    const userId = request.headers.get("userId");
 
-    const task = await Task.findById(params.id);
+    const task = await Task.findById(params.id).populate("projectId");
     if (!task) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
+    // ✅ التحقق من الـ dueDate - لو عدى، بس الليدر يقدر يعدل
+    const project = task.projectId;
+    if (project && task.dueDate && new Date(task.dueDate) < new Date()) {
+      const isLeader =
+        project.leaderId?.toString() === userId ||
+        project.coLeaders?.map((id) => id.toString()).includes(userId);
+      if (!isLeader) {
+        return NextResponse.json(
+          {
+            error:
+              "Task deadline has passed. Only the project leader can make changes.",
+          },
+          { status: 403 },
+        );
+      }
     }
 
     if (body.status && !validTransitions[task.status]?.includes(body.status)) {
@@ -45,7 +63,7 @@ export async function PUT(request, { params }) {
         {
           error: `Invalid status transition from ${task.status} to ${body.status}`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -53,7 +71,7 @@ export async function PUT(request, { params }) {
       if (!body.submission?.description) {
         return NextResponse.json(
           { error: "Submission requires description " },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -70,7 +88,7 @@ export async function PUT(request, { params }) {
       if (invalidLinks.length > 0) {
         return NextResponse.json(
           { error: `Invalid URLs: ${invalidLinks.join(", ")}` },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -81,7 +99,7 @@ export async function PUT(request, { params }) {
     ) {
       return NextResponse.json(
         { error: "Rejection reason is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -110,7 +128,7 @@ export async function PUT(request, { params }) {
     console.error("PUT Task Error:", error);
     return NextResponse.json(
       { error: "Failed to update task" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -137,7 +155,7 @@ export async function DELETE(request, { params }) {
     console.error("DELETE Task Error:", error);
     return NextResponse.json(
       { error: "Failed to delete task" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -10,12 +10,7 @@ import { useAppContext } from "../../../../contexts/AppContext";
 import { translations } from "../../../../lib/translations";
 import Loading from "../../../../components/Loading";
 import { Button } from "../../../../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Calendar,
@@ -186,6 +181,46 @@ const ProjectDetailPage = () => {
                   </span>
                 </div>
               </div>
+
+              {/* Deadline */}
+              {data.deadline && (
+                <div
+                  className={`p-4 rounded-md ${
+                    new Date(data.deadline) < new Date() &&
+                    data.status !== "finished"
+                      ? "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
+                      : "bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Calendar
+                      className={`w-5 h-5 ${
+                        new Date(data.deadline) < new Date() &&
+                        data.status !== "finished"
+                          ? "text-red-500"
+                          : "text-orange-500"
+                      }`}
+                    />
+                    <span
+                      className={
+                        new Date(data.deadline) < new Date() &&
+                        data.status !== "finished"
+                          ? "text-red-700 dark:text-red-300"
+                          : "text-orange-700 dark:text-orange-300"
+                      }
+                    >
+                      {content.deadline}:{" "}
+                      <strong>{format(new Date(data.deadline), "PPP")}</strong>
+                      {new Date(data.deadline) < new Date() &&
+                        data.status !== "finished" && (
+                          <span className="ml-2 text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full">
+                            {content.deadlinePassed}
+                          </span>
+                        )}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Team Section */}
@@ -273,7 +308,7 @@ const ProjectDetailPage = () => {
                   isLeader
                     ? task?.projectId?._id === data?._id
                     : task?.projectId?._id === data?._id &&
-                      task.assignedTo?.some((user) => user._id === userId)
+                      task.assignedTo?.some((user) => user._id === userId),
                 ) ? (
                 <div className="space-y-4">
                   {tasks
@@ -281,7 +316,7 @@ const ProjectDetailPage = () => {
                       isLeader
                         ? task?.projectId?._id === data?._id
                         : task?.projectId?._id === data?._id &&
-                          task.assignedTo?.some((user) => user._id === userId)
+                          task.assignedTo?.some((user) => user._id === userId),
                     )
                     .map((task) => (
                       <div

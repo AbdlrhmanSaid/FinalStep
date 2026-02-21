@@ -19,7 +19,7 @@ export async function GET(request, context) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { error: "Invalid project ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -44,7 +44,7 @@ export async function GET(request, context) {
     console.error("GET /api/projects/[id] Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch project" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -73,7 +73,7 @@ export async function DELETE(request, context) {
           error:
             "Unauthorized: Only the leader or co-leaders can delete this project.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -82,13 +82,13 @@ export async function DELETE(request, context) {
 
     return NextResponse.json(
       { message: "Project and its related tasks deleted successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("DELETE /api/projects/[id] Error:", error);
     return NextResponse.json(
       { error: "Failed to delete project" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -127,9 +127,25 @@ export async function PUT(request, context) {
       if (!validStatuses.includes(updateFields.status)) {
         return NextResponse.json(
           { error: "Invalid status value" },
-          { status: 400 }
+          { status: 400 },
         );
       }
+    }
+
+    // ✅ التحقق من الـ deadline - لو عدى الديدلاين، بس الـ leader (مش co-leader) يقدر يعدل
+    const isLeaderOnly = project.leaderId.toString() === userId;
+    if (
+      !isLeaderOnly &&
+      project.deadline &&
+      new Date(project.deadline) < new Date()
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Project deadline has passed. Only the project leader can make changes.",
+        },
+        { status: 403 },
+      );
     }
 
     // حذف الدعوات القديمة من جدول InviteRequest
@@ -175,7 +191,7 @@ export async function PUT(request, context) {
     if (removedUsers.length > 0) {
       await Task.updateMany(
         { projectId: id },
-        { $pull: { assignedTo: { $in: removedUsers } } }
+        { $pull: { assignedTo: { $in: removedUsers } } },
       );
     }
 
@@ -184,7 +200,7 @@ export async function PUT(request, context) {
     console.error("Update Project Error:", err);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

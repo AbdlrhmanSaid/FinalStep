@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { translations } from "../../../../../lib/translations";
+import DatePicker from "../../../../../components/ui/DatePicker";
 
 export default function EditTaskPage() {
   const { id } = useParams();
@@ -23,6 +24,7 @@ export default function EditTaskPage() {
     title: "",
     description: "",
     priority: "medium",
+    dueDate: "",
     assignedTo: [],
   });
 
@@ -34,6 +36,9 @@ export default function EditTaskPage() {
         title: task.title || "",
         description: task.description || "",
         priority: task.priority || "medium",
+        dueDate: task.dueDate
+          ? new Date(task.dueDate).toISOString().split("T")[0]
+          : "",
         assignedTo: task.assignedTo || [],
       });
     }
@@ -49,7 +54,11 @@ export default function EditTaskPage() {
     updateTask(
       {
         taskId: id,
-        data: form,
+        userId,
+        data: {
+          ...form,
+          dueDate: form.dueDate || null,
+        },
       },
       {
         onSuccess: () => {
@@ -59,10 +68,10 @@ export default function EditTaskPage() {
         onError: (error) => {
           toast.error(
             error?.response?.data?.message ||
-              "An error occurred while updating the task."
+              "An error occurred while updating the task.",
           );
         },
-      }
+      },
     );
   };
 
@@ -120,6 +129,26 @@ export default function EditTaskPage() {
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
               </select>
+            </div>
+
+            {/* Due Date */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium block">
+                {content.dueDate}
+              </Label>
+              <DatePicker
+                value={form.dueDate}
+                onChange={(val) =>
+                  setForm((prev) => ({ ...prev, dueDate: val }))
+                }
+                placeholder={content.dueDatePlaceholder || "Pick a due date..."}
+                locale={isRTL ? "ar" : "en"}
+              />
+              {form.dueDate && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {content.dueDateHint}
+                </p>
+              )}
             </div>
 
             <div className="flex justify-end pt-4">

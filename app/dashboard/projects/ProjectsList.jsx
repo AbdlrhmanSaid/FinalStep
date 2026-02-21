@@ -17,12 +17,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useState } from "react";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export default function ProjectsList() {
   const { language, isRTL, userId } = useAppContext();
@@ -39,7 +34,7 @@ export default function ProjectsList() {
   const calculateProjectProgress = (project) => {
     if (!project.tasks || project.tasks.length === 0) return 0;
     const completedTasks = project.tasks.filter(
-      (task) => task.status === "completed"
+      (task) => task.status === "completed",
     ).length;
     return Math.round((completedTasks / project.tasks.length) * 100);
   };
@@ -47,13 +42,13 @@ export default function ProjectsList() {
   const leadingProjects = data?.filter(
     (proj) =>
       proj.leaderId?._id === userId ||
-      proj.coLeaders?.some((u) => u._id === userId)
+      proj.coLeaders?.some((u) => u._id === userId),
   );
 
   const participatingProjects = data?.filter(
     (proj) =>
       proj.members?.some((member) => member._id === userId) &&
-      !leadingProjects?.some((leadProj) => leadProj._id === proj._id)
+      !leadingProjects?.some((leadProj) => leadProj._id === proj._id),
   );
 
   const filterProjects = (projects) => {
@@ -65,7 +60,7 @@ export default function ProjectsList() {
       filtered = filtered.filter(
         (project) =>
           project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          project.description.toLowerCase().includes(searchTerm.toLowerCase())
+          project.description.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
@@ -115,7 +110,9 @@ export default function ProjectsList() {
                   {content.dashboard.title}
                 </h1>
                 <p className="text-sm text-gray-600 dark:text-gray-300 text-3xl">
-                  {isRTL ? "إدارة وتتبع جميع مشاريعك" : "Manage and track all your projects"}
+                  {isRTL
+                    ? "إدارة وتتبع جميع مشاريعك"
+                    : "Manage and track all your projects"}
                 </p>
               </div>
             </div>
@@ -274,7 +271,12 @@ export default function ProjectsList() {
                           description: project.description,
                           createdAt: new Date(project.createdAt),
                           tasks: project.tasks?.length || 0,
-                          status: project.public ? "active" : "pending",
+                          status:
+                            project.status === "finished"
+                              ? "finished"
+                              : project.public
+                                ? "active"
+                                : "pending",
                           progress: calculateProjectProgress(project),
                           deadline: project.deadline,
                           leader: project.leaderId?.name,
@@ -302,7 +304,12 @@ export default function ProjectsList() {
                           description: project.description,
                           createdAt: new Date(project.createdAt),
                           tasks: project.tasks?.length || 0,
-                          status: project.public ? "active" : "pending",
+                          status:
+                            project.status === "finished"
+                              ? "finished"
+                              : project.public
+                                ? "active"
+                                : "pending",
                           progress: calculateProjectProgress(project),
                           deadline: project.deadline,
                           leader: project.leaderId?.name,
@@ -371,7 +378,12 @@ export default function ProjectsList() {
                           description: project.description,
                           createdAt: new Date(project.createdAt),
                           tasks: project.tasks?.length || 0,
-                          status: project.public ? "active" : "pending",
+                          status:
+                            project.status === "finished"
+                              ? "finished"
+                              : project.public
+                                ? "active"
+                                : "pending",
                           progress: calculateProjectProgress(project),
                           deadline: project.deadline,
                           leader: project.leaderId?.name,
@@ -399,7 +411,12 @@ export default function ProjectsList() {
                           description: project.description,
                           createdAt: new Date(project.createdAt),
                           tasks: project.tasks?.length || 0,
-                          status: project.public ? "active" : "pending",
+                          status:
+                            project.status === "finished"
+                              ? "finished"
+                              : project.public
+                                ? "active"
+                                : "pending",
                           progress: calculateProjectProgress(project),
                           deadline: project.deadline,
                           leader: project.leaderId?.name,
@@ -434,7 +451,9 @@ export default function ProjectsList() {
                   <Users className="w-10 h-10 text-purple-500 dark:text-purple-400" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
-                  {isRTL ? "لا توجد مشاريع مشاركة" : "No Participating Projects"}
+                  {isRTL
+                    ? "لا توجد مشاريع مشاركة"
+                    : "No Participating Projects"}
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {isRTL
@@ -449,4 +468,3 @@ export default function ProjectsList() {
     </div>
   );
 }
-

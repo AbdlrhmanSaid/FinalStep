@@ -53,6 +53,10 @@ const ProjectSchema = new Schema(
       },
     ],
     public: { type: Boolean },
+    deadline: {
+      type: Date,
+      default: null,
+    },
     status: {
       type: String,
       enum: ["open", "finished"],
@@ -61,7 +65,7 @@ const ProjectSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 ProjectSchema.post("findOneAndDelete", async function (doc) {

@@ -5,11 +5,7 @@ import { useParams } from "next/navigation";
 import { useGetTask, useUpdateTask } from "../../../../hooks/tasks/useTasks";
 import { translations } from "../../../../lib/translations";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
 import Loading from "../../../../components/Loading";
 import { useAppContext } from "../../../../contexts/AppContext";
@@ -40,7 +36,7 @@ const TaskDetailPage = () => {
   const isProjectLeader =
     task.projectId?.leaderId?.toString() === userId?.toString() ||
     task.projectId?.coLeaders?.some(
-      (coId) => coId?.toString() === userId?.toString()
+      (coId) => coId?.toString() === userId?.toString(),
     );
 
   const handleSubmitTask = () => setShowSubmitForm(true);
@@ -74,6 +70,7 @@ const TaskDetailPage = () => {
     updateTask(
       {
         taskId: id,
+        userId,
         data: {
           status: "submitted",
           submission: {
@@ -94,7 +91,7 @@ const TaskDetailPage = () => {
         onError: () => {
           toast.error("Failed to submit task");
         },
-      }
+      },
     );
   };
 
@@ -102,6 +99,7 @@ const TaskDetailPage = () => {
     updateTask(
       {
         taskId: id,
+        userId,
         data: {
           status: "completed",
           review: {
@@ -120,7 +118,7 @@ const TaskDetailPage = () => {
         onError: () => {
           toast.error("Failed to accept task");
         },
-      }
+      },
     );
   };
 
@@ -133,6 +131,7 @@ const TaskDetailPage = () => {
     updateTask(
       {
         taskId: id,
+        userId,
         data: {
           status: "rejected",
           review: {
@@ -153,7 +152,7 @@ const TaskDetailPage = () => {
         onError: () => {
           toast.error("Failed to reject task");
         },
-      }
+      },
     );
   };
 
@@ -204,7 +203,7 @@ const TaskDetailPage = () => {
               </div>
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
-                  task.status
+                  task.status,
                 )}`}
               >
                 {content.status[task.status] || task.status}
@@ -256,6 +255,25 @@ const TaskDetailPage = () => {
                   <p className="text-gray-700 dark:text-gray-300">
                     {content.updated}:{" "}
                     {format(new Date(task.updatedAt), "PPPp")}
+                  </p>
+                )}
+                {task.dueDate && (
+                  <p
+                    className={`font-medium flex items-center gap-1 ${
+                      new Date(task.dueDate) < new Date() &&
+                      task.status !== "completed"
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-orange-600 dark:text-orange-400"
+                    }`}
+                  >
+                    ⏰ {content.dueDate}:{" "}
+                    {format(new Date(task.dueDate), "PPP")}
+                    {new Date(task.dueDate) < new Date() &&
+                      task.status !== "completed" && (
+                        <span className="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full">
+                          {content.overdue}
+                        </span>
+                      )}
                   </p>
                 )}
                 {task.submission?.submittedAt && (

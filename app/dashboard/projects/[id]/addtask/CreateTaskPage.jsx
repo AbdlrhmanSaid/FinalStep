@@ -8,6 +8,7 @@ import { useCreateTask } from "../../../../../hooks/tasks/useTasks";
 import { useParams, useRouter } from "next/navigation";
 import CheckUserRole from "../../../../../lib/actions/checkUserRole";
 import Loading from "../../../../../components/Loading";
+import DatePicker from "../../../../../components/ui/DatePicker";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ export default function CreateTaskPage() {
     title: "",
     description: "",
     priority: "medium",
+    dueDate: "",
     assignedTo: [],
   });
 
@@ -67,6 +69,7 @@ export default function CreateTaskPage() {
     createTask(
       {
         ...form,
+        dueDate: form.dueDate || null,
         projectId,
         createdBy: userId,
       },
@@ -78,10 +81,10 @@ export default function CreateTaskPage() {
         onError: (error) => {
           toast.error(
             error?.response?.data?.message ||
-              "حدث خطأ أثناء إنشاء المهمة. حاول مرة أخرى."
+              "حدث خطأ أثناء إنشاء المهمة. حاول مرة أخرى.",
           );
         },
-      }
+      },
     );
   };
 
@@ -90,7 +93,7 @@ export default function CreateTaskPage() {
   const allUsers = [...project.coLeaders, ...project.members];
 
   const teamMembers = Array.from(
-    new Map(allUsers.map((user) => [user._id, user])).values()
+    new Map(allUsers.map((user) => [user._id, user])).values(),
   );
 
   return (
@@ -158,6 +161,25 @@ export default function CreateTaskPage() {
                   {content.priorityHigh}
                 </option>
               </select>
+            </div>
+
+            {/* Due Date */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium block">
+                {content.dueDate}
+              </label>
+              <DatePicker
+                value={form.dueDate}
+                onChange={(val) => setForm({ ...form, dueDate: val })}
+                placeholder={content.dueDatePlaceholder || "Pick a due date..."}
+                disablePast={true}
+                locale={isRTL ? "ar" : "en"}
+              />
+              {form.dueDate && (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {content.dueDateHint}
+                </p>
+              )}
             </div>
 
             {/* Assign Members */}
