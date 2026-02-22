@@ -528,7 +528,7 @@ function SettingsTab({ user, userId, t, isRTL }) {
 }
 
 // ─── Profile Tab ──────────────────────────────────────────────────────────────
-function ProfileTab({ user, t, isRTL }) {
+function ProfileTab({ user, t, isRTL, isOwner }) {
   const showProjects = user.privacy?.showProjects !== false;
   const showTasks = user.privacy?.showTasks !== false;
 
@@ -579,9 +579,16 @@ function ProfileTab({ user, t, isRTL }) {
                       {task.title}
                     </p>
                     {task.projectId?.title && (
-                      <p className="text-xs text-gray-400 truncate">
-                        {task.projectId.title}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-gray-400 truncate">
+                          {task.projectId.title}
+                        </p>
+                        {task.projectId.public === false && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                            Private
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -607,6 +614,7 @@ function ProfileTab({ user, t, isRTL }) {
         statusOpen={t.statusOpen}
         statusFinished={t.statusFinished}
         viewProject={t.viewProject}
+        isOwner={isOwner}
       />
 
       {/* Projects Member */}
@@ -620,6 +628,7 @@ function ProfileTab({ user, t, isRTL }) {
         statusOpen={t.statusOpen}
         statusFinished={t.statusFinished}
         viewProject={t.viewProject}
+        isOwner={isOwner}
       />
 
       {/* Recent Tasks */}
@@ -673,6 +682,7 @@ function ProjectsSection({
   statusOpen,
   statusFinished,
   viewProject,
+  isOwner,
 }) {
   if (!show) {
     return (
@@ -718,17 +728,33 @@ function ProjectsSection({
                   >
                     {proj.status === "finished" ? statusFinished : statusOpen}
                   </span>
+                  {proj.public === false && (
+                    <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 ms-2">
+                      Private
+                    </span>
+                  )}
                 </div>
               </div>
-              <Link href={`/dashboard/projects/${proj._id}`}>
+              {proj.public === false && !isOwner ? (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 shrink-0"
+                  disabled
+                  className="text-gray-400 dark:text-gray-500 cursor-not-allowed shrink-0"
                 >
                   {viewProject}
                 </Button>
-              </Link>
+              ) : (
+                <Link href={`/dashboard/projects/${proj._id}`}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 shrink-0"
+                  >
+                    {viewProject}
+                  </Button>
+                </Link>
+              )}
             </div>
           ))}
         </div>
@@ -921,7 +947,7 @@ const UserProfilePage = () => {
             isRTL={isRTL}
           />
         ) : (
-          <ProfileTab user={user} t={t} isRTL={isRTL} />
+          <ProfileTab user={user} t={t} isRTL={isRTL} isOwner={isOwner} />
         )}
       </div>
     </div>

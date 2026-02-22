@@ -42,18 +42,6 @@ const UserSchema = new Schema(
         },
       ],
     },
-    projectsLeading: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Project",
-      },
-    ],
-    projectsMember: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Project",
-      },
-    ],
   },
   { timestamps: true },
 );

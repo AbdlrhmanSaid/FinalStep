@@ -29,27 +29,27 @@ export async function GET(request, { params }) {
       mongoose.Types.ObjectId.isValid(viewerId) &&
       viewerId.toString() === id.toString();
 
-    // If the viewer is the owner → show ALL projects; otherwise only public ones
-    const projectMatch = isOwner ? {} : { public: { $ne: false } };
+    // Both owner and visitors should see all projects
+    const projectMatch = {};
 
-    // Fetch user with projects populated
-    const user = await User.findById(id)
-      .populate({
-        path: "projectsLeading",
-        select: "title status public deadline description",
-        match: projectMatch,
-      })
-      .populate({
-        path: "projectsMember",
-        select: "title status public deadline description",
-        match: projectMatch,
-      });
+    // Fetch user without project populations
+    const user = await User.findById(id);
+
+    // Fetch user's projects leading manually to ensure correctness
+    const projectsLeading = await Project.find({
+      leaderId: id,
+      ...projectMatch,
+    }).select("title status public deadline description");
+
+    // Fetch user's projects as a member or co-leader manually
+    const projectsMember = await Project.find({
+      $or: [{ members: id }, { coLeaders: id }],
+      ...projectMatch,
+    }).select("title status public deadline description");
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-
-
 
     // Fetch Clerk image URL (server-side, uses secret key)
     let imageUrl = null;
@@ -74,31 +74,18 @@ export async function GET(request, { params }) {
         .limit(30)
         .select("title status priority dueDate createdAt projectId");
 
-      let allTasks;
-      if (isOwner) {
-        // Owner: populate all projects (public and private)
-        allTasks = await taskQuery.populate({
-          path: "projectId",
-          select: "title public status",
-        });
-        // For owner, keep all tasks with a projectId
-        allTasks = allTasks.filter((t) => t.projectId !== null);
-      } else {
-        // Others: only tasks from public projects
-        allTasks = await taskQuery.populate({
-          path: "projectId",
-          select: "title public",
-          match: { public: { $ne: false } },
-        });
-        allTasks = allTasks.filter((t) => t.projectId !== null);
-      }
+      // Fetch all tasks for both owner and visitor
+      const allTasks = await taskQuery.populate({
+        path: "projectId",
+        select: "title public status",
+      });
+      // Keep only tasks with a projectId
+      const validTasks = allTasks.filter((t) => t.projectId !== null);
 
-      recentTasks = allTasks.slice(0, 10);
-      completedTasks = allTasks
+      recentTasks = validTasks.slice(0, 10);
+      completedTasks = validTasks
         .filter((t) => t.status === "completed")
         .slice(0, 10);
-
-
     }
 
     const publicProfile = {
@@ -121,11 +108,11 @@ export async function GET(request, { params }) {
       // Owner always sees all their projects; privacy only hides from others
       projectsLeading:
         isOwner || user.privacy?.showProjects !== false
-          ? user.projectsLeading || []
+          ? projectsLeading || []
           : [],
       projectsMember:
         isOwner || user.privacy?.showProjects !== false
-          ? user.projectsMember || []
+          ? projectsMember || []
           : [],
       recentTasks,
       completedTasks,
