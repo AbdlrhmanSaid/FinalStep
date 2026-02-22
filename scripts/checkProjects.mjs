@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-const MONGODB_URL =
-  "mongodb+srv://Abdelrhman:12Bode34@cluster0.9fimd.mongodb.net";
+const MONGODB_URL = process.env.MONGODB_URI;
 
 await mongoose.connect(MONGODB_URL, { dbName: "finalstep" });
 
