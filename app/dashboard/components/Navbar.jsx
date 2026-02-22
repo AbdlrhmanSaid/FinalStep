@@ -23,18 +23,23 @@ export default function DashboardNav() {
   };
 
   const getLinkClasses = (path) => {
-    const baseClasses = "px-3 py-2 rounded-md text-sm font-medium transition-colors";
-    const activeClasses = "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
-    const inactiveClasses = "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400";
-    
+    const baseClasses =
+      "px-3 py-2 rounded-md text-sm font-medium transition-colors";
+    const activeClasses =
+      "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
+    const inactiveClasses =
+      "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400";
+
     return `${baseClasses} ${isActive(path) ? activeClasses : inactiveClasses}`;
   };
 
   const getMobileLinkClasses = (path) => {
     const baseClasses = "block px-3 py-2 rounded-md text-base font-medium";
-    const activeClasses = "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
-    const inactiveClasses = "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400";
-    
+    const activeClasses =
+      "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
+    const inactiveClasses =
+      "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400";
+
     return `${baseClasses} ${isActive(path) ? activeClasses : inactiveClasses}`;
   };
 
@@ -65,6 +70,12 @@ export default function DashboardNav() {
                 className={getLinkClasses("/dashboard")}
               >
                 {content.dashboardNav.home}
+              </Link>
+              <Link
+                href={"/dashboard/search"}
+                className={getLinkClasses("/dashboard/search")}
+              >
+                {content.dashboardNav.search}
               </Link>
               <Link
                 href={"/dashboard/projects"}
@@ -153,6 +164,13 @@ export default function DashboardNav() {
               </Link>
               <Link
                 onClick={() => setIsMenuOpen(false)}
+                href="/dashboard/search"
+                className={getMobileLinkClasses("/dashboard/search")}
+              >
+                {content.dashboardNav.search}
+              </Link>
+              <Link
+                onClick={() => setIsMenuOpen(false)}
                 href={"/dashboard/projects"}
                 className={getMobileLinkClasses("/dashboard/projects")}
               >
@@ -186,4 +204,3 @@ export default function DashboardNav() {
     </nav>
   );
 }
-
