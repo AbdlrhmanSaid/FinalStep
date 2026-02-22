@@ -52,7 +52,7 @@ const ProjectSchema = new Schema(
         ref: "Task",
       },
     ],
-    public: { type: Boolean },
+    public: { type: Boolean, default: true },
     deadline: {
       type: Date,
       default: null,

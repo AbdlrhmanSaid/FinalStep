@@ -6,7 +6,8 @@ import { useGetTask, useUpdateTask } from "../../../../hooks/tasks/useTasks";
 import { translations } from "../../../../lib/translations";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { format } from "date-fns";
+import { format, isBefore, isToday, differenceInDays } from "date-fns";
+import { ar, enUS } from "date-fns/locale";
 import Loading from "../../../../components/Loading";
 import { useAppContext } from "../../../../contexts/AppContext";
 import toast from "react-hot-toast";
@@ -17,6 +18,7 @@ const TaskDetailPage = () => {
   const { data: task, isLoading, isError, refetch } = useGetTask(id);
   const { mutate: updateTask, isLoading: isUpdating } = useUpdateTask();
   const { userId, language, isRTL } = useAppContext();
+  const dateLocale = language === "ar" ? ar : enUS;
   const content = translations[language].dashboard.taskDetails;
 
   const [showSubmitForm, setShowSubmitForm] = useState(false);
@@ -26,6 +28,7 @@ const TaskDetailPage = () => {
   const [reviewNote, setReviewNote] = useState("");
   const [showAcceptDialog, setShowAcceptDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+
 
   if (isLoading) return <Loading />;
   if (isError || !task)
@@ -249,12 +252,17 @@ const TaskDetailPage = () => {
                   {content.timeline}
                 </h3>
                 <p className="text-gray-700 dark:text-gray-300">
-                  {content.created}: {format(new Date(task.createdAt), "PPPp")}
+                  {content.created}:{" "}
+                  {format(new Date(task.createdAt), "PPPp", {
+                    locale: dateLocale,
+                  })}
                 </p>
                 {task.updatedAt && (
                   <p className="text-gray-700 dark:text-gray-300">
                     {content.updated}:{" "}
-                    {format(new Date(task.updatedAt), "PPPp")}
+                    {format(new Date(task.updatedAt), "PPPp", {
+                      locale: dateLocale,
+                    })}
                   </p>
                 )}
                 {task.dueDate && (
@@ -267,7 +275,9 @@ const TaskDetailPage = () => {
                     }`}
                   >
                     ⏰ {content.dueDate}:{" "}
-                    {format(new Date(task.dueDate), "PPP")}
+                    {format(new Date(task.dueDate), "PPP", {
+                      locale: dateLocale,
+                    })}
                     {new Date(task.dueDate) < new Date() &&
                       task.status !== "completed" && (
                         <span className="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full">
@@ -279,13 +289,17 @@ const TaskDetailPage = () => {
                 {task.submission?.submittedAt && (
                   <p className="text-gray-700 dark:text-gray-300">
                     {content.submitted}:{" "}
-                    {format(new Date(task.submission.submittedAt), "PPPp")}
+                    {format(new Date(task.submission.submittedAt), "PPPp", {
+                      locale: dateLocale,
+                    })}
                   </p>
                 )}
                 {task.review?.reviewedAt && (
                   <p className="text-gray-700 dark:text-gray-300">
                     {content.reviewed}:{" "}
-                    {format(new Date(task.review.reviewedAt), "PPPp")}
+                    {format(new Date(task.review.reviewedAt), "PPPp", {
+                      locale: dateLocale,
+                    })}
                   </p>
                 )}
               </div>
@@ -338,7 +352,9 @@ const TaskDetailPage = () => {
                       {content.submittedAt}
                     </h4>
                     <p className="text-gray-700 dark:text-gray-300">
-                      {format(new Date(task.submission.submittedAt), "PPPp")}
+                      {format(new Date(task.submission.submittedAt), "PPPp", {
+                        locale: dateLocale,
+                      })}
                     </p>
                   </div>
                 )}

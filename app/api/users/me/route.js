@@ -11,7 +11,7 @@ export async function GET(request) {
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return NextResponse.json(
         { error: "Invalid or missing userId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -25,7 +25,7 @@ export async function GET(request) {
     console.error("GET /api/users/me Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -36,10 +36,11 @@ export async function PUT(request) {
     const userId = request.headers.get("userId");
     const body = await request.json();
 
+
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return NextResponse.json(
         { error: "Invalid or missing userId" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -48,21 +49,32 @@ export async function PUT(request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const protectedFields = ["_id", "email", "clerkId"];
+    // Prevent users from changing system-controlled fields
+    const protectedFields = [
+      "_id",
+      "email",
+      "clerkId",
+      "role",
+      "projectsLeading",
+      "projectsMember",
+    ];
     protectedFields.forEach((field) => delete body[field]);
 
-    const updatedUser = await User.findByIdAndUpdate(userId, body, {
-      new: true,
-      runValidators: true,
-    });
+
+    // Use explicit $set to ensure Mongoose updates the fields correctly
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: body },
+      { new: true },
+    );
+
 
     return NextResponse.json(updatedUser, { status: 200 });
   } catch (error) {
     console.error("PUT /api/users/me Error:", error);
     return NextResponse.json(
       { error: "Failed to update user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

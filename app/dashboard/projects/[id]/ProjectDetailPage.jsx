@@ -23,8 +23,12 @@ import {
   Plus,
   Eye,
   ClipboardPlus,
+  Clock,
+  AlertCircle,
+  ChevronDown,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, isBefore, isToday, differenceInDays } from "date-fns";
+import { ar, enUS } from "date-fns/locale";
 import Link from "next/link";
 import {
   AlertDialog,
@@ -47,7 +51,8 @@ const ProjectDetailPage = () => {
   const { data: tasks, refetch } = useGetTasks();
   const { mutate: deleteTask } = useDeleteTask();
 
-  const { language, userId } = useAppContext();
+  const { language, userId, isRTL } = useAppContext();
+  const dateLocale = language === "ar" ? ar : enUS;
   const content = translations[language].dashboard.projectDetail;
   const modal = translations[language].dashboard.deleteModal;
   const { mutate: deleteProject } = useDeleteProject();
@@ -57,6 +62,7 @@ const ProjectDetailPage = () => {
   const [isLeader, setIsLeader] = useState(false);
   const [isMember, setIsMember] = useState(false);
   const [isRandomUser, setIsRandomUser] = useState(false);
+  const [teamOpen, setTeamOpen] = useState(false);
 
   useEffect(() => {
     if (!data || !userId) return;
@@ -103,6 +109,47 @@ const ProjectDetailPage = () => {
   };
 
   const isFinished = data.status === "finished";
+
+  // ── helper: render a dueDate badge for a task ──────────────────────────────
+  const TaskDueBadge = ({ dueDate, status }) => {
+    if (!dueDate) return null;
+    const due = new Date(dueDate);
+    const overdue =
+      isBefore(due, new Date()) && !isToday(due) && status !== "completed";
+    const daysLeft = differenceInDays(due, new Date());
+    const urgent = !overdue && daysLeft <= 3;
+    const fmtD = format(due, "d MMM yyyy", { locale: dateLocale });
+
+    let bg, text, icon, label;
+    if (overdue) {
+      bg = "bg-red-100 dark:bg-red-900/40";
+      text = "text-red-700 dark:text-red-300";
+      icon = <AlertCircle className="w-3 h-3 shrink-0" />;
+      label = isRTL ? `متأخر • ${fmtD}` : `Overdue • ${fmtD}`;
+    } else if (urgent) {
+      bg = "bg-orange-100 dark:bg-orange-900/30";
+      text = "text-orange-700 dark:text-orange-300";
+      icon = <Clock className="w-3 h-3 shrink-0 animate-pulse" />;
+      label = isRTL
+        ? `${daysLeft === 0 ? "اليوم" : `${daysLeft} أيام`} • ${fmtD}`
+        : `${daysLeft === 0 ? "Today" : `${daysLeft}d left`} • ${fmtD}`;
+    } else {
+      bg = "bg-slate-100 dark:bg-slate-700/50";
+      text = "text-slate-600 dark:text-slate-300";
+      icon = <Calendar className="w-3 h-3 shrink-0" />;
+      label = fmtD;
+    }
+
+    return (
+      <span
+        className={`mt-2 inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${bg} ${text}`}
+      >
+        {icon}
+        {isRTL ? "الموعد النهائي: " : "Due: "}
+        {label}
+      </span>
+    );
+  };
 
   return (
     <div className="min-h-screen bgMain transition-colors p-4 md:p-6">
@@ -162,9 +209,12 @@ const ProjectDetailPage = () => {
                   <Crown className="w-5 h-5 text-yellow-500" />
                   <span className="text-gray-600 dark:text-gray-300">
                     {content.leaderName}:{" "}
-                    <strong className="text-gray-800 dark:text-white">
+                    <Link
+                      href={`/dashboard/user/${data.leaderId?._id}`}
+                      className="font-semibold text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
+                    >
                       {data.leaderId?.name || "Unknown"}
-                    </strong>
+                    </Link>
                   </span>
                 </div>
               </div>
@@ -176,7 +226,9 @@ const ProjectDetailPage = () => {
                   <span className="text-gray-600 dark:text-gray-300">
                     {content.created}:{" "}
                     <strong className="text-gray-800 dark:text-white">
-                      {format(new Date(data.createdAt), "PPP")}
+                      {format(new Date(data.createdAt), "PPP", {
+                        locale: dateLocale,
+                      })}
                     </strong>
                   </span>
                 </div>
@@ -210,7 +262,11 @@ const ProjectDetailPage = () => {
                       }
                     >
                       {content.deadline}:{" "}
-                      <strong>{format(new Date(data.deadline), "PPP")}</strong>
+                      <strong>
+                        {format(new Date(data.deadline), "PPP", {
+                          locale: dateLocale,
+                        })}
+                      </strong>
                       {new Date(data.deadline) < new Date() &&
                         data.status !== "finished" && (
                           <span className="ml-2 text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full">
@@ -223,57 +279,138 @@ const ProjectDetailPage = () => {
               )}
             </div>
 
-            {/* Team Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Co-Leaders Section */}
-              {data.coLeaders?.length > 0 && (
-                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-                    {content.coLeaders}
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {data.coLeaders.map((coLeader) => (
-                      <div
-                        key={coLeader._id}
-                        className="flex items-center gap-2 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded"
+            {/* Team Section – collapsible */}
+            {(() => {
+              const allMembers = [
+                ...(data.coLeaders || []).map((u) => ({
+                  ...u,
+                  _role: "coLeader",
+                })),
+                ...(data.members || []).map((u) => ({ ...u, _role: "member" })),
+              ];
+              const totalCount = allMembers.length;
+
+              return (
+                <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                  {/* Toggle header */}
+                  <button
+                    type="button"
+                    onClick={() => setTeamOpen((prev) => !prev)}
+                    className="w-full flex items-center justify-between px-5 py-4 bg-gray-50 dark:bg-gray-700/60 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Users className="w-5 h-5 text-blue-500" />
+                      <span className="font-semibold text-gray-800 dark:text-white">
+                        {content.team}
+                      </span>
+                      <span className="text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full font-medium">
+                        {totalCount}
+                      </span>
+                    </div>
+                    <ChevronDown
+                      className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${teamOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  {/* Animated members panel */}
+                  <div
+                    className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                      teamOpen
+                        ? "max-h-[600px] opacity-100"
+                        : "max-h-0 opacity-0"
+                    }`}
+                  >
+                    <div className="p-4 space-y-2 bg-white dark:bg-gray-800">
+                      {/* Leader */}
+                      <Link
+                        href={`/dashboard/user/${data.leaderId?._id}`}
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
                       >
-                        <Crown className="w-4 h-4 text-yellow-400" />
-                        {coLeader.name !== "null null"
-                          ? coLeader.name
-                          : coLeader.email.split("@")[0].replace(/[0-9]/g, "")}
-                      </div>
-                    ))}
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shrink-0 shadow-sm">
+                          <Crown className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                            {data.leaderId?.name &&
+                            data.leaderId.name !== "null null"
+                              ? data.leaderId.name
+                              : data.leaderId?.email
+                                  ?.split("@")[0]
+                                  .replace(/[0-9]/g, "") || "Unknown"}
+                          </p>
+                          <p className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">
+                            {data.leaderId?.title || content.leaderName}
+                          </p>
+                        </div>
+                      </Link>
+
+                      {/* Divider if there are more */}
+                      {allMembers.length > 0 && (
+                        <div className="border-t border-gray-100 dark:border-gray-700" />
+                      )}
+
+                      {/* Co-leaders & Members */}
+                      {allMembers.map((member) => (
+                        <Link
+                          key={member._id}
+                          href={`/dashboard/user/${member._id}`}
+                          className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
+                        >
+                          <div
+                            className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 shadow-sm ${
+                              member._role === "coLeader"
+                                ? "bg-gradient-to-br from-purple-400 to-indigo-500"
+                                : "bg-gradient-to-br from-blue-400 to-cyan-500"
+                            }`}
+                          >
+                            <span className="text-white text-sm font-bold">
+                              {(member.name && member.name !== "null null"
+                                ? member.name
+                                : member.email
+                                    ?.split("@")[0]
+                                    .replace(/[0-9]/g, "") || "?"
+                              )
+                                .charAt(0)
+                                .toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                              {member.name && member.name !== "null null"
+                                ? member.name
+                                : member.email
+                                    ?.split("@")[0]
+                                    .replace(/[0-9]/g, "")}
+                            </p>
+                            <p
+                              className={`text-xs font-medium ${
+                                member._role === "coLeader"
+                                  ? "text-purple-600 dark:text-purple-400"
+                                  : "text-blue-600 dark:text-blue-400"
+                              }`}
+                            >
+                              {member.title
+                                ? member.title
+                                : member._role === "coLeader"
+                                  ? content.coLeaders
+                                  : isRTL
+                                    ? "عضو"
+                                    : "Member"}
+                            </p>
+                          </div>
+                        </Link>
+                      ))}
+
+                      {allMembers.length === 0 && (
+                        <p className="text-center text-sm text-gray-500 dark:text-gray-400 py-2">
+                          {content.noMembers}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              )}
-
-              {/* Members Section */}
-              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-gray-500" />
-                  {content.team}
-                </h3>
-                {data.members?.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {data.members.map((member) => (
-                      <div
-                        key={member._id}
-                        className="flex items-center gap-2 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded"
-                      >
-                        <User className="w-4 h-4 text-blue-400" />
-                        {member.name !== "null null"
-                          ? member.name
-                          : member.email.split("@")[0].replace(/[0-9]/g, "")}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {content.noMembers}
-                  </p>
-                )}
-              </div>
-            </div>
+              );
+            })()}
           </CardContent>
         </Card>
 
@@ -323,15 +460,20 @@ const ProjectDetailPage = () => {
                         key={task._id}
                         className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
                       >
-                        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                          <div>
+                        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                          <div className="flex-1">
                             <h4 className="text-lg font-semibold text-gray-800 dark:text-white">
                               {task.title}
                             </h4>
                             <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                               {task.description?.slice(0, 100) ||
-                                "No description."}
+                                (isRTL ? "لا يوجد وصف." : "No description.")}
                             </p>
+                            {/* Task Due Date Badge */}
+                            <TaskDueBadge
+                              dueDate={task.dueDate}
+                              status={task.status}
+                            />
                           </div>
 
                           {!isFinished && (

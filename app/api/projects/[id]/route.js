@@ -9,12 +9,11 @@ import InviteRequest from "../../../../models/InviteRequest";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
-// GET /api/projects/[id]
-export async function GET(request, context) {
+export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { params } = await context;
-    const { id } = params;
+
+    const { id } = await params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(

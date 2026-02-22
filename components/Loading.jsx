@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useAppContext } from "../contexts/AppContext";
 import { translations } from "../lib/translations";
 import { motion } from "framer-motion";
@@ -12,10 +13,37 @@ import {
   TrendingUp,
 } from "lucide-react";
 
+// Fixed positions/sizes for background particles (no Math.random() at render time)
+const PARTICLES = [
+  { w: 180, h: 130, l: 12, t: 10, ax: 40, ay: -20, dur: 12 },
+  { w: 120, h: 200, l: 75, t: 60, ax: -30, ay: 25, dur: 14 },
+  { w: 210, h: 170, l: 40, t: 80, ax: 20, ay: -40, dur: 10 },
+  { w: 150, h: 140, l: 85, t: 20, ax: -40, ay: 30, dur: 16 },
+  { w: 130, h: 190, l: 5, t: 45, ax: 35, ay: -15, dur: 11 },
+  { w: 200, h: 120, l: 55, t: 15, ax: -25, ay: 45, dur: 13 },
+  { w: 160, h: 150, l: 25, t: 70, ax: 15, ay: -35, dur: 15 },
+  { w: 110, h: 220, l: 90, t: 50, ax: -45, ay: 20, dur: 9 },
+  { w: 240, h: 110, l: 30, t: 30, ax: 30, ay: 40, dur: 12 },
+  { w: 140, h: 180, l: 65, t: 85, ax: -20, ay: -30, dur: 14 },
+  { w: 190, h: 160, l: 48, t: 5, ax: 45, ay: 15, dur: 11 },
+  { w: 120, h: 130, l: 18, t: 62, ax: -35, ay: -45, dur: 16 },
+];
+
 export default function ModernLoading() {
   const { language, isDark } = useAppContext();
   const content = translations[language]?.loading || "Loading...";
   const isRTL = language === "ar";
+  const [tip, setTip] = useState("");
+
+  // Pick a random tip only on the client to avoid hydration mismatch
+  useEffect(() => {
+    const tips = translations[language]?.loadingTips;
+    if (tips?.length) {
+      setTip(tips[Math.floor(Math.random() * tips.length)]);
+    } else {
+      setTip(isRTL ? "جارٍ التحميل..." : "Optimizing performance...");
+    }
+  }, [language]);
 
   // Project management steps animation
   const steps = [
@@ -33,9 +61,9 @@ export default function ModernLoading() {
           : "from-gray-50 via-gray-100 to-gray-50"
       }`}
     >
-      {/* Animated Background Particles */}
+      {/* Animated Background Particles — fixed positions to avoid hydration mismatch */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(12)].map((_, i) => (
+        {PARTICLES.map((p, i) => (
           <motion.div
             key={i}
             className={`absolute rounded-full ${
@@ -52,19 +80,19 @@ export default function ModernLoading() {
                     : "bg-pink-500/5"
             }`}
             style={{
-              width: Math.random() * 150 + 100,
-              height: Math.random() * 150 + 100,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              width: p.w,
+              height: p.h,
+              left: `${p.l}%`,
+              top: `${p.t}%`,
             }}
             animate={{
-              x: [0, Math.random() * 100 - 50],
-              y: [0, Math.random() * 100 - 50],
+              x: [0, p.ax],
+              y: [0, p.ay],
               scale: [1, 1.3, 1],
               opacity: [0.1, 0.4, 0.1],
             }}
             transition={{
-              duration: Math.random() * 8 + 8,
+              duration: p.dur,
               repeat: Infinity,
               repeatType: "reverse",
               ease: "easeInOut",
@@ -267,9 +295,8 @@ export default function ModernLoading() {
                 />
               </div>
 
-              {/* Loading Tips */}
+              {/* Loading Tip — client-only to avoid hydration mismatch */}
               <motion.div
-                key={Math.random()}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
@@ -285,12 +312,7 @@ export default function ModernLoading() {
                     isDark ? "text-gray-500" : "text-gray-500"
                   }`}
                 >
-                  {translations[language]?.loadingTips?.[
-                    Math.floor(
-                      Math.random() *
-                        (translations[language]?.loadingTips?.length || 1)
-                    )
-                  ] || "Optimizing performance..."}
+                  {tip}
                 </p>
               </motion.div>
             </div>
