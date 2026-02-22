@@ -654,9 +654,16 @@ function ProfileTab({ user, t, isRTL, isOwner }) {
                       {task.title}
                     </p>
                     {task.projectId?.title && (
-                      <p className="text-xs text-gray-400 truncate">
-                        {task.projectId.title}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-gray-400 truncate">
+                          {task.projectId.title}
+                        </p>
+                        {task.projectId.public === false && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                            Private
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
