@@ -12,7 +12,7 @@ const InviteSchema = new Schema({
 });
 
 const JoinSchema = new Schema({
-  email: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   status: {
     type: String,
     enum: ["pending", "accepted", "rejected"],
@@ -52,6 +52,11 @@ const ProjectSchema = new Schema(
         ref: "Task",
       },
     ],
+    customRoles: {
+      type: Map,
+      of: String,
+      default: {},
+    },
     public: { type: Boolean, default: true },
     deadline: {
       type: Date,

@@ -26,6 +26,7 @@ export async function GET(request, { params }) {
       .populate("leaderId")
       .populate("coLeaders")
       .populate("members")
+      .populate({ path: "joinRequests.userId", strictPopulate: false })
       .populate({
         path: "tasks",
         populate: [

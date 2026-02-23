@@ -20,7 +20,7 @@ const layout = async ({ children }) => {
           <nav>
             <Navbar />
           </nav>
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 dark:bg-gray-900">{children}</main>
           <footer>
             <Footer />
           </footer>
@@ -31,4 +31,3 @@ const layout = async ({ children }) => {
 };
 
 export default layout;
-

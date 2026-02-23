@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { redirect, useParams } from "next/navigation";
+import { redirect, useParams, useSearchParams } from "next/navigation";
+import { toast } from "react-hot-toast";
 import {
   useGetProject,
   useDeleteProject,
@@ -44,6 +45,11 @@ import {
 import { useLeaveProject } from "../../../../hooks/invitations/useLeaveProject";
 import { useUpdateProjectStatus } from "../../../../hooks/projects/useUpdateProjectStatus";
 import { useGetTasks, useDeleteTask } from "../../../../hooks/tasks/useTasks";
+import {
+  useJoinProject,
+  useRespondJoinProject,
+} from "../../../../hooks/projects/useJoinProject";
+import { useUpdateMemberTitle } from "../../../../hooks/projects/useUpdateMemberTitle";
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
@@ -63,6 +69,34 @@ const ProjectDetailPage = () => {
   const [isMember, setIsMember] = useState(false);
   const [isRandomUser, setIsRandomUser] = useState(false);
   const [teamOpen, setTeamOpen] = useState(false);
+  const [joinRequestsOpen, setJoinRequestsOpen] = useState(false);
+
+  const searchParams = useSearchParams();
+  const isInvite = searchParams.get("invite") === "true";
+
+  const { mutate: joinProject, isLoading: isJoining } = useJoinProject();
+  const { mutate: respondJoin, isLoading: isResponding } =
+    useRespondJoinProject();
+  const { mutate: updateMemberTitle } = useUpdateMemberTitle();
+
+  const handleTitleEdit = (e, targetUserId, currentTitle) => {
+    e.preventDefault();
+    const newTitle = window.prompt(
+      isRTL ? "أدخل اللقب الجديد:" : "Enter new title:",
+      currentTitle,
+    );
+    if (newTitle !== null) {
+      updateMemberTitle({
+        projectId: data._id,
+        userId: targetUserId,
+        title: newTitle,
+      });
+    }
+  };
+
+  const hasRequestedJoin = data?.joinRequests?.some(
+    (req) => req.userId?._id === userId?.toString() && req.status === "pending",
+  );
 
   useEffect(() => {
     if (!data || !userId) return;
@@ -77,9 +111,9 @@ const ProjectDetailPage = () => {
       setIsMember(true);
     } else {
       setIsRandomUser(true);
-      if (!data.public) redirect("/dashboard/projects");
+      if (!data.public && !isInvite) redirect("/dashboard/projects");
     }
-  }, [data, userId]);
+  }, [data, userId, isInvite]);
 
   if (isLoading || !data) return <Loading />;
   if (error)
@@ -109,6 +143,17 @@ const ProjectDetailPage = () => {
   };
 
   const isFinished = data.status === "finished";
+
+  const handleJoinProject = () => {
+    joinProject({
+      projectId: data._id,
+      userId: userId.toString(),
+      invite: isInvite,
+    });
+  };
+
+  const pendingJoinRequests =
+    data?.joinRequests?.filter((req) => req.status === "pending") || [];
 
   // ── helper: render a dueDate badge for a task ──────────────────────────────
   const TaskDueBadge = ({ dueDate, status }) => {
@@ -281,12 +326,18 @@ const ProjectDetailPage = () => {
 
             {/* Team Section – collapsible */}
             {(() => {
+              const coLeaderIds = new Set(
+                (data.coLeaders || []).map((u) => u._id),
+              );
+              const uniqueMembers = (data.members || []).filter(
+                (u) => !coLeaderIds.has(u._id),
+              );
               const allMembers = [
                 ...(data.coLeaders || []).map((u) => ({
                   ...u,
                   _role: "coLeader",
                 })),
-                ...(data.members || []).map((u) => ({ ...u, _role: "member" })),
+                ...uniqueMembers.map((u) => ({ ...u, _role: "member" })),
               ];
               const totalCount = allMembers.length;
 
@@ -338,9 +389,27 @@ const ProjectDetailPage = () => {
                                   ?.split("@")[0]
                                   .replace(/[0-9]/g, "") || "Unknown"}
                           </p>
-                          <p className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">
-                            {data.leaderId?.title || content.leaderName}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">
+                              {data.customRoles?.[data.leaderId?._id] ||
+                                content.leaderName}
+                            </p>
+                            {isLeader && (
+                              <button
+                                onClick={(e) =>
+                                  handleTitleEdit(
+                                    e,
+                                    data.leaderId?._id,
+                                    data.customRoles?.[data.leaderId?._id] ||
+                                      content.leaderName,
+                                  )
+                                }
+                                className="text-gray-400 hover:text-blue-500 transition-colors"
+                              >
+                                <Edit className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </Link>
 
@@ -382,21 +451,36 @@ const ProjectDetailPage = () => {
                                     ?.split("@")[0]
                                     .replace(/[0-9]/g, "")}
                             </p>
-                            <p
-                              className={`text-xs font-medium ${
-                                member._role === "coLeader"
-                                  ? "text-purple-600 dark:text-purple-400"
-                                  : "text-blue-600 dark:text-blue-400"
-                              }`}
-                            >
-                              {member.title
-                                ? member.title
-                                : member._role === "coLeader"
-                                  ? content.coLeaders
-                                  : isRTL
-                                    ? "عضو"
-                                    : "Member"}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p
+                                className={`text-xs font-medium ${
+                                  member._role === "coLeader"
+                                    ? "text-purple-600 dark:text-purple-400"
+                                    : "text-blue-600 dark:text-blue-400"
+                                }`}
+                              >
+                                {data.customRoles?.[member._id] ||
+                                  (member._role === "coLeader"
+                                    ? content.coLeaders
+                                    : isRTL
+                                      ? "عضو"
+                                      : "Member")}
+                              </p>
+                              {isLeader && (
+                                <button
+                                  onClick={(e) =>
+                                    handleTitleEdit(
+                                      e,
+                                      member._id,
+                                      data.customRoles?.[member._id] || "",
+                                    )
+                                  }
+                                  className="text-gray-400 hover:text-blue-500 transition-colors"
+                                >
+                                  <Edit className="w-3 h-3" />
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </Link>
                       ))}
@@ -413,6 +497,98 @@ const ProjectDetailPage = () => {
             })()}
           </CardContent>
         </Card>
+
+        {/* Join Requests Section */}
+        {isLeader && pendingJoinRequests.length > 0 && (
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800 shadow-sm border-l-4 border-l-blue-500">
+            <button
+              type="button"
+              onClick={() => setJoinRequestsOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between p-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Users className="w-5 h-5 text-blue-500" />
+                <span className="text-lg font-bold text-gray-800 dark:text-white">
+                  {content.joinRequests}
+                </span>
+                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  {pendingJoinRequests.length}
+                </Badge>
+              </div>
+              <ChevronDown
+                className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${joinRequestsOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            <div
+              className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                joinRequestsOpen
+                  ? "max-h-[1000px] opacity-100"
+                  : "max-h-0 opacity-0"
+              }`}
+            >
+              <div className="p-4 space-y-4 border-t border-gray-100 dark:border-gray-700">
+                {pendingJoinRequests.map((req) => (
+                  <div
+                    key={req._id}
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 border border-blue-200 dark:border-blue-800 flex items-center justify-center shrink-0">
+                        <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-800 dark:text-white">
+                          {req.userId?.name ||
+                            req.userId?.email?.split("@")[0] ||
+                            "Unknown User"}
+                        </p>
+                        <Link
+                          href={`/dashboard/user/${req.userId?._id}`}
+                          className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+                        >
+                          {content.viewProfile}
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700"
+                        disabled={isResponding}
+                        onClick={() =>
+                          respondJoin({
+                            projectId: data._id,
+                            joinId: req._id,
+                            action: "accept",
+                            userId: userId.toString(),
+                          })
+                        }
+                      >
+                        <CheckCircle className="w-4 h-4 mr-1" />{" "}
+                        {content.acceptJoin}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={isResponding}
+                        onClick={() =>
+                          respondJoin({
+                            projectId: data._id,
+                            joinId: req._id,
+                            action: "reject",
+                            userId: userId.toString(),
+                          })
+                        }
+                      >
+                        <Trash className="w-4 h-4 mr-1" /> {content.rejectJoin}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tasks Section */}
         {(isLeader || isMember) && (
@@ -556,35 +732,97 @@ const ProjectDetailPage = () => {
         )}
 
         {/* Action Buttons Section */}
-        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-lg">
+        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-lg overflow-hidden">
+          <CardHeader className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 py-3 px-6">
+            <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+              {isRTL ? "إجراءات المشروع" : "Project Actions"}
+            </h3>
+          </CardHeader>
           <CardContent className="p-6">
-            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-              {/* Leader Actions */}
+            <div className="flex flex-col gap-6">
+              {/* Leader Primary Actions */}
               {isLeader && !isFinished && (
-                <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <Button
                     onClick={handleEdit}
-                    className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+                    className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2 shadow-sm transition-all"
                   >
-                    <Edit className="w-4 h-4" />
-                    {content.edit}
+                    <Edit className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{content.edit}</span>
                   </Button>
                   <Button
                     onClick={handleReport}
-                    className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+                    className="bg-indigo-600 hover:bg-indigo-700 flex items-center gap-2 shadow-sm transition-all text-white"
                   >
-                    <ClipboardPlus className="w-4 h-4" />
-                    {content.report}
+                    <ClipboardPlus className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{content.report}</span>
                   </Button>
+                  <Button
+                    onClick={() =>
+                      redirect(`/dashboard/team-report/${data._id}`)
+                    }
+                    className="bg-purple-600 hover:bg-purple-700 flex items-center gap-2 shadow-sm transition-all text-white"
+                  >
+                    <Users className="w-4 h-4 shrink-0" />
+                    <span className="truncate">
+                      {content.teamReport ||
+                        (isRTL ? "تقرير الفريق" : "Team Report")}
+                    </span>
+                  </Button>
+                  {!data.public && (
+                    <Button
+                      variant="outline"
+                      className="border-indigo-600 text-indigo-700 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-900/30 dark:border-indigo-500 shadow-sm transition-all flex items-center gap-2"
+                      onClick={() => {
+                        const inviteLink = `${window.location.origin}/dashboard/projects/${data._id}?invite=true`;
+                        navigator.clipboard.writeText(inviteLink);
+                        toast.success(
+                          content.inviteLinkCopied ||
+                            (isRTL
+                              ? "تم نسخ رابط الدعوة!"
+                              : "Invite link copied!"),
+                        );
+                      }}
+                    >
+                      <ClipboardPlus className="w-4 h-4 shrink-0" />
+                      <span className="truncate">
+                        {content.copyInviteLink ||
+                          (isRTL ? "نسخ رابط الدعوة" : "Copy Invite Link")}
+                      </span>
+                    </Button>
+                  )}
+                </div>
+              )}
 
+              {/* Status and Danger Zone */}
+              <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-gray-100 dark:border-gray-700 mt-2">
+                {isLeader && (
+                  <Button
+                    className={`flex items-center gap-2 shadow-sm transition-all ${
+                      isFinished
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-orange-600 hover:bg-orange-700 text-white"
+                    }`}
+                    onClick={toggleStatus}
+                  >
+                    <CheckCircle className="w-4 h-4 shrink-0" />
+                    <span className="truncate">
+                      {isFinished
+                        ? content.reopenProject
+                        : content.finishProject}
+                    </span>
+                  </Button>
+                )}
+
+                {isLeader && !isFinished && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="destructive"
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 shadow-sm transition-all ml-auto rtl:mr-auto rtl:ml-0"
                       >
-                        <Trash className="w-4 h-4" />
-                        {content.delete}
+                        <Trash className="w-4 h-4 shrink-0" />
+                        <span className="truncate">{content.delete}</span>
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
@@ -607,56 +845,61 @@ const ProjectDetailPage = () => {
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                </>
-              )}
+                )}
 
-              {/* Toggle Status Button */}
-              {isLeader && (
-                <Button
-                  className={`flex items-center gap-2 ${
-                    isFinished
-                      ? "bg-green-600 hover:bg-green-700"
-                      : "bg-red-600 hover:bg-red-700"
-                  }`}
-                  onClick={toggleStatus}
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  {isFinished ? content.reopenProject : content.finishProject}
-                </Button>
-              )}
-
-              {/* Leave Project Button */}
-              {isMember && !isFinished && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="text-red-600 border-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2"
-                    >
-                      {content.leave}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="text-gray-800 dark:text-white">
-                        {content.leaveConfirmTitle}
-                      </AlertDialogTitle>
-                      <AlertDialogDescription className="text-gray-600 dark:text-gray-300">
-                        {content.leaveConfirmDesc}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>{modal.cancel}</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleLeave}
-                        className="bg-red-600 hover:bg-red-700"
+                {/* Leave Project Button */}
+                {isMember && !isFinished && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="border-red-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2 shadow-sm transition-all ml-auto rtl:mr-auto rtl:ml-0"
                       >
-                        {content.leaveConfirm}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
+                        {content.leave}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-gray-800 dark:text-white">
+                          {content.leaveConfirmTitle}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-gray-600 dark:text-gray-300">
+                          {content.leaveConfirmDesc}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>{modal.cancel}</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleLeave}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          {content.leaveConfirm}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+
+                {/* Join Project Button */}
+                {isRandomUser && (data.public || isInvite) && !isFinished && (
+                  <Button
+                    onClick={handleJoinProject}
+                    disabled={hasRequestedJoin || isJoining}
+                    className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2 shadow-sm transition-all ml-auto rtl:mr-auto rtl:ml-0"
+                  >
+                    {hasRequestedJoin ? (
+                      <Clock className="w-4 h-4 shrink-0" />
+                    ) : (
+                      <Plus className="w-4 h-4 shrink-0" />
+                    )}
+                    <span className="truncate">
+                      {hasRequestedJoin
+                        ? content.joinRequested
+                        : content.joinProject}
+                    </span>
+                  </Button>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -5,7 +5,6 @@ import { useProjectReport } from "../../../../hooks/projects/useProjectReport";
 import ModernLoading from "../../../../components/Loading";
 import { Printer } from "lucide-react";
 import CheckUserRole from "../../../../lib/actions/checkUserRole";
-import html2pdf from "html2pdf.js";
 import { Button } from "../../../../components/ui/button";
 import { useAppContext } from "../../../../contexts/AppContext";
 import { translations } from "../../../../lib/translations";
@@ -29,6 +28,17 @@ const ReportPage = () => {
   if (!data?.projectTitle)
     return <div className="error-message">{content.noData}</div>;
 
+  const today = new Date();
+  const dateString = today.toLocaleDateString(
+    language === "ar" ? "ar-EG" : "en-US",
+    {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    },
+  );
+
   const handlePrint = async () => {
     const element = document.getElementById("page");
     if (!element) return;
@@ -42,6 +52,7 @@ const ReportPage = () => {
     };
 
     try {
+      const html2pdf = (await import("html2pdf.js")).default;
       await html2pdf().from(element).set(options).save();
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -74,6 +85,17 @@ const ReportPage = () => {
           <div className="report-header">
             <h1>{content.title}</h1>
             <h2>{safeValue(data.projectTitle)}</h2>
+            <p
+              className="report-date"
+              style={{
+                color: "#555",
+                marginTop: "0.5rem",
+                fontSize: "0.9rem",
+                fontWeight: "500",
+              }}
+            >
+              {dateString}
+            </p>
           </div>
 
           {/* معلومات القائد */}
@@ -150,7 +172,7 @@ const ReportPage = () => {
               {content.progress}:{" "}
               {data.totalTasks > 0
                 ? `${Math.round(
-                    (data.completedTasks / data.totalTasks) * 100
+                    (data.completedTasks / data.totalTasks) * 100,
                   )}%`
                 : "0%"}
             </p>

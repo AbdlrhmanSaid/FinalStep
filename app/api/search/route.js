@@ -25,8 +25,10 @@ export async function GET(request) {
 
     // Search public projects by title or description
     const projects = await Project.find({
-      public: true,
-      $or: [{ title: regex }, { description: regex }],
+      $and: [
+        { public: true },
+        { $or: [{ title: regex }, { description: regex }] },
+      ],
     })
       .populate("leaderId", "name email")
       .select(

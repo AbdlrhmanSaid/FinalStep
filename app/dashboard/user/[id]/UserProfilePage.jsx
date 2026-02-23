@@ -799,8 +799,6 @@ const UserProfilePage = () => {
   const userInitials = name ? initials(name) : "?";
   const isAdmin = user?.role === "admin";
 
-  console.log(user);
-
   const joinDate = user?.createdAt
     ? format(new Date(user.createdAt), "MMMM yyyy", { locale: dateLocale })
     : null;
