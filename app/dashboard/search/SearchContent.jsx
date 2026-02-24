@@ -19,7 +19,7 @@ export default function SearchContent() {
   const commonContent = translations[language].dashboard;
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 1000);
   const [activeTab, setActiveTab] = useState("all");
 
   const { data, isLoading, isError } = useSearch(debouncedSearchTerm);
@@ -66,8 +66,15 @@ export default function SearchContent() {
               placeholder={content.placeholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 text-lg border-2 border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:placeholder-gray-400"
+              className="w-full pl-12 pr-24 py-4 text-lg border-2 border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:placeholder-gray-400"
             />
+            {isLoading && (
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 rtl:left-4 rtl:right-auto">
+                <span className="text-sm text-gray-400 dark:text-gray-300 animate-pulse font-medium">
+                  {isRTL ? "يتم البحث..." : "Searching..."}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -78,9 +85,11 @@ export default function SearchContent() {
             <Search className="w-16 h-16 mb-4 text-gray-300 dark:text-gray-600" />
             <p className="text-lg">{content.placeholder}</p>
           </div>
-        ) : isLoading ? (
-          <div className="py-20 flex justify-center">
-            <Loading />
+        ) : isLoading && users.length === 0 && projects.length === 0 ? (
+          <div className="py-20 flex justify-center text-gray-500 font-medium">
+            <p className="animate-pulse">
+              {isRTL ? "يتم البحث..." : "Searching..."}
+            </p>
           </div>
         ) : isError ? (
           <div className="flex flex-col items-center justify-center py-20 text-red-500">

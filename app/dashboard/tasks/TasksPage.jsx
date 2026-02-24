@@ -164,7 +164,7 @@ const TasksClient = () => {
                           {task.title}
                         </h2>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
+                      <p className="text-gray-600 dark:text-gray-300 line-clamp-3 mb-3 whitespace-pre-wrap break-words">
                         {task.description}
                       </p>
 

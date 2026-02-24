@@ -70,6 +70,7 @@ const ProjectDetailPage = () => {
   const [isRandomUser, setIsRandomUser] = useState(false);
   const [teamOpen, setTeamOpen] = useState(false);
   const [joinRequestsOpen, setJoinRequestsOpen] = useState(false);
+  const [taskFilter, setTaskFilter] = useState("all");
 
   const searchParams = useSearchParams();
   const isInvite = searchParams.get("invite") === "true";
@@ -195,6 +196,29 @@ const ProjectDetailPage = () => {
       </span>
     );
   };
+
+  const filteredTasks = tasks?.filter((task) => {
+    // 1. Basic permission filtering
+    const hasPermission = isLeader
+      ? task?.projectId?._id === data?._id
+      : task?.projectId?._id === data?._id &&
+        task.assignedTo?.some((user) => user._id === userId);
+
+    if (!hasPermission) return false;
+
+    // 2. Tab filtering
+    if (taskFilter === "current") {
+      return (
+        task.status !== "completed" &&
+        task.status !== "finished" &&
+        task.status !== "rejected"
+      );
+    }
+    if (taskFilter === "completed") {
+      return task.status === "completed" || task.status === "finished";
+    }
+    return true; // "all"
+  });
 
   return (
     <div className="min-h-screen bgMain transition-colors p-4 md:p-6">
@@ -610,6 +634,33 @@ const ProjectDetailPage = () => {
                   </Link>
                 )}
               </div>
+
+              {/* Task Tabs */}
+              {tasks && (
+                <div className="flex gap-2 mt-4">
+                  <Button
+                    variant={taskFilter === "all" ? "default" : "outline"}
+                    onClick={() => setTaskFilter("all")}
+                    size="sm"
+                  >
+                    {isRTL ? "الكل" : "All"}
+                  </Button>
+                  <Button
+                    variant={taskFilter === "current" ? "default" : "outline"}
+                    onClick={() => setTaskFilter("current")}
+                    size="sm"
+                  >
+                    {isRTL ? "الحالي" : "Current"}
+                  </Button>
+                  <Button
+                    variant={taskFilter === "completed" ? "default" : "outline"}
+                    onClick={() => setTaskFilter("completed")}
+                    size="sm"
+                  >
+                    {isRTL ? "المنتهي" : "Completed"}
+                  </Button>
+                </div>
+              )}
             </CardHeader>
 
             <CardContent className="p-6">
@@ -617,108 +668,94 @@ const ProjectDetailPage = () => {
                 <div className="text-center py-8">
                   <Loading />
                 </div>
-              ) : tasks.some((task) =>
-                  isLeader
-                    ? task?.projectId?._id === data?._id
-                    : task?.projectId?._id === data?._id &&
-                      task.assignedTo?.some((user) => user._id === userId),
-                ) ? (
+              ) : filteredTasks?.length > 0 ? (
                 <div className="space-y-4">
-                  {tasks
-                    .filter((task) =>
-                      isLeader
-                        ? task?.projectId?._id === data?._id
-                        : task?.projectId?._id === data?._id &&
-                          task.assignedTo?.some((user) => user._id === userId),
-                    )
-                    .map((task) => (
-                      <div
-                        key={task._id}
-                        className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
-                          <div className="flex-1">
-                            <h4 className="text-lg font-semibold text-gray-800 dark:text-white">
-                              {task.title}
-                            </h4>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                              {task.description?.slice(0, 100) ||
-                                (isRTL ? "لا يوجد وصف." : "No description.")}
-                            </p>
-                            {/* Task Due Date Badge */}
-                            <TaskDueBadge
-                              dueDate={task.dueDate}
-                              status={task.status}
-                            />
-                          </div>
-
-                          {!isFinished && (
-                            <div className="flex flex-wrap gap-2 justify-end">
-                              <Link href={`/dashboard/task/${task._id}`}>
-                                <Button
-                                  variant="outline"
-                                  className="flex items-center gap-2 text-blue-600 border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                  {content.view}
-                                </Button>
-                              </Link>
-                              {isLeader && (
-                                <>
-                                  <Link
-                                    href={`/dashboard/task/${task._id}/edit`}
-                                  >
-                                    <Button
-                                      variant="outline"
-                                      className="flex items-center gap-2 text-yellow-600 border-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/30"
-                                    >
-                                      <Edit className="w-4 h-4" />
-                                      {content.edit}
-                                    </Button>
-                                  </Link>
-
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button
-                                        variant="destructive"
-                                        className="flex items-center gap-2"
-                                      >
-                                        <Trash className="w-4 h-4" />
-                                        {content.delete}
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle className="text-gray-800 dark:text-white">
-                                          {modal.confirmTitle}
-                                        </AlertDialogTitle>
-                                        <AlertDialogDescription className="text-gray-600 dark:text-gray-300">
-                                          {modal.alertTitle}
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>
-                                          {modal.cancel}
-                                        </AlertDialogCancel>
-                                        <AlertDialogAction
-                                          onClick={() => {
-                                            deleteTask(task._id);
-                                            refetch();
-                                          }}
-                                          className="bg-red-600 hover:bg-red-700"
-                                        >
-                                          {modal.confirm}
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                </>
-                              )}
-                            </div>
-                          )}
+                  {filteredTasks.map((task) => (
+                    <div
+                      key={task._id}
+                      className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                        <div className="flex-1">
+                          <h4 className="text-lg font-semibold text-gray-800 dark:text-white">
+                            {task.title}
+                          </h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap break-words">
+                            {task.description?.slice(0, 100) ||
+                              (isRTL ? "لا يوجد وصف." : "No description.")}
+                          </p>
+                          {/* Task Due Date Badge */}
+                          <TaskDueBadge
+                            dueDate={task.dueDate}
+                            status={task.status}
+                          />
                         </div>
+
+                        {!isFinished && (
+                          <div className="flex flex-wrap gap-2 justify-end">
+                            <Link href={`/dashboard/task/${task._id}`}>
+                              <Button
+                                variant="outline"
+                                className="flex items-center gap-2 text-blue-600 border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                              >
+                                <Eye className="w-4 h-4" />
+                                {content.view}
+                              </Button>
+                            </Link>
+                            {isLeader && (
+                              <>
+                                <Link href={`/dashboard/task/${task._id}/edit`}>
+                                  <Button
+                                    variant="outline"
+                                    className="flex items-center gap-2 text-yellow-600 border-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/30"
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                    {content.edit}
+                                  </Button>
+                                </Link>
+
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="destructive"
+                                      className="flex items-center gap-2"
+                                    >
+                                      <Trash className="w-4 h-4" />
+                                      {content.delete}
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle className="text-gray-800 dark:text-white">
+                                        {modal.confirmTitle}
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription className="text-gray-600 dark:text-gray-300">
+                                        {modal.alertTitle}
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>
+                                        {modal.cancel}
+                                      </AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => {
+                                          deleteTask(task._id);
+                                          refetch();
+                                        }}
+                                        className="bg-red-600 hover:bg-red-700"
+                                      >
+                                        {modal.confirm}
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    ))}
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-6 rounded-lg text-center">

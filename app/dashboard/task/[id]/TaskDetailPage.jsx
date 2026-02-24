@@ -29,7 +29,6 @@ const TaskDetailPage = () => {
   const [showAcceptDialog, setShowAcceptDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
 
-
   if (isLoading) return <Loading />;
   if (isError || !task)
     return (
@@ -219,7 +218,7 @@ const TaskDetailPage = () => {
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
                 {content.description}
               </h3>
-              <p className="text-gray-700 dark:text-gray-300 pl-2">
+              <p className="text-gray-700 dark:text-gray-300 pl-2 whitespace-pre-wrap break-words">
                 {task.description || (
                   <span className="italic text-gray-500">
                     {content.noDescription}
@@ -315,7 +314,7 @@ const TaskDetailPage = () => {
                   <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {content.submissionDescription}
                   </h4>
-                  <p className="text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded">
+                  <p className="text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded whitespace-pre-wrap break-words">
                     {task.submission.description}
                   </p>
                 </div>
