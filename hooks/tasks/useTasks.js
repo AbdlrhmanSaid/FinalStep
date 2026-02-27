@@ -56,9 +56,10 @@ export const useUpdateTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ taskId, data }) => {
+    mutationFn: async ({ taskId, data, userId }) => {
       try {
-        const res = await axios.put(`/api/tasks/${taskId}`, data);
+        const headers = userId ? { userId } : {};
+        const res = await axios.put(`/api/tasks/${taskId}`, data, { headers });
         return res.data;
       } catch (error) {
         toast.error(error.response?.data?.error || "Failed to update task");

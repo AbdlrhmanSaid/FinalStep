@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 export const useUpdateCurrentUser = (userId) => {
@@ -12,7 +12,10 @@ export const useUpdateCurrentUser = (userId) => {
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["user-profile", userId]);
+      // Invalidate ALL user-related queries to ensure fresh data everywhere
+      queryClient.invalidateQueries({ queryKey: ["userProfile", userId] });
+      queryClient.invalidateQueries({ queryKey: ["user", userId] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 };

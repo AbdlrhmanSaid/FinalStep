@@ -10,6 +10,7 @@ import { Plus, Trash } from "lucide-react";
 import { useAppContext } from "../../../contexts/AppContext";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import DatePicker from "../../../components/ui/DatePicker";
 
 export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
   const { userId } = useAppContext();
@@ -18,6 +19,7 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [publicProject, setPublicProject] = useState(false);
+  const [deadline, setDeadline] = useState("");
   const [invites, setInvites] = useState([""]);
   const [errors, setErrors] = useState({ invites: [] });
 
@@ -27,7 +29,7 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
     e.preventDefault();
 
     const inviteErrors = invites.map((email) =>
-      email && !validateEmail(email) ? "Invalid email" : ""
+      email && !validateEmail(email) ? "Invalid email" : "",
     );
 
     if (inviteErrors.some(Boolean)) {
@@ -40,6 +42,7 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
       title,
       description,
       public: publicProject,
+      deadline: deadline || null,
       leaderId: userId,
       inviteRequests: invites.filter(Boolean).map((email) => ({ email })),
     };
@@ -55,6 +58,7 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
       setTitle("");
       setDescription("");
       setPublicProject(false);
+      setDeadline("");
       setInvites([""]);
       setErrors({ invites: [] });
 
@@ -148,6 +152,25 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
           onCheckedChange={setPublicProject}
           className={`${isRTL ? "ml-2 flex-row-reverse" : "mr-2"}`}
         />
+      </div>
+
+      {/* Project Deadline */}
+      <div>
+        <Label htmlFor="deadline" className="mb-2 block">
+          {content.deadline}
+        </Label>
+        <DatePicker
+          value={deadline}
+          onChange={setDeadline}
+          placeholder={content.deadlinePlaceholder || "Pick a deadline date..."}
+          disablePast={true}
+          locale={isRTL ? "ar" : "en"}
+        />
+        {deadline && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {content.deadlineHint}
+          </p>
+        )}
       </div>
 
       {/* Email Invitations */}

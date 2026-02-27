@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { translations } from "../../../../../lib/translations";
+import DatePicker from "../../../../../components/ui/DatePicker";
 
 export default function EditTaskPage() {
   const { id } = useParams();
@@ -22,7 +23,9 @@ export default function EditTaskPage() {
   const [form, setForm] = useState({
     title: "",
     description: "",
+    referenceLink: "",
     priority: "medium",
+    dueDate: "",
     assignedTo: [],
   });
 
@@ -33,7 +36,11 @@ export default function EditTaskPage() {
       setForm({
         title: task.title || "",
         description: task.description || "",
+        referenceLink: task.referenceLink || "",
         priority: task.priority || "medium",
+        dueDate: task.dueDate
+          ? new Date(task.dueDate).toISOString().split("T")[0]
+          : "",
         assignedTo: task.assignedTo || [],
       });
     }
@@ -49,7 +56,11 @@ export default function EditTaskPage() {
     updateTask(
       {
         taskId: id,
-        data: form,
+        userId,
+        data: {
+          ...form,
+          dueDate: form.dueDate || null,
+        },
       },
       {
         onSuccess: () => {
@@ -59,10 +70,10 @@ export default function EditTaskPage() {
         onError: (error) => {
           toast.error(
             error?.response?.data?.message ||
-              "An error occurred while updating the task."
+              "An error occurred while updating the task.",
           );
         },
-      }
+      },
     );
   };
 
@@ -75,7 +86,7 @@ export default function EditTaskPage() {
       <div className="p-4 md:p-8 bg-white dark:bg-gray-900 dark:text-white min-h-screen">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold">{content.head}</h2>
+            <h2 className="text-2xl font-bold">{content.head}</h2>
           </div>
 
           <form
@@ -106,11 +117,29 @@ export default function EditTaskPage() {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                {isRTL ? "رابط مرجعي (اختياري)" : "Reference Link (Optional)"}
+              </Label>
+              <Input
+                name="referenceLink"
+                type="url"
+                value={form.referenceLink}
+                onChange={handleChange}
+                placeholder="https://..."
+                className="mt-1 h-11"
+              />
+            </div>
+
             <div className="w-full">
-              <Label className="text-sm font-medium block mb-2">
+              <Label
+                htmlFor="priority"
+                className="text-sm font-medium block mb-2"
+              >
                 {content.priority}
               </Label>
               <select
+                id="priority"
                 name="priority"
                 value={form.priority}
                 onChange={handleChange}
@@ -120,6 +149,26 @@ export default function EditTaskPage() {
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
               </select>
+            </div>
+
+            {/* Due Date */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium block">
+                {content.dueDate}
+              </Label>
+              <DatePicker
+                value={form.dueDate}
+                onChange={(val) =>
+                  setForm((prev) => ({ ...prev, dueDate: val }))
+                }
+                placeholder={content.dueDatePlaceholder || "Pick a due date..."}
+                locale={isRTL ? "ar" : "en"}
+              />
+              {form.dueDate && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {content.dueDateHint}
+                </p>
+              )}
             </div>
 
             <div className="flex justify-end pt-4">

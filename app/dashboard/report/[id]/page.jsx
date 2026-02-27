@@ -7,7 +7,6 @@ const ReportPage = dynamic(() => import("./ReportPage"), {
       <Loading />
     </div>
   ),
-  ssr: true,
 });
 
 const Page = () => {

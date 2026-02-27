@@ -5,12 +5,9 @@ import { useParams } from "next/navigation";
 import { useGetTask, useUpdateTask } from "../../../../hooks/tasks/useTasks";
 import { translations } from "../../../../lib/translations";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-} from "@/components/ui/card";
-import { format } from "date-fns";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { format, isBefore, isToday, differenceInDays } from "date-fns";
+import { ar, enUS } from "date-fns/locale";
 import Loading from "../../../../components/Loading";
 import { useAppContext } from "../../../../contexts/AppContext";
 import toast from "react-hot-toast";
@@ -21,6 +18,7 @@ const TaskDetailPage = () => {
   const { data: task, isLoading, isError, refetch } = useGetTask(id);
   const { mutate: updateTask, isLoading: isUpdating } = useUpdateTask();
   const { userId, language, isRTL } = useAppContext();
+  const dateLocale = language === "ar" ? ar : enUS;
   const content = translations[language].dashboard.taskDetails;
 
   const [showSubmitForm, setShowSubmitForm] = useState(false);
@@ -40,7 +38,7 @@ const TaskDetailPage = () => {
   const isProjectLeader =
     task.projectId?.leaderId?.toString() === userId?.toString() ||
     task.projectId?.coLeaders?.some(
-      (coId) => coId?.toString() === userId?.toString()
+      (coId) => coId?.toString() === userId?.toString(),
     );
 
   const handleSubmitTask = () => setShowSubmitForm(true);
@@ -74,6 +72,7 @@ const TaskDetailPage = () => {
     updateTask(
       {
         taskId: id,
+        userId,
         data: {
           status: "submitted",
           submission: {
@@ -94,7 +93,7 @@ const TaskDetailPage = () => {
         onError: () => {
           toast.error("Failed to submit task");
         },
-      }
+      },
     );
   };
 
@@ -102,6 +101,7 @@ const TaskDetailPage = () => {
     updateTask(
       {
         taskId: id,
+        userId,
         data: {
           status: "completed",
           review: {
@@ -120,7 +120,7 @@ const TaskDetailPage = () => {
         onError: () => {
           toast.error("Failed to accept task");
         },
-      }
+      },
     );
   };
 
@@ -133,6 +133,7 @@ const TaskDetailPage = () => {
     updateTask(
       {
         taskId: id,
+        userId,
         data: {
           status: "rejected",
           review: {
@@ -153,7 +154,7 @@ const TaskDetailPage = () => {
         onError: () => {
           toast.error("Failed to reject task");
         },
-      }
+      },
     );
   };
 
@@ -204,7 +205,7 @@ const TaskDetailPage = () => {
               </div>
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
-                  task.status
+                  task.status,
                 )}`}
               >
                 {content.status[task.status] || task.status}
@@ -217,13 +218,28 @@ const TaskDetailPage = () => {
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
                 {content.description}
               </h3>
-              <p className="text-gray-700 dark:text-gray-300 pl-2">
+              <p className="text-gray-700 dark:text-gray-300 pl-2 whitespace-pre-wrap break-words">
                 {task.description || (
                   <span className="italic text-gray-500">
                     {content.noDescription}
                   </span>
                 )}
               </p>
+              {task.referenceLink && (
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                  <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-2">
+                    {isRTL ? "الرابط المرجعي" : "Reference Link"}
+                  </h3>
+                  <a
+                    href={task.referenceLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline break-all text-sm"
+                  >
+                    {task.referenceLink}
+                  </a>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -250,24 +266,54 @@ const TaskDetailPage = () => {
                   {content.timeline}
                 </h3>
                 <p className="text-gray-700 dark:text-gray-300">
-                  {content.created}: {format(new Date(task.createdAt), "PPPp")}
+                  {content.created}:{" "}
+                  {format(new Date(task.createdAt), "PPPp", {
+                    locale: dateLocale,
+                  })}
                 </p>
                 {task.updatedAt && (
                   <p className="text-gray-700 dark:text-gray-300">
                     {content.updated}:{" "}
-                    {format(new Date(task.updatedAt), "PPPp")}
+                    {format(new Date(task.updatedAt), "PPPp", {
+                      locale: dateLocale,
+                    })}
+                  </p>
+                )}
+                {task.dueDate && (
+                  <p
+                    className={`font-medium flex items-center gap-1 ${
+                      new Date(task.dueDate) < new Date() &&
+                      task.status !== "completed"
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-orange-600 dark:text-orange-400"
+                    }`}
+                  >
+                    ⏰ {content.dueDate}:{" "}
+                    {format(new Date(task.dueDate), "PPP", {
+                      locale: dateLocale,
+                    })}
+                    {new Date(task.dueDate) < new Date() &&
+                      task.status !== "completed" && (
+                        <span className="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full">
+                          {content.overdue}
+                        </span>
+                      )}
                   </p>
                 )}
                 {task.submission?.submittedAt && (
                   <p className="text-gray-700 dark:text-gray-300">
                     {content.submitted}:{" "}
-                    {format(new Date(task.submission.submittedAt), "PPPp")}
+                    {format(new Date(task.submission.submittedAt), "PPPp", {
+                      locale: dateLocale,
+                    })}
                   </p>
                 )}
                 {task.review?.reviewedAt && (
                   <p className="text-gray-700 dark:text-gray-300">
                     {content.reviewed}:{" "}
-                    {format(new Date(task.review.reviewedAt), "PPPp")}
+                    {format(new Date(task.review.reviewedAt), "PPPp", {
+                      locale: dateLocale,
+                    })}
                   </p>
                 )}
               </div>
@@ -283,7 +329,7 @@ const TaskDetailPage = () => {
                   <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {content.submissionDescription}
                   </h4>
-                  <p className="text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded">
+                  <p className="text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded whitespace-pre-wrap break-words">
                     {task.submission.description}
                   </p>
                 </div>
@@ -320,7 +366,9 @@ const TaskDetailPage = () => {
                       {content.submittedAt}
                     </h4>
                     <p className="text-gray-700 dark:text-gray-300">
-                      {format(new Date(task.submission.submittedAt), "PPPp")}
+                      {format(new Date(task.submission.submittedAt), "PPPp", {
+                        locale: dateLocale,
+                      })}
                     </p>
                   </div>
                 )}

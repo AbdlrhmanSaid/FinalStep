@@ -4,10 +4,19 @@ import { useAppContext } from "../../../contexts/AppContext";
 import { useGetTasks, useUpdateTask } from "../../../hooks/tasks/useTasks";
 import { translations } from "../../../lib/translations";
 import Loading from "../../../components/Loading";
-import { ArrowRight, Search, RefreshCw } from "lucide-react";
+import {
+  ArrowRight,
+  Search,
+  RefreshCw,
+  Calendar,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { format, isBefore, isToday, differenceInDays } from "date-fns";
+import { ar, enUS } from "date-fns/locale";
 import {
   Select,
   SelectContent,
@@ -18,11 +27,11 @@ import {
 import { Button } from "@/components/ui/button";
 
 const TasksClient = () => {
-  const { userId, language } = useAppContext();
+  const { userId, language, isRTL } = useAppContext();
+  const dateLocale = language === "ar" ? ar : enUS;
   const { data: tasks, isLoading, refetch, isFetching } = useGetTasks();
   const { mutate: updateTask } = useUpdateTask();
   const [searchQuery, setSearchQuery] = useState("");
-
   const content = translations[language].dashboard.tasks;
 
   // ترتيب وفلترة المهام
@@ -31,7 +40,7 @@ const TasksClient = () => {
 
     // فلترة المهام الخاصة بالمستخدم
     let myTasks = tasks.filter((task) =>
-      task.assignedTo?.some((user) => user._id === userId)
+      task.assignedTo?.some((user) => user._id === userId),
     );
 
     // البحث
@@ -39,12 +48,14 @@ const TasksClient = () => {
       myTasks = myTasks.filter(
         (task) =>
           task.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          task.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          task.description?.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
     // ترتيب من الأحدث للأقدم
-    return myTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return myTasks.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+    );
   }, [tasks, userId, searchQuery]);
 
   const handleStatusChange = (taskId, newStatus) => {
@@ -61,7 +72,7 @@ const TasksClient = () => {
         onError: () => {
           toast.error("فشل في تحديث الحالة");
         },
-      }
+      },
     );
   };
 
@@ -73,14 +84,16 @@ const TasksClient = () => {
     <div className="min-h-screen bg-gradient-to-br bgMain h-screen ">
       <div className="max-w-4xl mx-auto h-screen">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold bg-clip-text  dark:text-white text-gray-800">
+          <h1 className="text-2xl font-bold bg-clip-text  dark:text-white text-gray-800">
             {content.pageTitle}
           </h1>
           <div className="flex items-center gap-2">
             {filteredAndSortedTasks.length > 0 && (
               <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                 {filteredAndSortedTasks.length}{" "}
-                {filteredAndSortedTasks.length === 1 ? content.task : content.tasks}
+                {filteredAndSortedTasks.length === 1
+                  ? content.task
+                  : content.tasks}
               </span>
             )}
             <Button
@@ -90,7 +103,9 @@ const TasksClient = () => {
               size="sm"
               className="flex items-center gap-2"
             >
-              <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`}
+              />
             </Button>
           </div>
         </div>
@@ -129,7 +144,9 @@ const TasksClient = () => {
               {searchQuery ? content.noResults : content.emptyTitle}
             </h3>
             <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-              {searchQuery ? content.tryDifferentSearch : content.emptyDescription}
+              {searchQuery
+                ? content.tryDifferentSearch
+                : content.emptyDescription}
             </p>
           </div>
         ) : (
@@ -147,10 +164,62 @@ const TasksClient = () => {
                           {task.title}
                         </h2>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
+                      <p className="text-gray-600 dark:text-gray-300 line-clamp-3 mb-3 whitespace-pre-wrap break-words">
                         {task.description}
                       </p>
-                      
+
+                      {/* Deadline badge */}
+                      {task.dueDate &&
+                        (() => {
+                          const due = new Date(task.dueDate);
+                          const isOverdue =
+                            isBefore(due, new Date()) &&
+                            !isToday(due) &&
+                            task.status !== "completed";
+                          const daysLeft = differenceInDays(due, new Date());
+                          const isUrgent = !isOverdue && daysLeft <= 3;
+                          const fmtDate = format(due, "d MMM yyyy", {
+                            locale: dateLocale,
+                          });
+
+                          let bg, text, icon, label;
+                          if (isOverdue) {
+                            bg = "bg-red-100 dark:bg-red-900/40";
+                            text = "text-red-700 dark:text-red-300";
+                            icon = (
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            );
+                            label = isRTL
+                              ? `متأخر • ${fmtDate}`
+                              : `Overdue • ${fmtDate}`;
+                          } else if (isUrgent) {
+                            bg = "bg-orange-100 dark:bg-orange-900/30";
+                            text = "text-orange-700 dark:text-orange-300";
+                            icon = (
+                              <Clock className="w-3.5 h-3.5 shrink-0 animate-pulse" />
+                            );
+                            label = isRTL
+                              ? `${daysLeft === 0 ? "اليوم" : `${daysLeft} أيام`} • ${fmtDate}`
+                              : `${daysLeft === 0 ? "Today" : `${daysLeft}d left`} • ${fmtDate}`;
+                          } else {
+                            bg = "bg-slate-100 dark:bg-slate-700/50";
+                            text = "text-slate-600 dark:text-slate-300";
+                            icon = (
+                              <Calendar className="w-3.5 h-3.5 shrink-0" />
+                            );
+                            label = fmtDate;
+                          }
+
+                          return (
+                            <span
+                              className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${bg} ${text}`}
+                            >
+                              {icon}
+                              {isRTL ? "الموعد النهائي: " : "Due: "}
+                              {label}
+                            </span>
+                          );
+                        })()}
                     </div>
 
                     <Link
@@ -174,4 +243,3 @@ const TasksClient = () => {
 };
 
 export default TasksClient;
-

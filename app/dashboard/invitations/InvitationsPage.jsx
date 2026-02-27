@@ -24,7 +24,7 @@ export default function InvitationsPage() {
   const sortedInvites = useMemo(() => {
     if (!invites) return [];
     return [...invites].sort(
-      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
     );
   }, [invites]);
 
@@ -70,7 +70,7 @@ export default function InvitationsPage() {
                 <RefreshCw
                   className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`}
                 />
-                {isFetching ? "جاري التحديث..." : "تحديث"}
+                {isFetching ? content.update : content.update}
               </Button>
             </div>
 

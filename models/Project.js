@@ -12,7 +12,7 @@ const InviteSchema = new Schema({
 });
 
 const JoinSchema = new Schema({
-  email: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   status: {
     type: String,
     enum: ["pending", "accepted", "rejected"],
@@ -52,7 +52,16 @@ const ProjectSchema = new Schema(
         ref: "Task",
       },
     ],
-    public: { type: Boolean },
+    customRoles: {
+      type: Map,
+      of: String,
+      default: {},
+    },
+    public: { type: Boolean, default: true },
+    deadline: {
+      type: Date,
+      default: null,
+    },
     status: {
       type: String,
       enum: ["open", "finished"],
@@ -61,7 +70,7 @@ const ProjectSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 ProjectSchema.post("findOneAndDelete", async function (doc) {

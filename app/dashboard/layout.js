@@ -3,7 +3,7 @@ import { getFullUserOrRedirect } from "../../lib/getFullUser";
 import QueryProvider from "../../lib/queryProvider";
 import { AppProvider } from "../../contexts/AppContext";
 import Navbar from "./components/Navbar";
-import Footer from "../../components/home/Footer";
+import DashboardFooter from "./components/DashboardFooter";
 
 export const metadata = {
   title: "FinalStep Dashboard",
@@ -20,9 +20,9 @@ const layout = async ({ children }) => {
           <nav>
             <Navbar />
           </nav>
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 dark:bg-gray-900">{children}</main>
           <footer>
-            <Footer />
+            <DashboardFooter />
           </footer>
         </div>
       </AppProvider>
@@ -31,4 +31,3 @@ const layout = async ({ children }) => {
 };
 
 export default layout;
-

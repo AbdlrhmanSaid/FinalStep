@@ -1,4 +1,3 @@
-// hooks/invitations/useGetUserInvites.js
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
@@ -9,6 +8,6 @@ export const useGetUserInvites = (email) => {
       const res = await axios.get(`/api/invite/user/${email}`);
       return res.data;
     },
-    enabled: !!email, // يتأكد إن فيه إيميل قبل ما ينفذ
+    enabled: !!email,
   });
 };

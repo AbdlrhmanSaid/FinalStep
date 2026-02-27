@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 const notoSansArabic = Noto_Sans_Arabic({
   variable: "--font-arabic",
   subsets: ["arabic"],
-  weight: ["400", "500", "600", "700"], // Include multiple weights for flexibility
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata = {
@@ -77,7 +77,7 @@ export const metadata = {
     images: ["/og-image.png"],
   },
   verification: {
-    google: "your-google-verification-code",
+    google: "geLAyuipWlwOYyOPDh4KQKVAj6BFRA7RXxkZLqLYins",
   },
 };
 

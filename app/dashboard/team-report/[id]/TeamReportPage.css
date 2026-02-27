@@ -1,0 +1,188 @@
+.team-report-wrapper {
+  background-color: #f3f4f6;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+.team-print-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.team-report-page {
+  background-color: #ffffff;
+  padding: 1rem;
+  max-width: 56rem;
+  margin: 0 auto;
+  border: 1px solid #d1d5db;
+  color: #000000;
+  font-family: inherit;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.team-report-header {
+  text-align: center;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.team-report-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000000;
+  margin-bottom: 0.25rem;
+}
+
+.team-report-header p {
+  font-size: 1rem;
+  color: #333333;
+  margin-bottom: 0.25rem;
+}
+
+.report-date {
+  font-size: 0.8rem;
+  color: #555555;
+  font-weight: 500;
+}
+
+.team-member-card {
+  border: 1px solid #444444;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background-color: #ffffff;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.team-member-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .team-member-row {
+    flex-direction: column;
+  }
+}
+
+.team-member-info {
+  flex: 1;
+}
+.team-member-tasks {
+  flex: 1;
+}
+.team-member-notes {
+  flex: 1;
+}
+
+.team-member-info h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: #000000;
+}
+
+.team-member-info p {
+  color: #333333;
+  font-size: 0.8rem;
+  margin-bottom: 0.2rem;
+}
+
+.member-role {
+  font-weight: 600;
+  color: #000000 !important;
+}
+
+.team-rating-label {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  display: block;
+  margin-top: 0.5rem;
+  color: #000000;
+  font-size: 0.85rem;
+}
+
+.team-rating-stars {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #e5e7eb;
+}
+
+.star-btn.active {
+  color: #fbbf24;
+}
+
+.team-tasks-box {
+  border: 1px solid #777777;
+  padding: 0.5rem;
+  background-color: #fafafa;
+  margin-bottom: 0.5rem;
+}
+
+.team-tasks-box h4 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #000000;
+}
+
+.task-count {
+  padding: 0.1rem 0.3rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  color: #000000;
+}
+
+.team-tasks-box ul {
+  font-size: 0.75rem;
+  color: #222222;
+  margin: 0;
+  padding: 0;
+  text-align: right;
+}
+
+.team-tasks-box li {
+  margin-bottom: 0.15rem;
+  text-align: right;
+}
+
+.no-tasks {
+  font-size: 0.75rem;
+  color: #777777;
+  font-style: italic;
+  list-style: none !important;
+}
+
+.team-notes-label {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  display: block;
+  color: #000000;
+  font-size: 0.85rem;
+}
+
+.team-notes-input {
+  width: 100%;
+  height: 80px;
+  padding: 0.4rem;
+  border: 1px solid #555555;
+  background-color: #ffffff;
+  resize: none;
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: #000000;
+}
