@@ -167,7 +167,7 @@ export default function ProjectCard({
               <div className="flex items-center gap-1">
                 <Users className="w-3.5 h-3.5" />
                 <span>
-                  {members} {content.projectCard.members}
+                  {members + 1} {content.projectCard.members}
                 </span>
               </div>
               <div className="flex items-center gap-1">
@@ -250,7 +250,7 @@ export default function ProjectCard({
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
               <Users className="w-3.5 h-3.5" />
-              {members}
+              {members + 1}
             </span>
             <span className="flex items-center gap-1">
               <CheckCircle className="w-3.5 h-3.5" />

@@ -391,7 +391,7 @@ const ProjectDetailPage = () => {
             })),
             ...uniqueMembers.map((u) => ({ ...u, _role: "member" })),
           ];
-          const totalCount = allMembers.length;
+          const totalCount = allMembers.length + 1;
 
           return (
             <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -650,7 +650,7 @@ const ProjectDetailPage = () => {
                   {content.tasks}
                 </span>
                 <Badge className="bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200">
-                  {tasks ? tasks.length - 1 : 0}
+                  {filteredTasks ? filteredTasks.length : 0}
                 </Badge>
               </div>
 
@@ -721,7 +721,87 @@ const ProjectDetailPage = () => {
                           key={task._id}
                           className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"
                         >
-                          {/* محتوى التاسك زي ما عندك بدون حذف */}
+                          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                            <div className="flex-1">
+                              <h4 className="text-lg font-semibold text-gray-800 dark:text-white">
+                                {task.title}
+                              </h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-wrap break-words">
+                                {task.description?.slice(0, 100) ||
+                                  (isRTL ? "لا يوجد وصف." : "No description.")}
+                              </p>
+                              {/* Task Due Date Badge */}
+                              <TaskDueBadge
+                                dueDate={task.dueDate}
+                                status={task.status}
+                              />
+                            </div>
+
+                            {!isFinished && (
+                              <div className="flex flex-wrap gap-2 justify-end">
+                                <Link href={`/dashboard/task/${task._id}`}>
+                                  <Button
+                                    variant="outline"
+                                    className="flex items-center gap-2 text-blue-600 border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                    {content.view}
+                                  </Button>
+                                </Link>
+                                {isLeader && (
+                                  <>
+                                    <Link
+                                      href={`/dashboard/task/${task._id}/edit`}
+                                    >
+                                      <Button
+                                        variant="outline"
+                                        className="flex items-center gap-2 text-yellow-600 border-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/30"
+                                      >
+                                        <Edit className="w-4 h-4" />
+                                        {content.edit}
+                                      </Button>
+                                    </Link>
+
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild>
+                                        <Button
+                                          variant="destructive"
+                                          className="flex items-center gap-2"
+                                        >
+                                          <Trash className="w-4 h-4" />
+                                          {content.delete}
+                                        </Button>
+                                      </AlertDialogTrigger>
+                                      <AlertDialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle className="text-gray-800 dark:text-white">
+                                            {modal.confirmTitle}
+                                          </AlertDialogTitle>
+                                          <AlertDialogDescription className="text-gray-600 dark:text-gray-300">
+                                            {modal.alertTitle}
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>
+                                            {modal.cancel}
+                                          </AlertDialogCancel>
+                                          <AlertDialogAction
+                                            onClick={() => {
+                                              deleteTask(task._id);
+                                              refetch();
+                                            }}
+                                            className="bg-red-600 hover:bg-red-700"
+                                          >
+                                            {modal.confirm}
+                                          </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
