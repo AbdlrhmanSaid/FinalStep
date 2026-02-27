@@ -258,6 +258,7 @@ export default function ProjectEditForm({
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDelete(user._id)}
+                    aria-label="Remove member"
                   >
                     <Trash size={16} />
                   </Button>
@@ -312,6 +313,7 @@ export default function ProjectEditForm({
                       variant="destructive"
                       size="sm"
                       onClick={() => handleDelete(user._id)}
+                      aria-label="Remove member"
                     >
                       <Trash size={16} />
                     </Button>

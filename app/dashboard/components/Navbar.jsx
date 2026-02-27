@@ -140,6 +140,7 @@ export default function DashboardNav() {
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Toggle menu"
               >
                 {isMenuOpen ? (
                   <X className="w-6 h-6" />

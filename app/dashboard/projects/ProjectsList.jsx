@@ -160,6 +160,7 @@ export default function ProjectsList() {
             <div className="flex flex-wrap sm:flex-nowrap gap-3 w-full md:w-auto items-center">
               <div className="relative w-full sm:w-40">
                 <select
+                  aria-label={isRTL ? "تصفية حسب الحالة" : "Filter by status"}
                   value={filters.status}
                   onChange={(e) =>
                     setFilters({ ...filters, status: e.target.value })
@@ -179,6 +180,7 @@ export default function ProjectsList() {
 
               <div className="relative w-full sm:w-40">
                 <select
+                  aria-label={isRTL ? "ترتيب حسب" : "Sort by"}
                   value={filters.sort}
                   onChange={(e) =>
                     setFilters({ ...filters, sort: e.target.value })
@@ -349,9 +351,9 @@ export default function ProjectsList() {
                 <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mb-4">
                   <Folder className="w-10 h-10 text-blue-500 dark:text-blue-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
                   {isRTL ? "لا توجد مشاريع قيادية" : "No Leading Projects"}
-                </h3>
+                </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                   {isRTL
                     ? "ابدأ بإنشاء مشروع جديد لتتمكن من قيادته"
@@ -462,11 +464,11 @@ export default function ProjectsList() {
                 <div className="mx-auto w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30 rounded-full flex items-center justify-center mb-4">
                   <Users className="w-10 h-10 text-purple-500 dark:text-purple-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
                   {isRTL
                     ? "لا توجد مشاريع مشاركة"
                     : "No Participating Projects"}
-                </h3>
+                </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {isRTL
                     ? "ستظهر المشاريع التي تنضم إليها هنا بعد قبول الدعوات"

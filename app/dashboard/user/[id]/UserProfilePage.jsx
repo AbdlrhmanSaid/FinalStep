@@ -37,11 +37,12 @@ import {
   Github,
   Linkedin,
   Facebook,
-  ExternalLink,
   Plus,
   Trash2,
   Save,
+  ExternalLink,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function displayName(user) {
   if (user?.name && user.name !== "null null") return user.name;
@@ -243,6 +244,7 @@ function LinksSettingsSection({ user, userId, t, isPending, onSave }) {
               type="button"
               onClick={() => removeCustom(i)}
               className="text-red-400 hover:text-red-600 transition-colors"
+              aria-label="Remove link"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -583,7 +585,7 @@ function ProfileTab({ user, t, isRTL, isOwner }) {
                             {task.projectId.title}
                           </p>
                           {task.projectId.public === false && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                               Private
                             </span>
                           )}
@@ -658,7 +660,7 @@ function ProfileTab({ user, t, isRTL, isOwner }) {
                             {task.projectId.title}
                           </p>
                           {task.projectId.public === false && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                               Private
                             </span>
                           )}
@@ -751,7 +753,7 @@ function ProjectsSection({
                           : statusOpen}
                       </span>
                       {proj.public === false && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 ms-1 shrink-0">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 ms-1 shrink-0">
                           Private
                         </span>
                       )}
@@ -820,7 +822,7 @@ function PrivatePlaceholder({ msg }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-const UserProfilePage = () => {
+const UserProfilePage = ({ isDark }) => {
   const { id } = useParams();
   const router = useRouter();
   const { language, isRTL, userId: currentUserId } = useAppContext();
@@ -840,7 +842,7 @@ const UserProfilePage = () => {
     ? format(new Date(user.createdAt), "MMMM yyyy", { locale: dateLocale })
     : null;
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <UserProfileSkeleton isDarkMode={isDark} />;
 
   if (isError || !user) {
     return (
@@ -899,6 +901,8 @@ const UserProfilePage = () => {
                     src={user?.imageUrl}
                     alt={name}
                     fill
+                    sizes="(max-width: 768px) 96px, 96px"
+                    priority
                     className="object-cover"
                   />
                 ) : (
@@ -922,7 +926,7 @@ const UserProfilePage = () => {
                     {user.title}
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 italic">
+                  <span className="flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 italic">
                     <Briefcase className="w-4 h-4" />
                     {t.noTitle}
                   </span>
@@ -997,3 +1001,54 @@ const UserProfilePage = () => {
 };
 
 export default UserProfilePage;
+
+function UserProfileSkeleton({ isDarkMode }) {
+  return (
+    <div className="min-h-screen bgMain p-4 md:p-8">
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+          <Skeleton className="h-28 w-full" />
+          <div className="px-5 pb-5">
+            <div className="-mt-12 mb-3 flex items-end justify-between flex-wrap gap-2">
+              <Skeleton className="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 shrink-0" />
+              <div className="flex gap-2">
+                <Skeleton className="h-10 w-24 rounded-lg" />
+                <Skeleton className="h-10 w-10 rounded-lg" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative items-start">
+          <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-8">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+              <Skeleton className="h-6 w-32 mb-4" />
+              <div className="space-y-4">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-2 flex gap-2">
+              <Skeleton className="h-10 flex-1 rounded-xl" />
+              <Skeleton className="h-10 flex-1 rounded-xl" />
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 space-y-4">
+              <Skeleton className="h-32 w-full rounded-xl" />
+              <Skeleton className="h-32 w-full rounded-xl" />
+              <Skeleton className="h-32 w-full rounded-xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

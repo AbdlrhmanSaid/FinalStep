@@ -141,6 +141,7 @@ export default function DatePicker({
               type="button"
               onClick={() => setViewDate((d) => subMonths(d, 1))}
               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors"
+              aria-label="Previous month"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -153,6 +154,7 @@ export default function DatePicker({
               type="button"
               onClick={() => setViewDate((d) => addMonths(d, 1))}
               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors"
+              aria-label="Next month"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

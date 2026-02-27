@@ -102,9 +102,9 @@ export default function CreateTaskPage() {
       <div className="p-4 md:p-8 bgMain min-h-screen transition-colors overflow-hidden">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8 text-center">
-            <h2 className="text-2xl font-bold dar dark:text-white bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold dar dark:text-white bg-clip-text text-transparent">
               {content.title}
-            </h2>
+            </h1>
           </div>
 
           <form
@@ -156,10 +156,14 @@ export default function CreateTaskPage() {
 
             {/* Priority */}
             <div className="w-full">
-              <label className="text-sm font-medium block mb-2">
+              <label
+                htmlFor="priority"
+                className="text-sm font-medium block mb-2"
+              >
                 {content.taskPriority}
               </label>
               <select
+                id="priority"
                 name="priority"
                 value={form.priority}
                 onChange={(e) => setForm({ ...form, priority: e.target.value })}

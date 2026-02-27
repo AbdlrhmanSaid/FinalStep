@@ -48,7 +48,7 @@ export default function SearchContent() {
       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 px-4 py-6 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto space-y-4">
           <div className="flex items-center gap-4 mb-4">
-            <div className="p-1 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
               <Search className="w-6 h-6 text-white" />
             </div>
             <div>

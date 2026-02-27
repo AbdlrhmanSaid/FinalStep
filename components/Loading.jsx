@@ -13,7 +13,7 @@ export default function Loading() {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center ${
+      className={`min-h-[calc(100vh-200px)] w-full flex flex-col items-center justify-center rounded-xl my-4 ${
         isDark ? "bg-gray-900" : "bg-gray-50"
       }`}
     >

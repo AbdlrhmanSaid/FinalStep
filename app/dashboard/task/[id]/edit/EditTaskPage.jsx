@@ -132,10 +132,14 @@ export default function EditTaskPage() {
             </div>
 
             <div className="w-full">
-              <Label className="text-sm font-medium block mb-2">
+              <Label
+                htmlFor="priority"
+                className="text-sm font-medium block mb-2"
+              >
                 {content.priority}
               </Label>
               <select
+                id="priority"
                 name="priority"
                 value={form.priority}
                 onChange={handleChange}

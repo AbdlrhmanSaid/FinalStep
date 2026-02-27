@@ -220,9 +220,9 @@ export default function WelcomePage() {
                 <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                   <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
                   {content.ProjectsInProgress}
-                </h3>
+                </h2>
               </div>
               <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {projectsPercentage}%
@@ -252,9 +252,9 @@ export default function WelcomePage() {
                 <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
                   <Award className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
                   {content.TasksInProgress}
-                </h3>
+                </h2>
               </div>
               <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                 {tasksPercentage}%
