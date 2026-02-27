@@ -650,7 +650,7 @@ const ProjectDetailPage = () => {
                   {content.tasks}
                 </span>
                 <Badge className="bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200">
-                  {tasks ? tasks.length : 0}
+                  {tasks ? tasks.length - 1 : 0}
                 </Badge>
               </div>
 
