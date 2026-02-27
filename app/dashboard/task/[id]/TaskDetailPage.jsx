@@ -225,6 +225,21 @@ const TaskDetailPage = () => {
                   </span>
                 )}
               </p>
+              {task.referenceLink && (
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                  <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-2">
+                    {isRTL ? "الرابط المرجعي" : "Reference Link"}
+                  </h3>
+                  <a
+                    href={task.referenceLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline break-all text-sm"
+                  >
+                    {task.referenceLink}
+                  </a>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

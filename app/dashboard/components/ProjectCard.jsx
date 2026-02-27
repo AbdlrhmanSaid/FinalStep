@@ -146,6 +146,15 @@ export default function ProjectCard({
                 {getStatusIcon(status)}
                 {getStatusLabel(status)}
               </span>
+              {project.joinRequestsCount > 0 && (
+                <span
+                  title={isRTL ? "طلبات انضمام" : "Join requests"}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium shrink-0 bg-red-100 text-red-700 dark:bg-red-900/60 dark:text-red-200"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  {project.joinRequestsCount}
+                </span>
+              )}
             </div>
 
             {/* Description */}
@@ -205,6 +214,15 @@ export default function ProjectCard({
           {getStatusIcon(status)}
           {getStatusLabel(status)}
         </span>
+        {project.joinRequestsCount > 0 && (
+          <span
+            title={isRTL ? "طلبات انضمام" : "Join requests"}
+            className="ml-2 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/60 dark:text-red-200"
+          >
+            <User className="w-3.5 h-3.5" />
+            {project.joinRequestsCount}
+          </span>
+        )}
       </div>
 
       {/* Body */}

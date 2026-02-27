@@ -37,6 +37,7 @@ export default function CreateTaskPage() {
     description: "",
     priority: "medium",
     dueDate: "",
+    referenceLink: "",
     assignedTo: [],
   });
 
@@ -101,7 +102,7 @@ export default function CreateTaskPage() {
       <div className="p-4 md:p-8 bgMain min-h-screen transition-colors overflow-hidden">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold dar dark:text-white bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold dar dark:text-white bg-clip-text text-transparent">
               {content.title}
             </h2>
           </div>
@@ -135,6 +136,21 @@ export default function CreateTaskPage() {
                 rows={5}
                 placeholder={content.taskDescriptionPlaceholder}
                 className="mt-1 min-h-[120px]"
+              />
+            </div>
+
+            {/* Reference Link */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                {isRTL ? "رابط مرجعي (اختياري)" : "Reference Link (Optional)"}
+              </Label>
+              <Input
+                name="referenceLink"
+                type="url"
+                value={form.referenceLink}
+                onChange={handleChange}
+                placeholder="https://..."
+                className="mt-1 h-11"
               />
             </div>
 

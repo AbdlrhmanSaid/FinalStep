@@ -48,11 +48,11 @@ export default function SearchContent() {
       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 px-4 py-6 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto space-y-4">
           <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-              <Search className="w-8 h-8 text-white" />
+            <div className="p-1 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+              <Search className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+              <h1 className="text-[14px] md:text-[24px] font-bold text-gray-800 dark:text-white">
                 {content.title}
               </h1>
             </div>
@@ -66,7 +66,7 @@ export default function SearchContent() {
               placeholder={content.placeholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-24 py-4 text-lg border-2 border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:placeholder-gray-400"
+              className="w-full pl-12 pr-3 py-2 text-lg border-2 border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all dark:placeholder-gray-400"
             />
             {isLoading && (
               <div className="absolute right-4 top-1/2 transform -translate-y-1/2 rtl:left-4 rtl:right-auto">

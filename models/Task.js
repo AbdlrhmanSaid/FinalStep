@@ -33,6 +33,11 @@ const TaskSchema = new Schema(
       enum: ["open", "submitted", "rejected", "completed"],
       default: "open",
     },
+    referenceLink: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     priority: {
       type: String,
       enum: ["low", "medium", "high"],
@@ -88,7 +93,7 @@ const TaskSchema = new Schema(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
 
 TaskSchema.index({ title: "text", description: "text" });

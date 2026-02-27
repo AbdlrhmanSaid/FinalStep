@@ -34,7 +34,7 @@ export default function SignInForm() {
       >
         <div>
           <h2
-            className={`mt-6 text-center text-2xl sm:text-3xl font-extrabold ${
+            className={`mt-6 text-center text-2xl sm:text-2xl font-extrabold ${
               isArabic ? "font-arabic" : "font-sans"
             } ${theme === "dark" ? "text-white" : "text-gray-900"}`}
           >

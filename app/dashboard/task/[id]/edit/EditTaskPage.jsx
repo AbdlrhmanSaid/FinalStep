@@ -23,6 +23,7 @@ export default function EditTaskPage() {
   const [form, setForm] = useState({
     title: "",
     description: "",
+    referenceLink: "",
     priority: "medium",
     dueDate: "",
     assignedTo: [],
@@ -35,6 +36,7 @@ export default function EditTaskPage() {
       setForm({
         title: task.title || "",
         description: task.description || "",
+        referenceLink: task.referenceLink || "",
         priority: task.priority || "medium",
         dueDate: task.dueDate
           ? new Date(task.dueDate).toISOString().split("T")[0]
@@ -84,7 +86,7 @@ export default function EditTaskPage() {
       <div className="p-4 md:p-8 bg-white dark:bg-gray-900 dark:text-white min-h-screen">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold">{content.head}</h2>
+            <h2 className="text-2xl font-bold">{content.head}</h2>
           </div>
 
           <form
@@ -112,6 +114,20 @@ export default function EditTaskPage() {
                 onChange={handleChange}
                 rows={5}
                 className="mt-1 min-h-[120px]"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                {isRTL ? "رابط مرجعي (اختياري)" : "Reference Link (Optional)"}
+              </Label>
+              <Input
+                name="referenceLink"
+                type="url"
+                value={form.referenceLink}
+                onChange={handleChange}
+                placeholder="https://..."
+                className="mt-1 h-11"
               />
             </div>
 

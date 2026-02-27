@@ -102,14 +102,14 @@ export default function ProjectsList() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
-                <Folder className="w-8 h-8 text-white" />
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+                <Folder className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-1">
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
                   {content.dashboard.title}
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-300 text-3xl">
+                <p className="text-sm text-gray-600 dark:text-gray-300 text-2xl">
                   {isRTL
                     ? "إدارة وتتبع جميع مشاريعك"
                     : "Manage and track all your projects"}
@@ -143,8 +143,8 @@ export default function ProjectsList() {
       {/* Filters Section */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="space-y-4">
-            <div className="relative">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative flex-1 w-full max-w-lg">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
@@ -153,18 +153,18 @@ export default function ProjectsList() {
                 }
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
+            <div className="flex flex-wrap sm:flex-nowrap gap-3 w-full md:w-auto items-center">
+              <div className="relative w-full sm:w-40">
                 <select
                   value={filters.status}
                   onChange={(e) =>
                     setFilters({ ...filters, status: e.target.value })
                   }
-                  className="appearance-none w-full pl-3 pr-8 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
+                  className="appearance-none w-full pl-3 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all text-sm"
                 >
                   <option value="all">
                     {isRTL ? "كل الحالات" : "All Statuses"}
@@ -177,13 +177,13 @@ export default function ProjectsList() {
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               </div>
 
-              <div className="relative flex-1">
+              <div className="relative w-full sm:w-40">
                 <select
                   value={filters.sort}
                   onChange={(e) =>
                     setFilters({ ...filters, sort: e.target.value })
                   }
-                  className="appearance-none w-full pl-3 pr-8 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
+                  className="appearance-none w-full pl-3 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all text-sm"
                 >
                   <option value="newest">{isRTL ? "الأحدث" : "Newest"}</option>
                   <option value="oldest">{isRTL ? "الأقدم" : "Oldest"}</option>
@@ -192,20 +192,20 @@ export default function ProjectsList() {
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               </div>
 
-              <div className="flex gap-2 bg-gray-100 dark:bg-gray-700 p-1.5 rounded-xl shadow-sm">
+              <div className="flex gap-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg border border-gray-200 dark:border-gray-600">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2.5 rounded-lg transition-all ${viewMode === "grid" ? "bg-white dark:bg-gray-800 shadow-md text-blue-600 dark:text-blue-400" : "hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300"}`}
+                  className={`p-1.5 rounded transition-all ${viewMode === "grid" ? "bg-white dark:bg-gray-800 shadow-sm text-blue-600 dark:text-blue-400" : "hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300"}`}
                   aria-label={isRTL ? "عرض شبكي" : "Grid view"}
                 >
-                  <Grid className="w-5 h-5" />
+                  <Grid className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2.5 rounded-lg transition-all ${viewMode === "list" ? "bg-white dark:bg-gray-800 shadow-md text-blue-600 dark:text-blue-400" : "hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300"}`}
+                  className={`p-1.5 rounded transition-all ${viewMode === "list" ? "bg-white dark:bg-gray-800 shadow-sm text-blue-600 dark:text-blue-400" : "hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300"}`}
                   aria-label={isRTL ? "عرض قائم" : "List view"}
                 >
-                  <List className="w-5 h-5" />
+                  <List className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -277,9 +277,12 @@ export default function ProjectsList() {
                               : project.public
                                 ? "active"
                                 : "pending",
-                          progress: calculateProjectProgress(project),
                           deadline: project.deadline,
                           leader: project.leaderId?.name,
+                          joinRequestsCount:
+                            project.joinRequests?.filter(
+                              (req) => req.status === "pending",
+                            ).length || 0,
                         }}
                         content={content.dashboard}
                         isRTL={isRTL}
@@ -310,9 +313,12 @@ export default function ProjectsList() {
                               : project.public
                                 ? "active"
                                 : "pending",
-                          progress: calculateProjectProgress(project),
                           deadline: project.deadline,
                           leader: project.leaderId?.name,
+                          joinRequestsCount:
+                            project.joinRequests?.filter(
+                              (req) => req.status === "pending",
+                            ).length || 0,
                         }}
                         content={content.dashboard}
                         isRTL={isRTL}
@@ -384,9 +390,12 @@ export default function ProjectsList() {
                               : project.public
                                 ? "active"
                                 : "pending",
-                          progress: calculateProjectProgress(project),
                           deadline: project.deadline,
                           leader: project.leaderId?.name,
+                          joinRequestsCount:
+                            project.joinRequests?.filter(
+                              (req) => req.status === "pending",
+                            ).length || 0,
                         }}
                         content={content.dashboard}
                         isRTL={isRTL}
@@ -417,9 +426,12 @@ export default function ProjectsList() {
                               : project.public
                                 ? "active"
                                 : "pending",
-                          progress: calculateProjectProgress(project),
                           deadline: project.deadline,
                           leader: project.leaderId?.name,
+                          joinRequestsCount:
+                            project.joinRequests?.filter(
+                              (req) => req.status === "pending",
+                            ).length || 0,
                         }}
                         content={content.dashboard}
                         isRTL={isRTL}

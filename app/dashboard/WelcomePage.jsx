@@ -45,7 +45,6 @@ const ProgressBar = ({ value, max, color = "blue" }) => {
   );
 };
 
-// مكون Stat Card محسّن
 const StatCard = ({ title, value, icon, gradient, percentage, subtext }) => {
   return (
     <div
@@ -64,7 +63,7 @@ const StatCard = ({ title, value, icon, gradient, percentage, subtext }) => {
           )}
         </div>
         <h3 className="text-white/80 text-sm font-medium mb-1">{title}</h3>
-        <p className="text-white text-3xl font-bold mb-2">{value}</p>
+        <p className="text-white text-2xl font-bold mb-2">{value}</p>
         {subtext && <p className="text-white/70 text-xs">{subtext}</p>}
       </div>
       {/* Background decoration */}
@@ -111,7 +110,7 @@ export default function WelcomePage() {
         onError: () => {
           toast.error("فشل في تحديث الحالة");
         },
-      }
+      },
     );
   };
 
@@ -145,7 +144,7 @@ export default function WelcomePage() {
               <Home className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-1">
+              <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
                 {content.welcome.title}
               </h1>
               <p className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
@@ -557,15 +556,15 @@ export default function WelcomePage() {
                   </span>
                   <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
-                <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {Math.round(
                     (((data?.finishedProjectsCount || 0) +
                       (data?.finishedTasksCount || 0)) /
                       Math.max(
                         (data?.projectsCount || 0) + (data?.tasksCount || 0),
-                        1
+                        1,
                       )) *
-                      100
+                      100,
                   )}
                   %
                 </div>
@@ -584,7 +583,7 @@ export default function WelcomePage() {
                   </span>
                   <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {(data?.projectsCount || 0) -
                     (data?.finishedProjectsCount || 0) +
                     ((data?.tasksCount || 0) - (data?.finishedTasksCount || 0))}

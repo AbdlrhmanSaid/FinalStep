@@ -557,51 +557,51 @@ function ProfileTab({ user, t, isRTL, isOwner }) {
       </div>
 
       {/* Completed Tasks */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
-        <h2 className="text-base font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-          <CheckCircle className="w-5 h-5 text-green-500" />
-          {t.completedTasks}
-        </h2>
+      {showTasks && (
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+          <h2 className="text-base font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-500" />
+            {t.completedTasks}
+          </h2>
 
-        {!showTasks ? (
-          <PrivatePlaceholder msg={t.privateTasks} />
-        ) : user.completedTasks?.length > 0 ? (
-          <div className="space-y-2">
-            {user.completedTasks.map((task) => (
-              <div
-                key={task._id}
-                className="flex items-center justify-between gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm text-gray-800 dark:text-white truncate">
-                      {task.title}
-                    </p>
-                    {task.projectId?.title && (
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs text-gray-400 truncate">
-                          {task.projectId.title}
-                        </p>
-                        {task.projectId.public === false && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
-                            Private
-                          </span>
-                        )}
-                      </div>
-                    )}
+          {user.completedTasks?.length > 0 ? (
+            <div className="space-y-2">
+              {user.completedTasks.map((task) => (
+                <div
+                  key={task._id}
+                  className="flex items-center justify-between gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm text-gray-800 dark:text-white truncate">
+                        {task.title}
+                      </p>
+                      {task.projectId?.title && (
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-gray-400 truncate">
+                            {task.projectId.title}
+                          </p>
+                          {task.projectId.public === false && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                              Private
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                  <PriorityDot priority={task.priority} />
                 </div>
-                <PriorityDot priority={task.priority} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-gray-400 text-center py-4">
-            {t.noCompletedTasks}
-          </p>
-        )}
-      </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-400 text-center py-4">
+              {t.noCompletedTasks}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Projects Leading */}
       <ProjectsSection
@@ -632,49 +632,51 @@ function ProfileTab({ user, t, isRTL, isOwner }) {
       />
 
       {/* Recent Tasks */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
-        <h2 className="text-base font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-          <ClipboardList className="w-5 h-5 text-indigo-500" />
-          {t.recentTasks}
-        </h2>
+      {showTasks && (
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+          <h2 className="text-base font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+            <ClipboardList className="w-5 h-5 text-indigo-500" />
+            {t.recentTasks}
+          </h2>
 
-        {!showTasks ? (
-          <PrivatePlaceholder msg={t.privateTasks} />
-        ) : user.recentTasks?.length > 0 ? (
-          <div className="space-y-2">
-            {user.recentTasks.map((task) => (
-              <div
-                key={task._id}
-                className="flex items-center justify-between gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <PriorityDot priority={task.priority} />
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm text-gray-800 dark:text-white truncate">
-                      {task.title}
-                    </p>
-                    {task.projectId?.title && (
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs text-gray-400 truncate">
-                          {task.projectId.title}
-                        </p>
-                        {task.projectId.public === false && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
-                            Private
-                          </span>
-                        )}
-                      </div>
-                    )}
+          {user.recentTasks?.length > 0 ? (
+            <div className="space-y-2">
+              {user.recentTasks.map((task) => (
+                <div
+                  key={task._id}
+                  className="flex items-center justify-between gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <PriorityDot priority={task.priority} />
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm text-gray-800 dark:text-white truncate">
+                        {task.title}
+                      </p>
+                      {task.projectId?.title && (
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-gray-400 truncate">
+                            {task.projectId.title}
+                          </p>
+                          {task.projectId.public === false && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                              Private
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                  <TaskStatusBadge status={task.status} t={t} />
                 </div>
-                <TaskStatusBadge status={task.status} t={t} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-gray-400 text-center py-4">{t.noTasks}</p>
-        )}
-      </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-400 text-center py-4">
+              {t.noTasks}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -692,16 +694,24 @@ function ProjectsSection({
   isOwner,
 }) {
   if (!show) {
-    return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
-        <h2 className="text-base font-semibold text-gray-800 dark:text-white mb-3 flex items-center gap-2">
-          {icon}
-          {title}
-        </h2>
-        <PrivatePlaceholder msg={privateMsg} />
-      </div>
-    );
+    return null;
   }
+
+  const calculateProgress = (project) => {
+    if (!project.tasks || project.tasks.length === 0)
+      return { progress: 0, count: 0 };
+    const total = project.tasks.length;
+    const completed = project.tasks.filter(
+      (task) =>
+        task.status === "completed" ||
+        task.status === "approved" ||
+        task.status === "finished",
+    ).length;
+    return {
+      progress: Math.round((completed / total) * 100),
+      count: total,
+    };
+  };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
@@ -710,60 +720,87 @@ function ProjectsSection({
         {title}
       </h2>
       {projects?.length > 0 ? (
-        <div className="space-y-2">
-          {projects.map((proj) => (
-            <div
-              key={proj._id}
-              className="flex items-center justify-between gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                {proj.status === "finished" ? (
-                  <FolderCheck className="w-4 h-4 text-green-500 shrink-0" />
-                ) : (
-                  <FolderOpen className="w-4 h-4 text-blue-500 shrink-0" />
-                )}
-                <div className="min-w-0">
-                  <p className="font-medium text-sm text-gray-800 dark:text-white truncate">
-                    {proj.title}
-                  </p>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      proj.status === "finished"
-                        ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
-                        : "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300"
-                    }`}
-                  >
-                    {proj.status === "finished" ? statusFinished : statusOpen}
-                  </span>
-                  {proj.public === false && (
-                    <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 ms-2">
-                      Private
-                    </span>
+        <div className="space-y-4">
+          {projects.map((proj) => {
+            const { progress, count } = calculateProgress(proj);
+            return (
+              <div
+                key={proj._id}
+                className="flex items-center justify-between gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700"
+              >
+                <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto overflow-hidden">
+                  {proj.status === "finished" ? (
+                    <FolderCheck className="w-5 h-5 text-green-500 shrink-0" />
+                  ) : (
+                    <FolderOpen className="w-5 h-5 text-blue-500 shrink-0" />
                   )}
+                  <div className="min-w-0 flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-sm text-gray-800 dark:text-white truncate">
+                        {proj.title}
+                      </p>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${
+                          proj.status === "finished"
+                            ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
+                            : "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300"
+                        }`}
+                      >
+                        {proj.status === "finished"
+                          ? statusFinished
+                          : statusOpen}
+                      </span>
+                      {proj.public === false && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 ms-1 shrink-0">
+                          Private
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Numbers and Percentages */}
+                    {count > 0 && (
+                      <div className="flex items-center gap-2 sm:border-l border-gray-300 dark:border-gray-600 sm:pl-3 rtl:pl-0 rtl:border-l-0 rtl:sm:border-r rtl:sm:pr-3 shrink-0 w-full sm:w-auto mt-1 sm:mt-0">
+                        <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                          {count} tasks
+                        </span>
+                        <div className="w-16 h-1.5 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden shrink-0">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              progress === 100 ? "bg-green-500" : "bg-blue-500"
+                            }`}
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-bold text-gray-700 dark:text-gray-300 w-8">
+                          {progress}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-              {proj.public === false && !isOwner ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled
-                  className="text-gray-400 dark:text-gray-500 cursor-not-allowed shrink-0"
-                >
-                  {viewProject}
-                </Button>
-              ) : (
-                <Link href={`/dashboard/projects/${proj._id}`}>
+                {proj.public === false && !isOwner ? (
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 shrink-0"
+                    disabled
+                    className="text-gray-400 dark:text-gray-500 cursor-not-allowed shrink-0"
                   >
                     {viewProject}
                   </Button>
-                </Link>
-              )}
-            </div>
-          ))}
+                ) : (
+                  <Link href={`/dashboard/projects/${proj._id}`}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 shrink-0"
+                    >
+                      {viewProject}
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : (
         <p className="text-sm text-gray-400 text-center py-4">{emptyMsg}</p>
