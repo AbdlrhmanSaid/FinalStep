@@ -407,7 +407,7 @@ const ProjectDetailPage = () => {
                     {content.team}
                   </span>
                   <span className="text-xs bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full font-medium">
-                    {totalCount + 1}
+                    {totalCount}
                   </span>
                 </div>
                 <ChevronDown
