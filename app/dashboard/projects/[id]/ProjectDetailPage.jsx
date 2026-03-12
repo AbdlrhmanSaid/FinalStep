@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { redirect, useParams, useSearchParams } from "next/navigation";
+import {
+  redirect,
+  useParams,
+  useSearchParams,
+  useRouter,
+} from "next/navigation";
 import { toast } from "react-hot-toast";
 import {
   useGetProject,
@@ -59,6 +64,7 @@ const ProjectDetailPage = () => {
   const { mutate: deleteTask } = useDeleteTask();
 
   const { language, userId, isRTL } = useAppContext();
+  const router = useRouter();
   const dateLocale = language === "ar" ? ar : enUS;
   const content = translations[language].dashboard.projectDetail;
   const modal = translations[language].dashboard.deleteModal;
@@ -143,8 +149,14 @@ const ProjectDetailPage = () => {
 
   const toggleStatus = () => {
     const newStatus = data.status === "open" ? "finished" : "open";
-    updateStatus({ projectId: data._id, userId, status: newStatus });
-    redirect("/dashboard/projects");
+    updateStatus(
+      { projectId: data._id, userId, status: newStatus },
+      {
+        onSuccess: () => {
+          router.push("/dashboard/projects");
+        },
+      },
+    );
   };
 
   const isFinished = data.status === "finished";
@@ -913,6 +925,40 @@ const ProjectDetailPage = () => {
                         : content.finishProject}
                     </span>
                   </Button>
+                )}
+
+                {/* Delete button visible even when project is finished */}
+                {isLeader && isFinished && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        className="flex items-center gap-2 shadow-sm transition-all ml-auto rtl:mr-auto rtl:ml-0"
+                      >
+                        <Trash className="w-4 h-4 shrink-0" />
+                        <span className="truncate">{content.delete}</span>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-gray-800 dark:text-white">
+                          {modal.confirmTitle}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-gray-600 dark:text-gray-300">
+                          {modal.alertTitle}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>{modal.cancel}</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDelete}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          {modal.confirm}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 )}
 
                 {isLeader && !isFinished && (

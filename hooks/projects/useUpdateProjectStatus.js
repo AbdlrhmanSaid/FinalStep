@@ -15,15 +15,16 @@ export const useUpdateProjectStatus = () => {
         { status },
         {
           headers: {
-            userId: userId, // تأكد أن الـ userId موجود إذا كنت تستخدمه للتحقق في الـ backend
+            userId: userId,
           },
-        }
+        },
       );
 
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["project"]);
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["project"] });
     },
   });
 };

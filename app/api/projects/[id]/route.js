@@ -99,7 +99,7 @@ export async function PUT(request, context) {
     await dbConnect();
 
     const { params } = context;
-    const { id } = params;
+    const { id } = await params;
     const userId = request.headers.get("userId");
     const body = await request.json();
 
@@ -118,6 +118,27 @@ export async function PUT(request, context) {
 
     // منع تعديل leaderId
     if ("leaderId" in body) delete body.leaderId;
+
+    // ✅ Fast path: لو الطلب بس تغيير status (مثل إعادة فتح أو إنهاء المشروع)
+    // نعمله مباشرة بدون ما نلعب في InviteRequests أو أي حاجة تانية
+    const bodyKeys = Object.keys(body);
+    const isStatusOnlyUpdate = bodyKeys.length === 1 && "status" in body;
+
+    if (isStatusOnlyUpdate) {
+      const validStatuses = ["open", "finished"];
+      if (!validStatuses.includes(body.status)) {
+        return NextResponse.json(
+          { error: "Invalid status value" },
+          { status: 400 },
+        );
+      }
+      const updatedProject = await Project.findByIdAndUpdate(
+        id,
+        { status: body.status },
+        { new: true, runValidators: true },
+      );
+      return NextResponse.json(updatedProject, { status: 200 });
+    }
 
     const { inviteRequests = [], ...updateFields } = body;
 
