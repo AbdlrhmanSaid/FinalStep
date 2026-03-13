@@ -15,6 +15,7 @@ import {
   Grid,
   List,
   ChevronDown,
+  RefreshCw,
 } from "lucide-react";
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -22,7 +23,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 export default function ProjectsList() {
   const { language, isRTL, userId } = useAppContext();
   const content = translations[language];
-  const { data, isLoading } = useGetProjects(userId);
+  const { data, isLoading, refetch, isRefetching } = useGetProjects(userId);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState("grid");
   const [activeTab, setActiveTab] = useState("leading");
@@ -67,8 +68,8 @@ export default function ProjectsList() {
     // تطبيق فلتر الحالة
     if (filters.status !== "all") {
       filtered = filtered.filter((project) => {
-        if (filters.status === "active") return project.public;
-        if (filters.status === "pending") return !project.public;
+        if (filters.status === "open") return project.status !== "finished";
+        if (filters.status === "finished") return project.status === "finished";
         return true;
       });
     }
@@ -118,6 +119,16 @@ export default function ProjectsList() {
             </div>
 
             <div className="flex items-center gap-3 w-full md:w-auto">
+              <button
+                onClick={() => refetch()}
+                disabled={isRefetching}
+                className="p-3 rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                title={isRTL ? "تحديث" : "Refresh"}
+              >
+                <RefreshCw
+                  className={`w-5 h-5 ${isRefetching ? "animate-spin text-blue-500" : ""}`}
+                />
+              </button>
               <Link href="/dashboard/invitations" className="flex-shrink-0">
                 <button
                   className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
@@ -170,9 +181,9 @@ export default function ProjectsList() {
                   <option value="all">
                     {isRTL ? "كل الحالات" : "All Statuses"}
                   </option>
-                  <option value="active">{isRTL ? "نشطة" : "Active"}</option>
-                  <option value="pending">
-                    {isRTL ? "قيد الانتظار" : "Pending"}
+                  <option value="open">{isRTL ? "مفتوحة" : "Open"}</option>
+                  <option value="finished">
+                    {isRTL ? "منتهية" : "Finished"}
                   </option>
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />

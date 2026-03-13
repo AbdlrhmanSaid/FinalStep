@@ -39,8 +39,10 @@ import {
   Facebook,
   Plus,
   Trash2,
+  Trash2,
   Save,
   ExternalLink,
+  RefreshCw,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -831,7 +833,13 @@ const UserProfilePage = ({ isDark }) => {
   const ts = translations[language].dashboard.userProfile;
   const [activeTab, setActiveTab] = useState("profile");
 
-  const { data: user, isLoading, isError } = useGetUserById(id, currentUserId);
+  const {
+    data: user,
+    isLoading,
+    isError,
+    refetch,
+    isFetching,
+  } = useGetUserById(id, currentUserId);
   const isOwner =
     currentUserId && user && currentUserId.toString() === user._id?.toString();
   const name = user ? displayName(user) : "";
@@ -872,19 +880,36 @@ const UserProfilePage = ({ isDark }) => {
   return (
     <div className="min-h-screen bgMain p-4 md:p-6" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-2xl mx-auto space-y-5">
-        {/* Back */}
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white -ml-2"
-        >
-          {isRTL ? (
-            <ArrowRight className="w-4 h-4" />
-          ) : (
-            <ArrowLeft className="w-4 h-4" />
-          )}
-          {t.backButton}
-        </Button>
+        {/* Back and Refresh */}
+        <div className="flex justify-between items-center">
+          <Button
+            variant="ghost"
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white -ml-2"
+          >
+            {isRTL ? (
+              <ArrowRight className="w-4 h-4" />
+            ) : (
+              <ArrowLeft className="w-4 h-4" />
+            )}
+            {t.backButton}
+          </Button>
+
+          <Button
+            variant="ghost"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
+            title={isRTL ? "تحديث" : "Refresh"}
+          >
+            <RefreshCw
+              className={`w-4 h-4 ${isFetching ? "animate-spin text-blue-500" : ""}`}
+            />
+            <span className="sr-only sm:not-sr-only text-sm">
+              {isRTL ? "تحديث" : "Refresh"}
+            </span>
+          </Button>
+        </div>
 
         {/* Hero Card */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">

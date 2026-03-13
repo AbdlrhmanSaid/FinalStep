@@ -11,11 +11,18 @@ import { ar, enUS } from "date-fns/locale";
 import Loading from "../../../../components/Loading";
 import { useAppContext } from "../../../../contexts/AppContext";
 import toast from "react-hot-toast";
+import { RefreshCw } from "lucide-react";
 
 const TaskDetailPage = () => {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const { data: task, isLoading, isError, refetch } = useGetTask(id);
+  const {
+    data: task,
+    isLoading,
+    isError,
+    refetch,
+    isFetching,
+  } = useGetTask(id);
   const { mutate: updateTask, isLoading: isUpdating } = useUpdateTask();
   const { userId, language, isRTL } = useAppContext();
   const dateLocale = language === "ar" ? ar : enUS;
@@ -193,8 +200,18 @@ const TaskDetailPage = () => {
           <CardHeader className="bg-gray-100 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1 flex items-center gap-2">
                   {task.title}
+                  <button
+                    onClick={() => refetch()}
+                    disabled={isFetching}
+                    className="p-1.5 rounded-lg bg-gray-200/50 dark:bg-gray-600/50 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-all disabled:opacity-50"
+                    title={isRTL ? "تحديث" : "Refresh"}
+                  >
+                    <RefreshCw
+                      className={`w-4 h-4 ${isFetching ? "animate-spin text-blue-500" : ""}`}
+                    />
+                  </button>
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-300">
                   {content.createdBy}:{" "}

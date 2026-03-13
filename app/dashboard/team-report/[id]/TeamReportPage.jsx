@@ -9,17 +9,40 @@ import { translations } from "../../../../lib/translations";
 import CheckUserRole from "../../../../lib/actions/checkUserRole";
 import Loading from "../../../../components/Loading";
 import { Button } from "../../../../components/ui/button";
-import { Printer, Star, Users, CheckCircle, Clock } from "lucide-react";
+import {
+  Printer,
+  Star,
+  Users,
+  CheckCircle,
+  Clock,
+  RefreshCw,
+} from "lucide-react";
 import "./TeamReportPage.css";
 
 export default function TeamReportPage() {
   const { id } = useParams();
-  const { data: project, isLoading: isProjectLoading } = useGetProject(id);
-  const { data: tasks, isLoading: isTasksLoading } = useGetTasks();
+  const {
+    data: project,
+    isLoading: isProjectLoading,
+    refetch: refetchProject,
+    isFetching: isProjectFetching,
+  } = useGetProject(id);
+  const {
+    data: tasks,
+    isLoading: isTasksLoading,
+    refetch: refetchTasks,
+    isFetching: isTasksFetching,
+  } = useGetTasks();
   const { language, isRTL } = useAppContext();
   const content = translations[language]?.dashboard?.teamReport || {};
 
   const [evaluations, setEvaluations] = useState({});
+
+  const handleRefresh = () => {
+    refetchProject();
+    if (refetchTasks) refetchTasks();
+  };
+  const isRefetching = isProjectFetching || isTasksFetching;
 
   if (isProjectLoading || isTasksLoading) return <Loading />;
 
@@ -84,13 +107,28 @@ export default function TeamReportPage() {
   return (
     <CheckUserRole projectId={id}>
       <div className="team-report-wrapper" dir={isRTL ? "rtl" : "ltr"}>
-        <Button
-          onClick={handlePrint}
-          className="team-print-button bg-indigo-600 hover:bg-indigo-700 text-white"
-        >
-          <Printer size={18} />
-          {content.print}
-        </Button>
+        <div className="flex gap-4 mb-6">
+          <Button
+            onClick={handlePrint}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+          >
+            <Printer size={18} />
+            {content.print}
+          </Button>
+
+          <Button
+            onClick={handleRefresh}
+            disabled={isRefetching}
+            className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white disabled:opacity-50"
+            title={isRTL ? "تحديث" : "Refresh"}
+          >
+            <RefreshCw
+              size={18}
+              className={isRefetching ? "animate-spin" : ""}
+            />
+            {isRTL ? "تحديث" : "Refresh"}
+          </Button>
+        </div>
 
         <div id="team-report-page" className="team-report-page">
           <div className="team-report-header">

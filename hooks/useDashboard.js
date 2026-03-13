@@ -7,7 +7,7 @@ const fetchDashboardData = async () => {
 };
 
 export const useDashboard = () => {
-  const { data, isLoading, isError, error, refetch } = useQuery({
+  const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ["dashboard"],
     queryFn: fetchDashboardData,
   });
@@ -18,5 +18,6 @@ export const useDashboard = () => {
     isError,
     error,
     refetch,
+    isFetching,
   };
 };

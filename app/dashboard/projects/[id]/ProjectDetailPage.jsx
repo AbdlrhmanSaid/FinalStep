@@ -33,6 +33,7 @@ import {
   Clock,
   AlertCircle,
   ChevronDown,
+  RefreshCw,
 } from "lucide-react";
 import { format, isBefore, isToday, differenceInDays } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
@@ -59,9 +60,25 @@ import { useUpdateMemberTitle } from "../../../../hooks/projects/useUpdateMember
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
-  const { data, isLoading, error } = useGetProject(id);
-  const { data: tasks, refetch } = useGetTasks();
+  const {
+    data,
+    isLoading,
+    error,
+    refetch: refetchProject,
+    isRefetching: isRefetchingProject,
+  } = useGetProject(id);
+  const {
+    data: tasks,
+    refetch: refetchTasks,
+    isFetching: isRefetchingTasks,
+  } = useGetTasks();
   const { mutate: deleteTask } = useDeleteTask();
+
+  const handleRefresh = () => {
+    refetchProject();
+    if (refetchTasks) refetchTasks();
+  };
+  const isRefetching = isRefetchingProject || isRefetchingTasks;
 
   const { language, userId, isRTL } = useAppContext();
   const router = useRouter();
@@ -249,6 +266,16 @@ const ProjectDetailPage = () => {
                 <CardTitle className="text-[14px] md:text-[24px]  font-bold text-gray-800 dark:text-white">
                   {data.title}
                 </CardTitle>
+                <button
+                  onClick={handleRefresh}
+                  disabled={isRefetching}
+                  className="p-2 ml-2 rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 shadow-sm transition-all disabled:opacity-50 flex-shrink-0"
+                  title={isRTL ? "تحديث" : "Refresh"}
+                >
+                  <RefreshCw
+                    className={`w-5 h-5 ${isRefetching ? "animate-spin text-blue-500" : ""}`}
+                  />
+                </button>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Badge

@@ -7,7 +7,7 @@ import { translations } from "../../../lib/translations";
 import ProjectCard from "../components/ProjectCard";
 import Link from "next/link";
 import Loading from "../../../components/Loading";
-import { Search, Users, Folder, AlertCircle } from "lucide-react";
+import { Search, Users, Folder, AlertCircle, RefreshCw } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { format } from "date-fns";
@@ -22,7 +22,8 @@ export default function SearchContent() {
   const [debouncedSearchTerm] = useDebounce(searchTerm, 1000);
   const [activeTab, setActiveTab] = useState("all");
 
-  const { data, isLoading, isError } = useSearch(debouncedSearchTerm);
+  const { data, isLoading, isError, refetch, isFetching } =
+    useSearch(debouncedSearchTerm);
 
   const [viewMode, setViewMode] = useState("grid");
 
@@ -51,10 +52,22 @@ export default function SearchContent() {
             <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
               <Search className="w-6 h-6 text-white" />
             </div>
-            <div>
+            <div className="flex items-center gap-2">
               <h1 className="text-[14px] md:text-[24px] font-bold text-gray-800 dark:text-white">
                 {content.title}
               </h1>
+              {debouncedSearchTerm && (
+                <button
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  className="p-1.5 rounded-lg bg-white/50 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-all disabled:opacity-50"
+                  title={isRTL ? "تحديث" : "Refresh"}
+                >
+                  <RefreshCw
+                    className={`w-4 h-4 ${isFetching ? "animate-spin text-blue-500" : ""}`}
+                  />
+                </button>
+              )}
             </div>
           </div>
 
