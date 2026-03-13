@@ -7,13 +7,18 @@ import { usePathname } from "next/navigation";
 import UserMenu from "../../../components/UserMenu";
 import { useAppContext } from "../../../contexts/AppContext";
 import { translations } from "../../../lib/translations";
+import { useGetUserInvites } from "../../../hooks/invitations/useGetUserInvites";
 
 export default function DashboardNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { isRTL, isDark, toggleLanguage, toggleTheme, language } =
+  const { isRTL, isDark, toggleLanguage, toggleTheme, language, email } =
     useAppContext();
   const content = translations[language];
+
+  // جلب عدد الدعوات المعلقة
+  const { data: invites } = useGetUserInvites(email);
+  const pendingInvitesCount = invites?.length ?? 0;
 
   const isActive = (path) => {
     if (path === "/dashboard") {
@@ -24,7 +29,7 @@ export default function DashboardNav() {
 
   const getLinkClasses = (path) => {
     const baseClasses =
-      "px-3 py-2 rounded-md text-sm font-medium transition-colors";
+      "relative px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap";
     const activeClasses =
       "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
     const inactiveClasses =
@@ -34,25 +39,26 @@ export default function DashboardNav() {
   };
 
   const getMobileLinkClasses = (path) => {
-    const baseClasses = "block px-3 py-2 rounded-md text-base font-medium";
+    const baseClasses =
+      "relative flex items-center gap-2 px-3 py-2.5 rounded-md text-base font-medium transition-colors";
     const activeClasses =
       "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
     const inactiveClasses =
-      "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400";
+      "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800";
 
     return `${baseClasses} ${isActive(path) ? activeClasses : inactiveClasses}`;
   };
 
   return (
     <nav
-      className={`bg-white dark:bg-gray-900 shadow-md border-b border-gray-200 dark:border-gray-700 ${
+      className={`bg-white dark:bg-gray-900 shadow-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 ${
         isRTL ? "rtl" : "ltr"
       }`}
     >
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+          <div className="flex items-center gap-2 shrink-0">
             <GraduationCap className="h-7 w-7 text-blue-600 dark:text-blue-400" />
             <Link
               href={"/"}
@@ -63,53 +69,52 @@ export default function DashboardNav() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:block">
-            <div className={`flex items-center space-x-8 ${isRTL ? "" : ""}`}>
-              <Link
-                href={"/dashboard"}
-                className={getLinkClasses("/dashboard")}
-              >
-                {content.dashboardNav.home}
-              </Link>
-              <Link
-                href={"/dashboard/search"}
-                className={getLinkClasses("/dashboard/search")}
-              >
-                {content.dashboardNav.search}
-              </Link>
-              <Link
-                href={"/dashboard/projects"}
-                className={getLinkClasses("/dashboard/projects")}
-              >
-                {content.dashboardNav.projects}
-              </Link>
-              <Link
-                href={"/dashboard/invitations"}
-                className={getLinkClasses("/dashboard/invitations")}
-              >
-                {content.dashboardNav.invitations}
-              </Link>
-              <Link
-                href={"/dashboard/tasks"}
-                className={getLinkClasses("/dashboard/tasks")}
-              >
-                {content.dashboardNav.team}
-              </Link>
-              <Link
-                href={"/dashboard/profile"}
-                className={getLinkClasses("/dashboard/profile")}
-              >
-                {content.dashboardNav.settings}
-              </Link>
-            </div>
+          <div className="hidden lg:flex items-center gap-1 flex-1 justify-center px-4 overflow-x-auto">
+            <Link href={"/dashboard"} className={getLinkClasses("/dashboard")}>
+              {content.dashboardNav.home}
+            </Link>
+            <Link
+              href={"/dashboard/search"}
+              className={getLinkClasses("/dashboard/search")}
+            >
+              {content.dashboardNav.search}
+            </Link>
+            <Link
+              href={"/dashboard/projects"}
+              className={getLinkClasses("/dashboard/projects")}
+            >
+              {content.dashboardNav.projects}
+            </Link>
+
+            {/* Invitations link with badge */}
+            <Link
+              href={"/dashboard/invitations"}
+              className={getLinkClasses("/dashboard/invitations")}
+            >
+              {content.dashboardNav.invitations}
+              {pendingInvitesCount > 0 && (
+                <span className="absolute -top-1 -end-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none shadow">
+                  {pendingInvitesCount > 99 ? "99+" : pendingInvitesCount}
+                </span>
+              )}
+            </Link>
+
+            <Link
+              href={"/dashboard/tasks"}
+              className={getLinkClasses("/dashboard/tasks")}
+            >
+              {content.dashboardNav.team}
+            </Link>
+            <Link
+              href={"/dashboard/profile"}
+              className={getLinkClasses("/dashboard/profile")}
+            >
+              {content.dashboardNav.settings}
+            </Link>
           </div>
 
           {/* Controls */}
-          <div
-            className={`flex items-center space-x-4 ${
-              isRTL ? "rtl:space-x-reverse" : ""
-            }`}
-          >
+          <div className="flex items-center gap-2 shrink-0">
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -136,7 +141,7 @@ export default function DashboardNav() {
             <UserMenu />
 
             {/* Mobile menu button */}
-            <div className="md:hidden">
+            <div className="lg:hidden">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -154,8 +159,8 @@ export default function DashboardNav() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 border-t border-gray-200 dark:border-gray-700">
+          <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 py-2">
+            <div className="flex flex-col gap-1 pb-2">
               <Link
                 onClick={() => setIsMenuOpen(false)}
                 href="/dashboard"
@@ -177,13 +182,21 @@ export default function DashboardNav() {
               >
                 {content.dashboardNav.projects}
               </Link>
+
+              {/* Invitations with badge in mobile */}
               <Link
                 onClick={() => setIsMenuOpen(false)}
                 href={"/dashboard/invitations"}
                 className={getMobileLinkClasses("/dashboard/invitations")}
               >
                 {content.dashboardNav.invitations}
+                {pendingInvitesCount > 0 && (
+                  <span className="ms-auto min-w-[22px] h-[22px] px-1.5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold leading-none shadow">
+                    {pendingInvitesCount > 99 ? "99+" : pendingInvitesCount}
+                  </span>
+                )}
               </Link>
+
               <Link
                 onClick={() => setIsMenuOpen(false)}
                 href={"/dashboard/tasks"}

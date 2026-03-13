@@ -596,9 +596,11 @@ const ProjectDetailPage = () => {
                       </div>
                       <div>
                         <p className="font-semibold text-gray-800 dark:text-white">
-                          {req.userId?.name ||
-                            req.userId?.email?.split("@")[0] ||
-                            "Unknown User"}
+                          {req.userId?.name && req.userId.name !== "null null"
+                            ? req.userId.name
+                            : req.userId?.email
+                                ?.split("@")[0]
+                                .replace(/[0-9]/g, "") || "Unknown User"}
                         </p>
                         <Link
                           href={`/dashboard/user/${req.userId?._id}`}
