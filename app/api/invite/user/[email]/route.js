@@ -6,7 +6,7 @@ export async function GET(_, { params }) {
   try {
     await dbConnect();
 
-    const { email } = params;
+    const { email } = await params;
 
     const invites = await InviteRequest.find({
       email,

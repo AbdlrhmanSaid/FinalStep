@@ -39,7 +39,6 @@ import {
   Facebook,
   Plus,
   Trash2,
-  Trash2,
   Save,
   ExternalLink,
   RefreshCw,
