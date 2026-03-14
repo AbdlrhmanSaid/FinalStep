@@ -1,7 +1,6 @@
 import { Geist, Geist_Mono, Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
-import QueryProvider from "../lib/queryProvider";
+import { Providers } from "./providers";
 import { Toaster } from "react-hot-toast";
 import JsonLd from "../components/JsonLd";
 
@@ -83,18 +82,18 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider>
-      <html lang="en" dir="ltr">
-        <head>
-          <JsonLd />
-        </head>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} ${notoSansArabic.variable} antialiased`}
-        >
+    <html lang="en" dir="ltr">
+      <head>
+        <JsonLd />
+      </head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${notoSansArabic.variable} antialiased`}
+      >
+        <Providers>
           <Toaster />
           <main>{children}</main>
-        </body>
-      </html>
-    </ClerkProvider>
+        </Providers>
+      </body>
+    </html>
   );
 }
