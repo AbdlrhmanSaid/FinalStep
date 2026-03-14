@@ -19,11 +19,17 @@ export async function GET(req, { params }) {
 
   const tasks = await Task.find({ projectId }).populate(
     "assignedTo",
-    "name email"
+    "name email",
   );
 
   const completedTasks = tasks.filter((task) => task.status === "completed");
   const remainingTasks = tasks.filter((task) => task.status !== "completed");
+
+  const formatName = (user) => {
+    if (!user) return "Unknown";
+    if (user.name && user.name !== "null null") return user.name;
+    return user.email?.split("@")[0].replace(/[0-9]/g, "") || "Unknown";
+  };
 
   const taskDetails = tasks.map((task) => {
     const isOverdue = task.dueDate && new Date(task.dueDate) < new Date();
@@ -33,14 +39,14 @@ export async function GET(req, { params }) {
       priority: task.priority,
       dueDate: task.dueDate,
       isOverdue,
-      assignedTo: task.assignedTo.map((user) => user.name),
+      assignedTo: task.assignedTo.map(formatName),
     };
   });
 
   return NextResponse.json({
     projectTitle: project.title,
-    leader: project.leaderId.name,
-    coLeaders: project.coLeaders.map((user) => user.name),
+    leader: formatName(project.leaderId),
+    coLeaders: project.coLeaders.map(formatName),
     totalTasks: tasks.length,
     completedTasks: completedTasks.length,
     remainingTasks: remainingTasks.length,
