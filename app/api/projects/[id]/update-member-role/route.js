@@ -2,6 +2,7 @@
 
 import dbConnect from "../../../../../lib/db";
 import Project from "../../../../../models/Project";
+import Task from "../../../../../models/Task";
 
 export async function PUT(req, { params }) {
   try {
@@ -19,8 +20,9 @@ export async function PUT(req, { params }) {
     if (action === "remove-member") {
       project.members = project.members.filter((id) => id.toString() !== uid);
       project.coLeaders = project.coLeaders.filter(
-        (id) => id.toString() !== uid
+        (id) => id.toString() !== uid,
       );
+      await Task.updateMany({ projectId }, { $pull: { assignedTo: userId } });
     }
 
     if (action === "promote") {
@@ -34,7 +36,7 @@ export async function PUT(req, { params }) {
 
     if (action === "demote") {
       project.coLeaders = project.coLeaders.filter(
-        (id) => id.toString() !== uid
+        (id) => id.toString() !== uid,
       );
     }
 

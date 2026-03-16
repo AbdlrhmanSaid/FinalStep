@@ -276,6 +276,32 @@ const TaskDetailPage = () => {
                     {content.priorityLevels[task.priority] || task.priority}
                   </span>
                 </p>
+
+                {task.assignedTo && task.assignedTo.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                      {content.assignedTo}:
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {task.assignedTo.map((user) => {
+                        const displayName =
+                          user.name &&
+                          user.name.trim() !== "null null" &&
+                          user.name.trim() !== "null"
+                            ? user.name
+                            : user.email?.split("@")[0] || "Unknown";
+                        return (
+                          <span
+                            key={user._id || Math.random().toString()}
+                            className="inline-flex items-center px-2.5 py-1 rounded-md text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                          >
+                            {displayName}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">

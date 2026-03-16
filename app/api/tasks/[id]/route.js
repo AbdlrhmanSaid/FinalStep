@@ -12,8 +12,11 @@ const validTransitions = {
 
 export async function GET(request, { params }) {
   try {
+    const { id } = await params;
+
     await dbConnect();
-    const task = await Task.findById(params.id)
+
+    const task = await Task.findById(id)
       .populate("projectId")
       .populate("assignedTo")
       .populate("createdBy")
@@ -41,7 +44,6 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
-    // ✅ التحقق من الـ dueDate - لو عدى، بس الليدر يقدر يعدل
     const project = task.projectId;
     if (project && task.dueDate && new Date(task.dueDate) < new Date()) {
       const isLeader =

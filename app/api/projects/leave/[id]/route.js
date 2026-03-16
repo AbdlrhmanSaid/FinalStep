@@ -24,6 +24,10 @@ export async function PUT(request, { params }) {
       (memberId) => memberId.toString() !== userId,
     );
 
+    project.coLeaders = project.coLeaders.filter(
+      (memberId) => memberId.toString() !== userId,
+    );
+
     await Task.updateMany({ projectId }, { $pull: { assignedTo: userId } });
 
     await project.save();
