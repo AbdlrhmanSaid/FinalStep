@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useProjectReport } from "../../../../hooks/projects/useProjectReport";
 import ModernLoading from "../../../../components/Loading";
@@ -16,17 +17,8 @@ const ReportPage = () => {
   const { language } = useAppContext();
   const content = translations[language]?.dashboard?.report || {};
 
-  if (isLoading) return <ModernLoading />;
-
-  if (error)
-    return (
-      <div className="error-message">
-        {content.errorLoading || "Error loading"}: {error.message}
-      </div>
-    );
-
-  if (!data?.projectTitle)
-    return <div className="error-message">{content.noData}</div>;
+  // ── All hooks before any early return ─────────────────────────────────────
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const today = new Date();
   const dateString = today.toLocaleDateString(
@@ -39,23 +31,39 @@ const ReportPage = () => {
     },
   );
 
+  // ── Early returns ─────────────────────────────────────────────────────────
+  if (isLoading) return <ModernLoading />;
+
+  if (error)
+    return (
+      <div className="error-message">
+        {content.errorLoading || "Error loading"}: {error.message}
+      </div>
+    );
+
+  if (!data?.projectTitle)
+    return <div className="error-message">{content.noData}</div>;
+
   const handlePrint = async () => {
     const element = document.getElementById("page");
     if (!element) return;
-
-    const options = {
-      margin: 1,
-      filename: `${data.projectTitle}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-    };
-
+    setIsPrinting(true);
     try {
       const html2pdf = (await import("html2pdf.js")).default;
-      await html2pdf().from(element).set(options).save();
-    } catch (error) {
-      console.error("Error generating PDF:", error);
+      await html2pdf()
+        .from(element)
+        .set({
+          margin: [10, 10, 10, 10],
+          filename: `${data.projectTitle}_Report.pdf`,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        })
+        .save();
+    } catch (err) {
+      console.error("PDF generation error:", err);
+    } finally {
+      setIsPrinting(false);
     }
   };
 
@@ -75,9 +83,17 @@ const ReportPage = () => {
   return (
     <CheckUserRole projectId={id}>
       <div className="report-container">
-        <Button onClick={handlePrint} className="print-button">
+        <Button
+          onClick={handlePrint}
+          className="print-button"
+          disabled={isPrinting}
+        >
           <Printer size={18} />
-          {content.print}
+          {isPrinting
+            ? language === "ar"
+              ? "جارٍ الإنشاء..."
+              : "Generating..."
+            : content.print}
         </Button>
 
         <div id="page" className="report-page">
@@ -129,6 +145,21 @@ const ReportPage = () => {
             <div className="stat-card remaining-tasks">
               <h4>{content.remainingTasks}</h4>
               <p>{data.remainingTasks || 0}</p>
+            </div>
+            <div
+              className="stat-card remaining-tasks"
+              style={{
+                backgroundColor: "#fef2f2",
+                color: "#dc2626",
+                border: "1px solid #fecaca",
+              }}
+            >
+              <h4 style={{ color: "#dc2626", fontWeight: "bold" }}>
+                {language === "ar" ? "مهام متأخرة" : "Overdue Tasks"}
+              </h4>
+              <p style={{ color: "#dc2626", fontWeight: "bold" }}>
+                {data.overdueTasks || 0}
+              </p>
             </div>
           </div>
 

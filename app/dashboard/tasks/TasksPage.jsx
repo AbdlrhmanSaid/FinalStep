@@ -177,13 +177,29 @@ const TasksClient = () => {
                             !isToday(due) &&
                             task.status !== "completed";
                           const daysLeft = differenceInDays(due, new Date());
-                          const isUrgent = !isOverdue && daysLeft <= 3;
+                          const isUrgent =
+                            !isOverdue &&
+                            daysLeft >= 0 &&
+                            daysLeft <= 3 &&
+                            task.status !== "completed";
                           const fmtDate = format(due, "d MMM yyyy", {
                             locale: dateLocale,
                           });
 
                           let bg, text, icon, label;
-                          if (isOverdue) {
+                          if (
+                            task.status === "completed" ||
+                            task.status === "finished"
+                          ) {
+                            bg = "bg-green-100 dark:bg-green-900/40";
+                            text = "text-green-700 dark:text-green-300";
+                            icon = (
+                              <CheckCircle className="w-3.5 h-3.5 shrink-0" />
+                            );
+                            label = isRTL
+                              ? `منتهي • ${fmtDate}`
+                              : `Ended • ${fmtDate}`;
+                          } else if (isOverdue) {
                             bg = "bg-red-100 dark:bg-red-900/40";
                             text = "text-red-700 dark:text-red-300";
                             icon = (

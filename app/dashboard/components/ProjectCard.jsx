@@ -92,14 +92,21 @@ export default function ProjectCard({
 
     let bgClass, textClass, icon, label;
 
-    if (isOverdue) {
+    if (status === "completed" || status === "finished") {
+      bgClass = "bg-green-100 dark:bg-green-900/40";
+      textClass = "text-green-700 dark:text-green-300";
+      icon = <CheckCircle className="w-3.5 h-3.5 shrink-0" />;
+      label = isRTL
+        ? `منتهي • ${fmtDate(deadlineDate)}`
+        : `Ended • ${fmtDate(deadlineDate)}`;
+    } else if (isOverdue) {
       bgClass = "bg-red-100 dark:bg-red-900/40";
       textClass = "text-red-700 dark:text-red-300";
       icon = <AlertCircle className="w-3.5 h-3.5 shrink-0" />;
       label = isRTL
         ? `متأخر • ${fmtDate(deadlineDate)}`
         : `Overdue • ${fmtDate(deadlineDate)}`;
-    } else if (daysLeft !== null && daysLeft <= 3) {
+    } else if (daysLeft !== null && daysLeft >= 0 && daysLeft <= 3) {
       bgClass = "bg-orange-100 dark:bg-orange-900/30";
       textClass = "text-orange-700 dark:text-orange-300";
       icon = <Clock className="w-3.5 h-3.5 shrink-0 animate-pulse" />;

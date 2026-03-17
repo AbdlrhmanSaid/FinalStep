@@ -197,11 +197,17 @@ const ProjectDetailPage = () => {
     const overdue =
       isBefore(due, new Date()) && !isToday(due) && status !== "completed";
     const daysLeft = differenceInDays(due, new Date());
-    const urgent = !overdue && daysLeft <= 3;
+    const urgent =
+      !overdue && daysLeft >= 0 && daysLeft <= 3 && status !== "completed";
     const fmtD = format(due, "d MMM yyyy", { locale: dateLocale });
 
     let bg, text, icon, label;
-    if (overdue) {
+    if (status === "completed" || status === "finished") {
+      bg = "bg-green-100 dark:bg-green-900/40";
+      text = "text-green-700 dark:text-green-300";
+      icon = <CheckCircle className="w-3 h-3 shrink-0" />;
+      label = isRTL ? `منتهي • ${fmtD}` : `Ended • ${fmtD}`;
+    } else if (overdue) {
       bg = "bg-red-100 dark:bg-red-900/40";
       text = "text-red-700 dark:text-red-300";
       icon = <AlertCircle className="w-3 h-3 shrink-0" />;

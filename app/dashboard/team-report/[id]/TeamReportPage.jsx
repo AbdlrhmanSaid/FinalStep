@@ -12,11 +12,12 @@ import { Button } from "../../../../components/ui/button";
 import {
   Printer,
   Star,
-  Users,
   CheckCircle,
   Clock,
   RefreshCw,
+  AlertCircle,
 } from "lucide-react";
+import { isBefore, isToday } from "date-fns";
 import "./TeamReportPage.css";
 
 export default function TeamReportPage() {
@@ -36,7 +37,9 @@ export default function TeamReportPage() {
   const { language, isRTL } = useAppContext();
   const content = translations[language]?.dashboard?.teamReport || {};
 
+  // ── All hooks MUST be before any early return ─────────────────────────────
   const [evaluations, setEvaluations] = useState({});
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const handleRefresh = () => {
     refetchProject();
@@ -44,6 +47,7 @@ export default function TeamReportPage() {
   };
   const isRefetching = isProjectFetching || isTasksFetching;
 
+  // ── Early returns AFTER all hooks ─────────────────────────────────────────
   if (isProjectLoading || isTasksLoading) return <Loading />;
 
   if (!project) {
@@ -54,14 +58,12 @@ export default function TeamReportPage() {
     );
   }
 
+  // ── Derived data (after early returns, safe to use project) ───────────────
   const coLeaderIds = new Set((project.coLeaders || []).map((u) => u._id));
   const uniqueMembers = (project.members || []).filter(
     (u) => !coLeaderIds.has(u._id),
   );
-  const allMembers = [
-    ...(project.coLeaders || []).map((u) => ({ ...u, _role: "coLeader" })),
-    ...uniqueMembers.map((u) => ({ ...u, _role: "member" })),
-  ];
+  const allMembers = uniqueMembers.map((u) => ({ ...u, _role: "member" }));
 
   const today = new Date();
   const dateString = today.toLocaleDateString(
@@ -74,23 +76,83 @@ export default function TeamReportPage() {
     },
   );
 
+  // ── Handlers (use allMembers safely after early returns) ──────────────────
+  const handleAutoEvaluate = () => {
+    const newEvaluations = { ...evaluations };
+    allMembers.forEach((member) => {
+      const memberTasks =
+        tasks?.filter(
+          (t) =>
+            t.projectId?._id === id &&
+            t.assignedTo?.some((u) => u._id === member._id),
+        ) || [];
+      const totalTasks = memberTasks.length;
+
+      if (totalTasks === 0) {
+        newEvaluations[member._id] = {
+          rating: 0,
+          notes: isRTL ? "ليس لديه مهام لتقييمه" : "No tasks to evaluate",
+        };
+        return;
+      }
+
+      const completedCount = memberTasks.filter(
+        (t) => t.status === "completed",
+      ).length;
+      const overdueCount = memberTasks.filter(
+        (t) =>
+          t.dueDate &&
+          t.status !== "completed" &&
+          isBefore(new Date(t.dueDate), new Date()) &&
+          !isToday(new Date(t.dueDate)),
+      ).length;
+
+      let completionRate = completedCount / totalTasks;
+      let rating = 0;
+      if (completionRate >= 0.9) rating = 5;
+      else if (completionRate >= 0.7) rating = 4;
+      else if (completionRate >= 0.5) rating = 3;
+      else if (completionRate >= 0.3) rating = 2;
+      else if (completionRate > 0) rating = 1;
+      else rating = 0;
+
+      const percentage = Math.round(completionRate * 100);
+      let notes = isRTL
+        ? `نسبة الإنجاز: ${percentage}%`
+        : `Completion Rate: ${percentage}%`;
+
+      if (overdueCount > 0) {
+        notes += isRTL
+          ? ` (لديه ${overdueCount} مهام متأخرة)`
+          : ` (${overdueCount} overdue tasks)`;
+        if (rating > 1) rating -= 1;
+      }
+
+      newEvaluations[member._id] = { rating, notes };
+    });
+    setEvaluations(newEvaluations);
+  };
+
   const handlePrint = async () => {
     const element = document.getElementById("team-report-page");
     if (!element) return;
-
-    const options = {
-      margin: [0.5, 0.5, 0.5, 0.5], // top, left, bottom, right
-      filename: `Team_Report_${project.title}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-    };
-
+    setIsPrinting(true);
     try {
       const html2pdf = (await import("html2pdf.js")).default;
-      await html2pdf().from(element).set(options).save();
-    } catch (error) {
-      console.error("Error generating PDF:", error);
+      await html2pdf()
+        .from(element)
+        .set({
+          margin: [10, 10, 10, 10],
+          filename: `Team_Report_${project.title}.pdf`,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        })
+        .save();
+    } catch (err) {
+      console.error("PDF generation error:", err);
+    } finally {
+      setIsPrinting(false);
     }
   };
 
@@ -110,10 +172,23 @@ export default function TeamReportPage() {
         <div className="flex gap-4 mb-6">
           <Button
             onClick={handlePrint}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white"
+            disabled={isPrinting}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50"
           >
-            <Printer size={18} />
-            {content.print}
+            <Printer size={18} className={isPrinting ? "animate-pulse" : ""} />
+            {isPrinting
+              ? isRTL
+                ? "جارٍ الإنشاء..."
+                : "Generating..."
+              : content.print}
+          </Button>
+
+          <Button
+            onClick={handleAutoEvaluate}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+          >
+            <Star size={18} />
+            {isRTL ? "تقييم آلي" : "Auto Evaluate"}
           </Button>
 
           <Button
@@ -160,6 +235,13 @@ export default function TeamReportPage() {
                 const completedTasks = memberTasks.filter(
                   (t) => t.status === "completed",
                 );
+                const overdueTasks = memberTasks.filter(
+                  (t) =>
+                    t.dueDate &&
+                    t.status !== "completed" &&
+                    isBefore(new Date(t.dueDate), new Date()) &&
+                    !isToday(new Date(t.dueDate)),
+                );
 
                 const evalData = evaluations[member._id] || {
                   rating: 0,
@@ -179,11 +261,8 @@ export default function TeamReportPage() {
                         <h3>{memberName}</h3>
                         <p className="member-role">
                           {project.customRoles?.[member._id] ||
-                            (member._role === "coLeader"
-                              ? translations[language].dashboard.projectDetail
-                                  .coLeaders
-                              : translations[language].dashboard.updateProject
-                                  .members)}
+                            translations[language].dashboard.updateProject
+                              .members}
                         </p>
                         <p>{member.email}</p>
 
@@ -274,6 +353,45 @@ export default function TeamReportPage() {
                             ) : (
                               <li className="no-tasks">
                                 {content.noCompletedTasks}
+                              </li>
+                            )}
+                          </ul>
+                        </div>
+
+                        <div className="team-tasks-box">
+                          <h4>
+                            <span
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                              }}
+                            >
+                              <AlertCircle size={16} color="#dc2626" />{" "}
+                              {isRTL ? "مهام متأخرة" : "Overdue Tasks"}
+                            </span>
+                            <span
+                              className="task-count"
+                              style={{
+                                color: "#dc2626",
+                                backgroundColor: "#fef2f2",
+                              }}
+                            >
+                              {overdueTasks.length}
+                            </span>
+                          </h4>
+                          <ul>
+                            {overdueTasks.length > 0 ? (
+                              overdueTasks.map((t) => (
+                                <li key={t._id} style={{ color: "#dc2626" }}>
+                                  {t.title}
+                                </li>
+                              ))
+                            ) : (
+                              <li className="no-tasks">
+                                {isRTL
+                                  ? "لا يوجد مهام متأخرة"
+                                  : "No overdue tasks"}
                               </li>
                             )}
                           </ul>
