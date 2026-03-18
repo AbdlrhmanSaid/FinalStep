@@ -73,6 +73,79 @@ export const useUpdateTask = () => {
   });
 };
 
+/**
+ * Hook for a member to submit their own submission for a shared task.
+ */
+export const useMemberSubmit = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ taskId, userId, submittingUserId, submission }) => {
+      try {
+        const headers = userId ? { userId } : {};
+        const res = await axios.put(
+          `/api/tasks/${taskId}`,
+          {
+            action: "member_submit",
+            submittingUserId,
+            submission,
+          },
+          { headers },
+        );
+        return res.data;
+      } catch (error) {
+        toast.error(error.response?.data?.error || "Failed to submit task");
+        throw error;
+      }
+    },
+    onSuccess: (_, { taskId }) => {
+      queryClient.invalidateQueries(["task", taskId]);
+      queryClient.invalidateQueries(["tasks"]);
+    },
+  });
+};
+
+/**
+ * Hook for the project leader to review a specific member's submission.
+ */
+export const useReviewMemberSubmission = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      taskId,
+      userId,
+      targetUserId,
+      reviewAction,
+      reviewNote,
+    }) => {
+      try {
+        const headers = userId ? { userId } : {};
+        const res = await axios.put(
+          `/api/tasks/${taskId}`,
+          {
+            action: "review_member",
+            targetUserId,
+            reviewAction,
+            reviewNote,
+          },
+          { headers },
+        );
+        return res.data;
+      } catch (error) {
+        toast.error(
+          error.response?.data?.error || "Failed to review submission",
+        );
+        throw error;
+      }
+    },
+    onSuccess: (_, { taskId }) => {
+      queryClient.invalidateQueries(["task", taskId]);
+      queryClient.invalidateQueries(["tasks"]);
+    },
+  });
+};
+
 export const useDeleteTask = () => {
   const queryClient = useQueryClient();
 

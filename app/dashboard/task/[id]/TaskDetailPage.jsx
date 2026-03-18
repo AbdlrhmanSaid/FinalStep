@@ -2,16 +2,438 @@
 
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
-import { useGetTask, useUpdateTask } from "../../../../hooks/tasks/useTasks";
+import {
+  useGetTask,
+  useMemberSubmit,
+  useReviewMemberSubmission,
+} from "../../../../hooks/tasks/useTasks";
 import { translations } from "../../../../lib/translations";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { format, isBefore, isToday, differenceInDays } from "date-fns";
+import { format, isBefore, isToday } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import Loading from "../../../../components/Loading";
 import { useAppContext } from "../../../../contexts/AppContext";
 import toast from "react-hot-toast";
-import { RefreshCw } from "lucide-react";
+import {
+  RefreshCw,
+  CheckCircle,
+  XCircle,
+  Clock,
+  ChevronDown,
+  ChevronUp,
+  Send,
+  User,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+
+// ─── helpers ────────────────────────────────────────────────────────────────
+
+const getStatusStyle = (status) => {
+  switch (status) {
+    case "open":
+      return "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200";
+    case "submitted":
+      return "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200";
+    case "completed":
+      return "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200";
+    case "rejected":
+      return "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200";
+    default:
+      return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
+  }
+};
+
+const getMemberStatusBadge = (status, isRTL) => {
+  const map = {
+    open: {
+      label: isRTL ? "مفتوحة" : "Open",
+      cls: "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200",
+      icon: <Clock className="w-3 h-3" />,
+    },
+    submitted: {
+      label: isRTL ? "بانتظار المراجعة" : "Pending Review",
+      cls: "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300",
+      icon: <Send className="w-3 h-3" />,
+    },
+    completed: {
+      label: isRTL ? "مقبول" : "Accepted",
+      cls: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
+      icon: <CheckCircle className="w-3 h-3" />,
+    },
+    rejected: {
+      label: isRTL ? "مرفوض" : "Rejected",
+      cls: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
+      icon: <XCircle className="w-3 h-3" />,
+    },
+  };
+  return map[status] || map.open;
+};
+
+// ─── Sub-component: a single member's submission card ───────────────────────
+
+function MemberSubmissionCard({
+  memberSub,
+  isCurrentUser,
+  isProjectLeader,
+  taskId,
+  userId,
+  content,
+  isRTL,
+  dateLocale,
+  onRefetch,
+}) {
+  const [expanded, setExpanded] = useState(isCurrentUser);
+  const [showSubmitForm, setShowSubmitForm] = useState(false);
+  const [submissionDesc, setSubmissionDesc] = useState(
+    memberSub?.description || "",
+  );
+  const [submissionLinks, setSubmissionLinks] = useState(
+    memberSub?.links?.join(", ") || "",
+  );
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [reviewNote, setReviewNote] = useState("");
+
+  const { mutate: memberSubmit, isLoading: isSubmitting } = useMemberSubmit();
+  const { mutate: reviewMember, isLoading: isReviewing } =
+    useReviewMemberSubmission();
+
+  const status = memberSub?.status || "open";
+  const badge = getMemberStatusBadge(status, isRTL);
+
+  const displayName =
+    memberSub?.userId?.name &&
+    memberSub.userId.name.trim() !== "null null" &&
+    memberSub.userId.name.trim() !== "null"
+      ? memberSub.userId.name
+      : memberSub?.userId?.email?.split("@")[0] || "Unknown";
+
+  const isValidUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!submissionDesc.trim()) {
+      toast.error(content.provideDescription);
+      return;
+    }
+    const links = submissionLinks
+      .split(",")
+      .map((l) => l.trim())
+      .filter((l) => l);
+    const badLinks = links.filter((l) => !isValidUrl(l));
+    if (badLinks.length > 0) {
+      toast.error(`${content.invalidUrls}: ${badLinks.join(", ")}`);
+      return;
+    }
+    memberSubmit(
+      {
+        taskId,
+        userId,
+        submittingUserId: memberSub.userId?._id || memberSub.userId,
+        submission: { description: submissionDesc, links },
+      },
+      {
+        onSuccess: () => {
+          toast.success(content.taskSubmittedSuccess);
+          setShowSubmitForm(false);
+          onRefetch();
+        },
+        onError: () => toast.error("Failed to submit"),
+      },
+    );
+  };
+
+  const handleReview = (action) => {
+    if (action === "rejected" && !reviewNote.trim()) {
+      toast.error(content.provideRejectionReason);
+      return;
+    }
+    reviewMember(
+      {
+        taskId,
+        userId,
+        targetUserId: memberSub.userId?._id || memberSub.userId,
+        reviewAction: action,
+        reviewNote,
+      },
+      {
+        onSuccess: () => {
+          toast.success(
+            action === "completed"
+              ? content.taskAcceptedSuccess
+              : content.taskRejectedSuccess,
+          );
+          setShowRejectDialog(false);
+          setReviewNote("");
+          onRefetch();
+        },
+        onError: () => toast.error("Failed to review"),
+      },
+    );
+  };
+
+  return (
+    <div
+      className={`border rounded-xl overflow-hidden transition-all ${
+        isCurrentUser
+          ? "border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-900/10"
+          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+      }`}
+    >
+      {/* Header */}
+      <button
+        className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors"
+        onClick={() => setExpanded((v) => !v)}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shrink-0">
+            <User className="w-4 h-4 text-white" />
+          </div>
+          <div className="text-start">
+            <p className="font-semibold text-gray-800 dark:text-white text-sm">
+              {displayName}
+              {isCurrentUser && (
+                <span className="ml-2 text-xs text-blue-500">
+                  ({isRTL ? "أنت" : "You"})
+                </span>
+              )}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {memberSub?.userId?.email}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span
+            className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${badge.cls}`}
+          >
+            {badge.icon}
+            {badge.label}
+          </span>
+          {expanded ? (
+            <ChevronUp className="w-4 h-4 text-gray-400" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-gray-400" />
+          )}
+        </div>
+      </button>
+
+      {/* Expanded body */}
+      {expanded && (
+        <div className="p-4 border-t border-gray-100 dark:border-gray-700 space-y-4">
+          {/* Submission details */}
+          {memberSub?.description && (
+            <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg space-y-2">
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                {content.submissionDescription}
+              </h4>
+              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
+                {memberSub.description}
+              </p>
+
+              {memberSub.links?.length > 0 && (
+                <div>
+                  <h5 className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    {content.links}
+                  </h5>
+                  <ul className="list-disc list-inside space-y-1">
+                    {memberSub.links.map((link, i) => (
+                      <li key={i}>
+                        <a
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 dark:text-blue-400 hover:underline text-sm break-all"
+                        >
+                          {link}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {memberSub.submittedAt && (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {content.submittedAt}:{" "}
+                  {format(new Date(memberSub.submittedAt), "PPPp", {
+                    locale: dateLocale,
+                  })}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Review note (if rejected) */}
+          {status === "rejected" && memberSub?.review?.note && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded-lg">
+              <h4 className="text-sm font-semibold text-red-700 dark:text-red-400 mb-1">
+                {content.rejectionReason}:
+              </h4>
+              <p className="text-sm text-red-700 dark:text-red-300 whitespace-pre-wrap">
+                {memberSub.review.note}
+              </p>
+            </div>
+          )}
+
+          {/* Current user: submit or resubmit */}
+          {isCurrentUser && (status === "open" || status === "rejected") && (
+            <>
+              {!showSubmitForm ? (
+                <div className="flex justify-end">
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={() => {
+                      setSubmissionDesc(memberSub?.description || "");
+                      setSubmissionLinks(memberSub?.links?.join(", ") || "");
+                      setShowSubmitForm(true);
+                    }}
+                  >
+                    <Send className="w-4 h-4 mr-1" />
+                    {status === "rejected"
+                      ? isRTL
+                        ? "إعادة التسليم"
+                        : "Resubmit"
+                      : content.submitTask}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      {content.submissionDescription}
+                    </label>
+                    <textarea
+                      rows={3}
+                      className="w-full p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
+                      placeholder={content.describeWork}
+                      value={submissionDesc}
+                      onChange={(e) => setSubmissionDesc(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      {content.submissionLinks}
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
+                      placeholder={content.linksPlaceholder}
+                      value={submissionLinks}
+                      onChange={(e) => setSubmissionLinks(e.target.value)}
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {content.enterValidUrls}
+                    </p>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowSubmitForm(false)}
+                      disabled={isSubmitting}
+                    >
+                      {content.cancel}
+                    </Button>
+                    <Button
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      onClick={handleSubmit}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting
+                        ? content.processing
+                        : content.confirmSubmit}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Leader: accept / reject */}
+          {isProjectLeader && status === "submitted" && (
+            <div className="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+              <Button
+                className="bg-green-600 hover:bg-green-700 text-white"
+                disabled={isReviewing}
+                onClick={() => handleReview("completed")}
+              >
+                <CheckCircle className="w-4 h-4 mr-1" />
+                {isReviewing ? content.processing : content.accept}
+              </Button>
+
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white"
+                disabled={isReviewing}
+                onClick={() => setShowRejectDialog(true)}
+              >
+                <XCircle className="w-4 h-4 mr-1" />
+                {content.reject}
+              </Button>
+            </div>
+          )}
+
+          {/* Reject dialog */}
+          {showRejectDialog && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+                onClick={() => setShowRejectDialog(false)}
+              />
+              <div className="relative z-50 w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {content.rejectSubmission}
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                    {isRTL
+                      ? `رفض تسليم: ${displayName}`
+                      : `Reject submission for: ${displayName}`}
+                  </p>
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      {content.rejectionReason}
+                    </label>
+                    <textarea
+                      className="w-full p-2 text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md"
+                      placeholder={content.rejectionReasonPlaceholder}
+                      value={reviewNote}
+                      onChange={(e) => setReviewNote(e.target.value)}
+                      rows={3}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={() => setShowRejectDialog(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 transition-colors"
+                  >
+                    {content.cancel}
+                  </button>
+                  <button
+                    onClick={() => handleReview("rejected")}
+                    disabled={isReviewing || !reviewNote.trim()}
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors disabled:opacity-50"
+                  >
+                    {isReviewing ? content.processing : content.reject}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Main page component ─────────────────────────────────────────────────────
 
 const TaskDetailPage = () => {
   const params = useParams();
@@ -23,18 +445,10 @@ const TaskDetailPage = () => {
     refetch,
     isFetching,
   } = useGetTask(id);
-  const { mutate: updateTask, isLoading: isUpdating } = useUpdateTask();
+
   const { userId, language, isRTL } = useAppContext();
   const dateLocale = language === "ar" ? ar : enUS;
   const content = translations[language].dashboard.taskDetails;
-
-  const [showSubmitForm, setShowSubmitForm] = useState(false);
-  const [submissionDescription, setSubmissionDescription] = useState("");
-  const [submissionLinks, setSubmissionLinks] = useState("");
-  const [showRejectReason, setShowRejectReason] = useState(false);
-  const [reviewNote, setReviewNote] = useState("");
-  const [showAcceptDialog, setShowAcceptDialog] = useState(false);
-  const [showRejectDialog, setShowRejectDialog] = useState(false);
 
   if (isLoading) return <Loading />;
   if (isError || !task)
@@ -47,138 +461,6 @@ const TaskDetailPage = () => {
     task.projectId?.coLeaders?.some(
       (coId) => coId?.toString() === userId?.toString(),
     );
-
-  const handleSubmitTask = () => setShowSubmitForm(true);
-
-  const isValidUrl = (url) => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const handleConfirmSubmit = () => {
-    if (!submissionDescription.trim()) {
-      toast.error(content.provideDescription);
-      return;
-    }
-
-    const links = submissionLinks
-      .split(",")
-      .map((link) => link.trim())
-      .filter((link) => link);
-
-    const invalidLinks = links.filter((link) => !isValidUrl(link));
-    if (invalidLinks.length > 0) {
-      toast.error(`${content.invalidUrls}: ${invalidLinks.join(", ")}`);
-      return;
-    }
-
-    updateTask(
-      {
-        taskId: id,
-        userId,
-        data: {
-          status: "submitted",
-          submission: {
-            description: submissionDescription,
-            links: links,
-            submittedAt: new Date(),
-          },
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success(content.taskSubmittedSuccess);
-          setShowSubmitForm(false);
-          setSubmissionDescription("");
-          setSubmissionLinks("");
-          refetch();
-        },
-        onError: () => {
-          toast.error("Failed to submit task");
-        },
-      },
-    );
-  };
-
-  const handleAccept = () => {
-    updateTask(
-      {
-        taskId: id,
-        userId,
-        data: {
-          status: "completed",
-          review: {
-            reviewedBy: userId,
-            reviewedAt: new Date(),
-            note: content.status.completed,
-          },
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success(content.taskAcceptedSuccess);
-          setShowAcceptDialog(false);
-          refetch();
-        },
-        onError: () => {
-          toast.error("Failed to accept task");
-        },
-      },
-    );
-  };
-
-  const handleReject = () => {
-    if (!reviewNote.trim()) {
-      toast.error(content.provideRejectionReason);
-      return;
-    }
-
-    updateTask(
-      {
-        taskId: id,
-        userId,
-        data: {
-          status: "rejected",
-          review: {
-            reviewedBy: userId,
-            reviewedAt: new Date(),
-            note: reviewNote,
-          },
-        },
-      },
-      {
-        onSuccess: () => {
-          toast.success(content.taskRejectedSuccess);
-          setShowRejectReason(false);
-          setShowRejectDialog(false);
-          setReviewNote("");
-          refetch();
-        },
-        onError: () => {
-          toast.error("Failed to reject task");
-        },
-      },
-    );
-  };
-
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case "open":
-        return "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200";
-      case "submitted":
-        return "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200";
-      case "completed":
-        return "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200";
-      case "rejected":
-        return "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200";
-      default:
-        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
-    }
-  };
 
   const getPriorityStyle = (priority) => {
     switch (priority) {
@@ -193,9 +475,29 @@ const TaskDetailPage = () => {
     }
   };
 
+  // Build memberSubmissions merged with assignedTo list
+  // (ensures every assigned user appears even if they haven't submitted yet)
+  const mergedSubmissions = (task.assignedTo || []).map((user) => {
+    const uid = user._id || user;
+    const sub = (task.memberSubmissions || []).find(
+      (s) => (s.userId?._id || s.userId)?.toString() === uid?.toString(),
+    );
+    return sub
+      ? { ...sub, userId: typeof user === "object" ? user : sub.userId }
+      : { userId: user, status: "open" };
+  });
+
+  const isSharedTask = (task.assignedTo || []).length > 1;
+
+  // Progress summary for shared tasks
+  const completedCount = mergedSubmissions.filter(
+    (s) => s.status === "completed",
+  ).length;
+  const totalCount = mergedSubmissions.length;
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 ">
-      <div className="max-w-4xl mx-auto ">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
         <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-xl p-0 overflow-hidden">
           <CardHeader className="bg-gray-100 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
             <div className="flex justify-between items-start">
@@ -221,9 +523,7 @@ const TaskDetailPage = () => {
                 </p>
               </div>
               <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
-                  task.status,
-                )}`}
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(task.status)}`}
               >
                 {content.status[task.status] || task.status}
               </span>
@@ -231,6 +531,7 @@ const TaskDetailPage = () => {
           </CardHeader>
 
           <CardContent className="p-6 space-y-6">
+            {/* Description */}
             <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
                 {content.description}
@@ -251,7 +552,7 @@ const TaskDetailPage = () => {
                     href={task.referenceLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline break-all text-sm"
+                    className="text-blue-500 hover:text-blue-700 dark:text-blue-400 underline break-all text-sm"
                   >
                     {task.referenceLink}
                   </a>
@@ -259,6 +560,7 @@ const TaskDetailPage = () => {
               )}
             </div>
 
+            {/* Info grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
@@ -277,7 +579,7 @@ const TaskDetailPage = () => {
                   </span>
                 </p>
 
-                {task.assignedTo && task.assignedTo.length > 0 && (
+                {task.assignedTo?.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                     <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
                       {content.assignedTo}:
@@ -343,264 +645,65 @@ const TaskDetailPage = () => {
                       )}
                   </p>
                 )}
-                {task.submission?.submittedAt && (
-                  <p className="text-gray-700 dark:text-gray-300">
-                    {content.submitted}:{" "}
-                    {format(new Date(task.submission.submittedAt), "PPPp", {
-                      locale: dateLocale,
-                    })}
-                  </p>
-                )}
-                {task.review?.reviewedAt && (
-                  <p className="text-gray-700 dark:text-gray-300">
-                    {content.reviewed}:{" "}
-                    {format(new Date(task.review.reviewedAt), "PPPp", {
-                      locale: dateLocale,
-                    })}
-                  </p>
-                )}
               </div>
             </div>
 
-            {task.submission?.description && (
-              <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-                  {content.submissionDetails}
-                </h3>
+            {/* ── Member Submissions section ───────────────────────────── */}
+            {mergedSubmissions.length > 0 && (
+              <div className="space-y-3">
+                {/* Header with progress for shared tasks */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                    {isSharedTask
+                      ? isRTL
+                        ? "تسليمات الأعضاء"
+                        : "Member Submissions"
+                      : isRTL
+                        ? "التسليم"
+                        : "Submission"}
+                  </h3>
 
-                <div className="mb-3">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {content.submissionDescription}
-                  </h4>
-                  <p className="text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-2 rounded whitespace-pre-wrap break-words">
-                    {task.submission.description}
-                  </p>
-                </div>
-
-                <div className="mb-3">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {content.links}
-                  </h4>
-                  {task.submission.links && task.submission.links.length > 0 ? (
-                    <ul className="list-disc pl-5 space-y-1">
-                      {task.submission.links.map((link, index) => (
-                        <li key={index}>
-                          <a
-                            href={link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 dark:text-blue-400 hover:underline break-all"
-                          >
-                            {link}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="italic text-gray-500 dark:text-gray-400">
-                      {content.noLinksSubmitted}
-                    </p>
+                  {isSharedTask && (
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {completedCount}/{totalCount}{" "}
+                        {isRTL ? "مقبول" : "accepted"}
+                      </div>
+                      <div className="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-green-500 rounded-full transition-all"
+                          style={{
+                            width: `${(completedCount / totalCount) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
                   )}
                 </div>
 
-                {task.submission.submittedAt && (
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      {content.submittedAt}
-                    </h4>
-                    <p className="text-gray-700 dark:text-gray-300">
-                      {format(new Date(task.submission.submittedAt), "PPPp", {
-                        locale: dateLocale,
-                      })}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {(task.status === "open" || task.status === "rejected") &&
-              !showSubmitForm && (
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-                  <Button
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={handleSubmitTask}
-                    disabled={isUpdating}
-                  >
-                    {isUpdating ? content.processing : content.submitTask}
-                  </Button>
-                </div>
-              )}
-
-            {showSubmitForm && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {content.submissionDescription}
-                  </label>
-                  <textarea
-                    rows={4}
-                    className="w-full p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm"
-                    placeholder={content.describeWork}
-                    value={submissionDescription}
-                    onChange={(e) => setSubmissionDescription(e.target.value)}
+                {/* Per-member cards */}
+                {mergedSubmissions.map((memberSub, idx) => (
+                  <MemberSubmissionCard
+                    key={
+                      memberSub.userId?._id ||
+                      memberSub.userId?.toString() ||
+                      idx
+                    }
+                    memberSub={memberSub}
+                    isCurrentUser={
+                      (
+                        memberSub.userId?._id || memberSub.userId
+                      )?.toString() === userId?.toString()
+                    }
+                    isProjectLeader={isProjectLeader}
+                    taskId={id}
+                    userId={userId}
+                    content={content}
+                    isRTL={isRTL}
+                    dateLocale={dateLocale}
+                    onRefetch={refetch}
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {content.submissionLinks}
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm"
-                    placeholder={content.linksPlaceholder}
-                    value={submissionLinks}
-                    onChange={(e) => setSubmissionLinks(e.target.value)}
-                  />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {content.enterValidUrls}
-                  </p>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowSubmitForm(false)}
-                    disabled={isUpdating}
-                  >
-                    {content.cancel}
-                  </Button>
-                  <Button
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={handleConfirmSubmit}
-                    disabled={isUpdating}
-                  >
-                    {isUpdating ? content.processing : content.confirmSubmit}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {task.status === "rejected" && task.review?.note && (
-              <div className="pt-4 border-t border-gray-300 dark:border-gray-600">
-                <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">
-                  {content.rejectionReason}:
-                </h3>
-                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                  {task.review.note}
-                </p>
-              </div>
-            )}
-
-            {isProjectLeader && task.status === "submitted" && (
-              <div className="pt-6 border-t border-gray-300 dark:border-gray-600">
-                <div className="flex gap-4 justify-end">
-                  {/* Accept Dialog */}
-                  <div
-                    className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${
-                      showAcceptDialog ? "block" : "hidden"
-                    }`}
-                  >
-                    <div
-                      className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-                      onClick={() => setShowAcceptDialog(false)}
-                    />
-
-                    <div className="relative z-50 w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                      <div className="p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {content.acceptSubmission}
-                        </h3>
-                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                          {content.confirmAccept}
-                        </p>
-                      </div>
-
-                      <div className="flex justify-end gap-2 px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700">
-                        <button
-                          onClick={() => setShowAcceptDialog(false)}
-                          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 transition-colors"
-                        >
-                          {content.cancel}
-                        </button>
-                        <button
-                          onClick={handleAccept}
-                          className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors disabled:opacity-50"
-                          disabled={isUpdating}
-                        >
-                          {isUpdating ? content.processing : content.accept}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Reject Dialog */}
-                  <div
-                    className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${
-                      showRejectDialog ? "block" : "hidden"
-                    }`}
-                  >
-                    <div
-                      className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-                      onClick={() => setShowRejectDialog(false)}
-                    />
-
-                    <div className="relative z-50 w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                      <div className="p-6">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {content.rejectSubmission}
-                        </h3>
-                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                          {content.confirmReject}
-                        </p>
-
-                        <div className="mt-4">
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            {content.rejectionReason}
-                          </label>
-                          <textarea
-                            className="w-full p-2 text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                            placeholder={content.rejectionReasonPlaceholder}
-                            value={reviewNote}
-                            onChange={(e) => setReviewNote(e.target.value)}
-                            rows={3}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end gap-2 px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700">
-                        <button
-                          onClick={() => setShowRejectDialog(false)}
-                          className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 transition-colors"
-                        >
-                          {content.cancel}
-                        </button>
-                        <button
-                          onClick={handleReject}
-                          disabled={isUpdating || !reviewNote.trim()}
-                          className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors disabled:opacity-50"
-                        >
-                          {isUpdating ? content.processing : content.reject}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Buttons to trigger dialogs */}
-                  <button
-                    onClick={() => setShowAcceptDialog(true)}
-                    className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors disabled:opacity-50"
-                    disabled={isUpdating}
-                  >
-                    {isUpdating ? content.processing : content.accept}
-                  </button>
-
-                  <button
-                    onClick={() => setShowRejectDialog(true)}
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors disabled:opacity-50"
-                    disabled={isUpdating}
-                  >
-                    {isUpdating ? content.processing : content.reject}
-                  </button>
-                </div>
+                ))}
               </div>
             )}
           </CardContent>

@@ -237,6 +237,16 @@ const ProjectDetailPage = () => {
     );
   };
 
+  // Helper: get this user's personal submission status for a task
+  const getMySubmissionStatus = (task) => {
+    if (!task.memberSubmissions || task.memberSubmissions.length === 0)
+      return task.status;
+    const mySub = task.memberSubmissions.find(
+      (s) => (s.userId?._id || s.userId)?.toString() === userId?.toString(),
+    );
+    return mySub ? mySub.status : task.status;
+  };
+
   const filteredTasks = tasks?.filter((task) => {
     // 1. Basic permission filtering
     const hasPermission = isLeader
@@ -248,14 +258,22 @@ const ProjectDetailPage = () => {
 
     // 2. Tab filtering
     if (taskFilter === "current") {
+      // For members: a task is "current" unless THEIR own submission was accepted
+      const effectiveStatus = isLeader
+        ? task.status
+        : getMySubmissionStatus(task);
       return (
-        task.status !== "completed" &&
-        task.status !== "finished" &&
-        task.status !== "rejected"
+        effectiveStatus !== "completed" &&
+        effectiveStatus !== "finished" &&
+        effectiveStatus !== "rejected"
       );
     }
     if (taskFilter === "completed") {
-      return task.status === "completed" || task.status === "finished";
+      // For members: show as completed if THEIR submission is accepted
+      const effectiveStatus = isLeader
+        ? task.status
+        : getMySubmissionStatus(task);
+      return effectiveStatus === "completed" || effectiveStatus === "finished";
     }
     return true; // "all"
   });
@@ -775,24 +793,51 @@ const ProjectDetailPage = () => {
                                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white truncate shrink">
                                   {task.title}
                                 </h4>
-                                <Badge
-                                  variant="outline"
-                                  className={`text-[10px] px-2 py-0.5 whitespace-nowrap font-medium shrink-0 ${
-                                    task.status === "completed"
-                                      ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800"
-                                      : task.status === "rejected"
-                                        ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800"
-                                        : task.status === "submitted"
-                                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800"
-                                          : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800"
-                                  }`}
-                                >
-                                  {taskStatusContent[
-                                    task.status === "in-progress"
-                                      ? "inProgress"
-                                      : task.status
-                                  ] || task.status}
-                                </Badge>
+                                {/* Status badge – show member's own status, or overall for leader */}
+                                {(() => {
+                                  const displayStatus = isLeader
+                                    ? task.status
+                                    : getMySubmissionStatus(task);
+                                  const isShared =
+                                    (task.assignedTo || []).length > 1;
+                                  // Progress for leaders on shared tasks
+                                  const acceptedCount =
+                                    isLeader && isShared
+                                      ? (task.memberSubmissions || []).filter(
+                                          (s) => s.status === "completed",
+                                        ).length
+                                      : null;
+                                  return (
+                                    <div className="flex items-center gap-1 shrink-0">
+                                      {isLeader &&
+                                        isShared &&
+                                        acceptedCount !== null && (
+                                          <span className="text-[9px] text-gray-500 dark:text-gray-400 font-medium">
+                                            {acceptedCount}/
+                                            {(task.assignedTo || []).length}
+                                          </span>
+                                        )}
+                                      <Badge
+                                        variant="outline"
+                                        className={`text-[10px] px-2 py-0.5 whitespace-nowrap font-medium ${
+                                          displayStatus === "completed"
+                                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800"
+                                            : displayStatus === "rejected"
+                                              ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800"
+                                              : displayStatus === "submitted"
+                                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800"
+                                                : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+                                        }`}
+                                      >
+                                        {taskStatusContent[
+                                          displayStatus === "in-progress"
+                                            ? "inProgress"
+                                            : displayStatus
+                                        ] || displayStatus}
+                                      </Badge>
+                                    </div>
+                                  );
+                                })()}
                               </div>
                               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2 break-words">
                                 {task.description ||

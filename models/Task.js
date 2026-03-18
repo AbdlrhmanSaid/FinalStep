@@ -1,5 +1,60 @@
 import mongoose, { Schema, model, models } from "mongoose";
 
+const MemberSubmissionSchema = new Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+    links: [
+      {
+        type: String,
+        trim: true,
+        validate: {
+          validator: function (v) {
+            try {
+              new URL(v);
+              return true;
+            } catch {
+              return false;
+            }
+          },
+          message: (props) => `${props.value} is not a valid URL!`,
+        },
+      },
+    ],
+    submittedAt: {
+      type: Date,
+      default: null,
+    },
+    status: {
+      type: String,
+      enum: ["open", "submitted", "completed", "rejected"],
+      default: "open",
+    },
+    review: {
+      reviewedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      reviewedAt: {
+        type: Date,
+        default: null,
+      },
+      note: {
+        type: String,
+        trim: true,
+      },
+    },
+  },
+  { _id: true },
+);
+
 const TaskSchema = new Schema(
   {
     title: {
@@ -28,6 +83,11 @@ const TaskSchema = new Schema(
       ref: "User",
       required: true,
     },
+    // Overall task status - auto-computed:
+    // "open"      → at least one member hasn't submitted yet
+    // "submitted" → at least one member submitted (but not all accepted)
+    // "completed" → ALL members' submissions accepted
+    // "rejected"  → kept for backward compat / single-member tasks
     status: {
       type: String,
       enum: ["open", "submitted", "rejected", "completed"],
@@ -43,6 +103,9 @@ const TaskSchema = new Schema(
       enum: ["low", "medium", "high"],
       default: "medium",
     },
+    // Per-member submissions (replaces the single submission/review fields)
+    memberSubmissions: [MemberSubmissionSchema],
+    // Legacy single submission kept for backward compatibility
     submission: {
       description: {
         type: String,
@@ -52,17 +115,6 @@ const TaskSchema = new Schema(
         {
           type: String,
           trim: true,
-          validate: {
-            validator: function (v) {
-              try {
-                new URL(v);
-                return true;
-              } catch {
-                return false;
-              }
-            },
-            message: (props) => `${props.value} is not a valid URL!`,
-          },
         },
       ],
       submittedAt: {

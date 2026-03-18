@@ -32,14 +32,6 @@ export default function ProjectsList() {
     sort: "newest",
   });
 
-  const calculateProjectProgress = (project) => {
-    if (!project.tasks || project.tasks.length === 0) return 0;
-    const completedTasks = project.tasks.filter(
-      (task) => task.status === "completed",
-    ).length;
-    return Math.round((completedTasks / project.tasks.length) * 100);
-  };
-
   const leadingProjects = data?.filter(
     (proj) =>
       proj.leaderId?._id === userId ||
@@ -65,7 +57,6 @@ export default function ProjectsList() {
       );
     }
 
-    // تطبيق فلتر الحالة
     if (filters.status !== "all") {
       filtered = filtered.filter((project) => {
         if (filters.status === "open") return project.status !== "finished";
@@ -235,7 +226,7 @@ export default function ProjectsList() {
           dir={isRTL ? "rtl" : "ltr"}
         >
           {/* Tabs List */}
-          <TabsList className="grid grid-cols-2 w-full h-full max-w-2xl mx-auto mb-8 bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 gap-2">
+          <TabsList className="grid grid-cols-1 md:grid-cols-2 w-full h-full max-w-2xl mx-auto mb-8 bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 gap-2">
             <TabsTrigger
               value="leading"
               className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-gray-100 dark:hover:bg-gray-700"
