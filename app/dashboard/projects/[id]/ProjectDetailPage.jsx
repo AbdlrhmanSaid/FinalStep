@@ -880,6 +880,35 @@ const ProjectDetailPage = () => {
                                 {task.description ||
                                   (isRTL ? "لا يوجد وصف." : "No description.")}
                               </p>
+
+                              {/* Assigned Members Section */}
+                              {task.assignedTo?.length > 0 && (
+                                <div className="mt-3 flex flex-wrap items-center gap-2">
+                                  <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">
+                                    {isRTL ? "المكلفين:" : "Assigned:"}
+                                  </span>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {task.assignedTo.map((user, idx) => {
+                                      const displayName =
+                                        user.name && user.name !== "null null"
+                                          ? user.name
+                                          : user.email
+                                              ?.split("@")[0]
+                                              .replace(/[0-9]/g, "") || "?";
+                                      return (
+                                        <Badge
+                                          key={user._id || idx}
+                                          variant="secondary"
+                                          className="text-[10px] px-2 py-0 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-800"
+                                        >
+                                          {displayName}
+                                        </Badge>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+
                               {/* Task Due Date Badge */}
                               <TaskDueBadge
                                 dueDate={task.dueDate}

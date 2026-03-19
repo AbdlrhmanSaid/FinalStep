@@ -168,6 +168,33 @@ const TasksClient = () => {
                         {task.description}
                       </p>
 
+                      {/* Assigned members (for shared tasks) */}
+                      {task.assignedTo?.length > 1 && (
+                        <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                          <span className="text-[10px] text-gray-500 dark:text-gray-400 font-bold tracking-wide">
+                            {isRTL ? "مع:" : "With:"}
+                          </span>
+                          <div className="flex flex-wrap gap-1">
+                            {task.assignedTo.map((user, idx) => {
+                              // Only show others
+                              if ((user._id || user) === userId) return null;
+                              
+                              const displayName = user.name && user.name !== "null null" 
+                                ? user.name 
+                                : user.email?.split("@")[0].replace(/[0-9]/g, "") || "?";
+                              return (
+                                <span 
+                                  key={user._id || idx}
+                                  className="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                                >
+                                  {displayName}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Deadline badge */}
                       {task.dueDate &&
                         (() => {

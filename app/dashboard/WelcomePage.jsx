@@ -399,6 +399,24 @@ export default function WelcomePage() {
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 line-clamp-1">
                       {task.description}
                     </p>
+                    {/* Assigned Members */}
+                    {task.assignedTo?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-1">
+                        {task.assignedTo.map((user, idx) => {
+                          const displayName = user.name && user.name !== "null null" 
+                            ? user.name 
+                            : user.email?.split("@")[0].replace(/[0-9]/g, "") || "?";
+                          return (
+                            <span 
+                              key={user._id || idx}
+                              className="inline-flex items-center text-[10px] px-1.5 py-0 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                            >
+                              {displayName}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

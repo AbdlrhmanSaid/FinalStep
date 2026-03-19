@@ -200,15 +200,15 @@ function MemberSubmissionCard({
     >
       {/* Header */}
       <button
-        className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors"
+        className="w-full flex flex-col sm:flex-row sm:items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors gap-3"
         onClick={() => setExpanded((v) => !v)}
       >
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shrink-0">
             <User className="w-4 h-4 text-white" />
           </div>
-          <div className="text-start">
-            <p className="font-semibold text-gray-800 dark:text-white text-sm">
+          <div className="text-start min-w-0">
+            <p className="font-semibold text-gray-800 dark:text-white text-sm truncate">
               {displayName}
               {isCurrentUser && (
                 <span className="ml-2 text-xs text-blue-500">
@@ -219,9 +219,9 @@ function MemberSubmissionCard({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
           <span
-            className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${badge.cls}`}
+            className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${badge.cls} whitespace-nowrap`}
           >
             {badge.icon}
             {badge.label}
@@ -512,11 +512,11 @@ const TaskDetailPage = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-xl p-0 overflow-hidden">
-          <CardHeader className="bg-gray-100 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1 flex items-center gap-2">
-                  {task.title}
+          <CardHeader className="bg-gray-100 dark:bg-gray-700 px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+              <div className="w-full sm:w-auto">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-1 flex items-center gap-2 flex-wrap">
+                  <span className="break-words">{task.title}</span>
                   <button
                     onClick={() => refetch()}
                     disabled={isFetching}
@@ -536,20 +536,20 @@ const TaskDetailPage = () => {
                 </p>
               </div>
               <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(task.status)}`}
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusStyle(task.status)}`}
               >
                 {content.status[task.status] || task.status}
               </span>
             </div>
           </CardHeader>
 
-          <CardContent className="p-6 space-y-6">
+          <CardContent className="p-4 sm:p-6 space-y-6">
             {/* Description */}
             <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
                 {content.description}
               </h3>
-              <p className="text-gray-700 dark:text-gray-300 pl-2 whitespace-pre-wrap break-words">
+              <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 pl-2 whitespace-pre-wrap break-words">
                 {task.description || (
                   <span className="italic text-gray-500">
                     {content.noDescription}
@@ -565,7 +565,7 @@ const TaskDetailPage = () => {
                     href={task.referenceLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-500 hover:text-blue-700 dark:text-blue-400 underline break-all text-sm"
+                    className="text-blue-500 hover:text-blue-700 dark:text-blue-400 underline break-all text-sm block"
                   >
                     {task.referenceLink}
                   </a>
@@ -574,24 +574,24 @@ const TaskDetailPage = () => {
             </div>
 
             {/* Info grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
                   {content.projectInfo}
                 </h3>
-                <p className="text-gray-700 dark:text-gray-300">
+                <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
                   {content.project}:{" "}
                   <span className="text-blue-600 dark:text-blue-400 font-medium">
                     {task.projectId?.title || "N/A"}
                   </span>
                 </p>
-                <p className="text-gray-700 dark:text-gray-300">
+                <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
                   {content.priority}:{" "}
                   <span className={getPriorityStyle(task.priority)}>
                     {content.priorityLevels[task.priority] || task.priority}
                   </span>
                 </p>
-                <p className="text-gray-700 dark:text-gray-300">
+                <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
                   {content.requirement}:{" "}
                   <span className="font-medium text-blue-600 dark:text-blue-400">
                     {task.submissionMethod === "text"
@@ -604,10 +604,10 @@ const TaskDetailPage = () => {
 
                 {task.submissionDescription && (
                   <div className="mt-3 p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-900/30">
-                    <h4 className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1">
+                    <h4 className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1">
                       {content.submissionInstructions}
                     </h4>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
                       {task.submissionDescription}
                     </p>
                   </div>
@@ -629,7 +629,7 @@ const TaskDetailPage = () => {
                         return (
                           <span
                             key={user._id || Math.random().toString()}
-                            className="inline-flex items-center px-2.5 py-1 rounded-md text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                            className="inline-flex items-center px-2.5 py-1 rounded-md text-xs sm:text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
                           >
                             {displayName}
                           </span>
@@ -644,14 +644,14 @@ const TaskDetailPage = () => {
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
                   {content.timeline}
                 </h3>
-                <p className="text-gray-700 dark:text-gray-300">
+                <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
                   {content.created}:{" "}
                   {format(new Date(task.createdAt), "PPPp", {
                     locale: dateLocale,
                   })}
                 </p>
                 {task.updatedAt && (
-                  <p className="text-gray-700 dark:text-gray-300">
+                  <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
                     {content.updated}:{" "}
                     {format(new Date(task.updatedAt), "PPPp", {
                       locale: dateLocale,
@@ -660,20 +660,22 @@ const TaskDetailPage = () => {
                 )}
                 {task.dueDate && (
                   <p
-                    className={`font-medium flex items-center gap-1 ${
+                    className={`text-sm sm:text-base font-medium flex items-center gap-1 flex-wrap ${
                       new Date(task.dueDate) < new Date() &&
                       task.status !== "completed"
                         ? "text-red-600 dark:text-red-400"
                         : "text-orange-600 dark:text-orange-400"
                     }`}
                   >
-                    ⏰ {content.dueDate}:{" "}
-                    {format(new Date(task.dueDate), "PPP", {
-                      locale: dateLocale,
-                    })}
+                    <span>⏰ {content.dueDate}:</span>
+                    <span>
+                      {format(new Date(task.dueDate), "PPP", {
+                        locale: dateLocale,
+                      })}
+                    </span>
                     {new Date(task.dueDate) < new Date() &&
                       task.status !== "completed" && (
-                        <span className="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full whitespace-nowrap">
                           {content.overdue}
                         </span>
                       )}
@@ -684,9 +686,9 @@ const TaskDetailPage = () => {
 
             {/* ── Member Submissions section ───────────────────────────── */}
             {mergedSubmissions.length > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-3 pt-4">
                 {/* Header with progress for shared tasks */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
                     {isSharedTask
                       ? isRTL
@@ -699,7 +701,7 @@ const TaskDetailPage = () => {
 
                   {isSharedTask && (
                     <div className="flex items-center gap-2">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
                         {completedCount}/{totalCount}{" "}
                         {isRTL ? "مقبول" : "accepted"}
                       </div>
@@ -716,29 +718,31 @@ const TaskDetailPage = () => {
                 </div>
 
                 {/* Per-member cards */}
-                {mergedSubmissions.map((memberSub, idx) => (
-                  <MemberSubmissionCard
-                    key={
-                      memberSub.userId?._id ||
-                      memberSub.userId?.toString() ||
-                      idx
-                    }
-                    memberSub={memberSub}
-                    isCurrentUser={
-                      (
-                        memberSub.userId?._id || memberSub.userId
-                      )?.toString() === userId?.toString()
-                    }
-                    isProjectLeader={isProjectLeader}
-                    taskId={id}
-                    userId={userId}
-                    content={content}
-                    isRTL={isRTL}
-                    dateLocale={dateLocale}
-                    onRefetch={refetch}
-                    submissionMethod={task.submissionMethod}
-                  />
-                ))}
+                <div className="space-y-3">
+                  {mergedSubmissions.map((memberSub, idx) => (
+                    <MemberSubmissionCard
+                      key={
+                        memberSub.userId?._id ||
+                        memberSub.userId?.toString() ||
+                        idx
+                      }
+                      memberSub={memberSub}
+                      isCurrentUser={
+                        (
+                          memberSub.userId?._id || memberSub.userId
+                        )?.toString() === userId?.toString()
+                      }
+                      isProjectLeader={isProjectLeader}
+                      taskId={id}
+                      userId={userId}
+                      content={content}
+                      isRTL={isRTL}
+                      dateLocale={dateLocale}
+                      onRefetch={refetch}
+                      submissionMethod={task.submissionMethod}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </CardContent>
