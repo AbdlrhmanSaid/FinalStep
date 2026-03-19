@@ -39,6 +39,8 @@ export default function CreateTaskPage() {
     dueDate: "",
     referenceLink: "",
     assignedTo: [],
+    submissionMethod: "both",
+    submissionDescription: "",
   });
 
   const handleChange = (e) => {
@@ -181,6 +183,44 @@ export default function CreateTaskPage() {
                   {content.priorityHigh}
                 </option>
               </select>
+            </div>
+
+            {/* Submission Method */}
+            <div className="w-full">
+              <label
+                htmlFor="submissionMethod"
+                className="text-sm font-medium block mb-2"
+              >
+                {content.submissionMethod}
+              </label>
+              <select
+                id="submissionMethod"
+                name="submissionMethod"
+                value={form.submissionMethod}
+                onChange={(e) =>
+                  setForm({ ...form, submissionMethod: e.target.value })
+                }
+                className="w-full h-11 px-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="both">{content.methodBoth}</option>
+                <option value="text">{content.methodText}</option>
+                <option value="link">{content.methodLink}</option>
+              </select>
+            </div>
+
+            {/* Submission Description */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                {content.submissionDescriptionLabel}
+              </Label>
+              <Textarea
+                name="submissionDescription"
+                value={form.submissionDescription}
+                onChange={handleChange}
+                rows={3}
+                placeholder={content.submissionDescriptionPlaceholder}
+                className="mt-1 min-h-[80px]"
+              />
             </div>
 
             {/* Due Date */}

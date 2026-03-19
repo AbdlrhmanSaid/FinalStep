@@ -82,6 +82,7 @@ function MemberSubmissionCard({
   isRTL,
   dateLocale,
   onRefetch,
+  submissionMethod = "both",
 }) {
   const [expanded, setExpanded] = useState(isCurrentUser);
   const [showSubmitForm, setShowSubmitForm] = useState(false);
@@ -118,7 +119,7 @@ function MemberSubmissionCard({
   };
 
   const handleSubmit = () => {
-    if (!submissionDesc.trim()) {
+    if (submissionMethod !== "link" && !submissionDesc.trim()) {
       toast.error(content.provideDescription);
       return;
     }
@@ -126,10 +127,21 @@ function MemberSubmissionCard({
       .split(",")
       .map((l) => l.trim())
       .filter((l) => l);
-    const badLinks = links.filter((l) => !isValidUrl(l));
-    if (badLinks.length > 0) {
-      toast.error(`${content.invalidUrls}: ${badLinks.join(", ")}`);
-      return;
+
+    if (submissionMethod !== "text") {
+      if (links.length === 0) {
+        toast.error(
+          isRTL
+            ? "يرجى تقديم رابط واحد على الأقل"
+            : "Please provide at least one link",
+        );
+        return;
+      }
+      const badLinks = links.filter((l) => !isValidUrl(l));
+      if (badLinks.length > 0) {
+        toast.error(`${content.invalidUrls}: ${badLinks.join(", ")}`);
+        return;
+      }
     }
     memberSubmit(
       {
@@ -303,33 +315,37 @@ function MemberSubmissionCard({
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      {content.submissionDescription}
-                    </label>
-                    <textarea
-                      rows={3}
-                      className="w-full p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
-                      placeholder={content.describeWork}
-                      value={submissionDesc}
-                      onChange={(e) => setSubmissionDesc(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      {content.submissionLinks}
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
-                      placeholder={content.linksPlaceholder}
-                      value={submissionLinks}
-                      onChange={(e) => setSubmissionLinks(e.target.value)}
-                    />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {content.enterValidUrls}
-                    </p>
-                  </div>
+                  {submissionMethod !== "link" && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        {content.submissionDescription}
+                      </label>
+                      <textarea
+                        rows={3}
+                        className="w-full p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
+                        placeholder={content.describeWork}
+                        value={submissionDesc}
+                        onChange={(e) => setSubmissionDesc(e.target.value)}
+                      />
+                    </div>
+                  )}
+                  {submissionMethod !== "text" && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        {content.submissionLinks}
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
+                        placeholder={content.linksPlaceholder}
+                        value={submissionLinks}
+                        onChange={(e) => setSubmissionLinks(e.target.value)}
+                      />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {content.enterValidUrls}
+                      </p>
+                    </div>
+                  )}
                   <div className="flex justify-end gap-2">
                     <Button
                       variant="outline"
@@ -575,6 +591,27 @@ const TaskDetailPage = () => {
                     {content.priorityLevels[task.priority] || task.priority}
                   </span>
                 </p>
+                <p className="text-gray-700 dark:text-gray-300">
+                  {content.requirement}:{" "}
+                  <span className="font-medium text-blue-600 dark:text-blue-400">
+                    {task.submissionMethod === "text"
+                      ? content.methodText
+                      : task.submissionMethod === "link"
+                        ? content.methodLink
+                        : content.methodBoth}
+                  </span>
+                </p>
+
+                {task.submissionDescription && (
+                  <div className="mt-3 p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-900/30">
+                    <h4 className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1">
+                      {content.submissionInstructions}
+                    </h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                      {task.submissionDescription}
+                    </p>
+                  </div>
+                )}
 
                 {task.assignedTo?.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
@@ -699,6 +736,7 @@ const TaskDetailPage = () => {
                     isRTL={isRTL}
                     dateLocale={dateLocale}
                     onRefetch={refetch}
+                    submissionMethod={task.submissionMethod}
                   />
                 ))}
               </div>

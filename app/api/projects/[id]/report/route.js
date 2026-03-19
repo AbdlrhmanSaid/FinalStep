@@ -51,6 +51,7 @@ export async function GET(req, { params }) {
         priority: task.priority,
         dueDate: task.dueDate,
         isOverdue,
+        submissionMethod: task.submissionMethod,
         assignedTo: task.assignedTo.map(formatName),
       };
     });

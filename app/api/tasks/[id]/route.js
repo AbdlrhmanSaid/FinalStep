@@ -92,28 +92,39 @@ export async function PUT(request, { params }) {
     if (body.action === "member_submit") {
       const { submittingUserId, submission } = body;
 
-      if (!submission?.description?.trim()) {
+      if (
+        task.submissionMethod !== "link" &&
+        !submission?.description?.trim()
+      ) {
         return NextResponse.json(
           { error: "Submission requires description" },
           { status: 400 },
         );
       }
 
-      // Validate links
+      // Validate links if method is link or both
       const links = submission.links || [];
-      const invalidLinks = links.filter((link) => {
-        try {
-          new URL(link);
-          return false;
-        } catch {
-          return true;
+      if (task.submissionMethod !== "text") {
+        if (links.length === 0) {
+          return NextResponse.json(
+            { error: "Submission requires at least one link" },
+            { status: 400 },
+          );
         }
-      });
-      if (invalidLinks.length > 0) {
-        return NextResponse.json(
-          { error: `Invalid URLs: ${invalidLinks.join(", ")}` },
-          { status: 400 },
-        );
+        const invalidLinks = links.filter((link) => {
+          try {
+            new URL(link);
+            return false;
+          } catch {
+            return true;
+          }
+        });
+        if (invalidLinks.length > 0) {
+          return NextResponse.json(
+            { error: `Invalid URLs: ${invalidLinks.join(", ")}` },
+            { status: 400 },
+          );
+        }
       }
 
       // Ensure the task has memberSubmissions initialised for all assignedTo
@@ -257,6 +268,8 @@ export async function PUT(request, { params }) {
         "priority",
         "dueDate",
         "referenceLink",
+        "submissionMethod",
+        "submissionDescription",
       ];
       allowedFields.forEach((f) => {
         if (body[f] !== undefined) task[f] = body[f];
@@ -274,6 +287,8 @@ export async function PUT(request, { params }) {
       "priority",
       "dueDate",
       "referenceLink",
+      "submissionMethod",
+      "submissionDescription",
     ];
     allowedFields.forEach((f) => {
       if (body[f] !== undefined) task[f] = body[f];

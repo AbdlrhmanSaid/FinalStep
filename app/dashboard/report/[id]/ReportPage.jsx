@@ -182,6 +182,18 @@ const ReportPage = () => {
                     <span className={`priority ${task.priority}`}>
                       {content.priority}: {getPriorityLabel(task.priority)}
                     </span>
+                    <span className="submission-method">
+                      {translations[language].dashboard.taskDetails.requirement}
+                      :{" "}
+                      {task.submissionMethod === "text"
+                        ? translations[language].dashboard.taskDetails
+                            .methodText
+                        : task.submissionMethod === "link"
+                          ? translations[language].dashboard.taskDetails
+                              .methodLink
+                          : translations[language].dashboard.taskDetails
+                              .methodBoth}
+                    </span>
                     {task.assignedTo?.length > 0 && (
                       <span className="assigned-to">
                         {content.assignedTo}:{" "}

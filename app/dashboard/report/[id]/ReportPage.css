@@ -227,6 +227,15 @@
   color: #4b5563;
 }
 
+.submission-method {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.65rem;
+  color: #4b5563;
+  border-radius: 9999px;
+  background-color: #f3f4f6;
+  font-weight: 500;
+}
+
 .assigned-to {
   padding: 0.15rem 0.4rem;
   font-size: 0.7rem;

@@ -103,6 +103,16 @@ const TaskSchema = new Schema(
       enum: ["low", "medium", "high"],
       default: "medium",
     },
+    submissionMethod: {
+      type: String,
+      enum: ["text", "link", "both"],
+      default: "both",
+    },
+    submissionDescription: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     // Per-member submissions (replaces the single submission/review fields)
     memberSubmissions: [MemberSubmissionSchema],
     // Legacy single submission kept for backward compatibility
