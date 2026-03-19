@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import dbConnect from "../../../lib/db";
-import User from "../../../models/User";
-import Project from "../../../models/Project";
+import dbConnect from "@/lib/db";
+import User from "@/models/User";
+import Project from "@/models/Project";
 
 export async function GET(request) {
   try {

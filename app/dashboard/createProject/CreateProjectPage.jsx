@@ -1,8 +1,8 @@
 "use client";
 import ProjectForm from "./ProjectForm";
-import { useAddProject } from "../../../hooks/projects/useAddProject";
-import { useAppContext } from "../../../contexts/AppContext";
-import { translations } from "../../../lib/translations";
+import { useAddProject } from "@/hooks/projects/useAddProject";
+import { useAppContext } from "@/contexts/AppContext";
+import { translations } from "@/lib/translations";
 import toast from "react-hot-toast";
 
 export default function CreateProjectPage() {

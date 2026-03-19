@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useUpdateCurrentUser } from "../../../hooks/users/useUpdateCurrentUser";
-import { Button } from "../../../components/ui/button";
-import { useAppContext } from "../../../contexts/AppContext";
+import { useUpdateCurrentUser } from "@/hooks/users/useUpdateCurrentUser";
+import { Button } from "@/components/ui/button";
+import { useAppContext } from "@/contexts/AppContext";
 import { Mail, User, Edit, Briefcase, X, Check } from "lucide-react";
-import { translations } from "../../../lib/translations";
+import { translations } from "@/lib/translations";
 import toast from "react-hot-toast";
 
 const UserForm = ({ name, userId, email, title: initialTitle }) => {

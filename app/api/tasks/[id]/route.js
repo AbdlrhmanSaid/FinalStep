@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import dbConnect from "../../../../lib/db";
-import Task from "../../../../models/Task";
-import Project from "../../../../models/Project";
+import dbConnect from "@/lib/db";
+import Task from "@/models/Task";
+import Project from "@/models/Project";
 
 export async function GET(request, { params }) {
   try {

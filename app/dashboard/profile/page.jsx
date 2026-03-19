@@ -1,4 +1,4 @@
-import { getFullUserOrRedirect } from "../../../lib/getFullUser";
+import { getFullUserOrRedirect } from "@/lib/getFullUser";
 import { redirect } from "next/navigation";
 
 // Redirect to the unified profile page (/dashboard/user/[id])

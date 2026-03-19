@@ -1,9 +1,9 @@
 import React from "react";
-import { getFullUserOrRedirect } from "../../lib/getFullUser";
-import QueryProvider from "../../lib/queryProvider";
-import { AppProvider } from "../../contexts/AppContext";
-import Navbar from "./components/Navbar";
-import DashboardFooter from "./components/DashboardFooter";
+import { getFullUserOrRedirect } from "@/lib/getFullUser";
+import QueryProvider from "@/lib/queryProvider";
+import { AppProvider } from "@/contexts/AppContext";
+import Navbar from "@/app/dashboard/components/Navbar";
+import DashboardFooter from "@/app/dashboard/components/DashboardFooter";
 
 export const metadata = {
   title: "FinalStep Dashboard",

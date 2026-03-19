@@ -11,11 +11,11 @@ import { toast } from "react-hot-toast";
 import {
   useGetProject,
   useDeleteProject,
-} from "../../../../hooks/projects/useGetProjects";
-import { useAppContext } from "../../../../contexts/AppContext";
-import { translations } from "../../../../lib/translations";
-import Loading from "../../../../components/Loading";
-import { Button } from "../../../../components/ui/button";
+} from "@/hooks/projects/useGetProjects";
+import { useAppContext } from "@/contexts/AppContext";
+import { translations } from "@/lib/translations";
+import Loading from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -49,14 +49,14 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { useLeaveProject } from "../../../../hooks/invitations/useLeaveProject";
-import { useUpdateProjectStatus } from "../../../../hooks/projects/useUpdateProjectStatus";
-import { useGetTasks, useDeleteTask } from "../../../../hooks/tasks/useTasks";
+import { useLeaveProject } from "@/hooks/invitations/useLeaveProject";
+import { useUpdateProjectStatus } from "@/hooks/projects/useUpdateProjectStatus";
+import { useGetTasks, useDeleteTask } from "@/hooks/tasks/useTasks";
 import {
   useJoinProject,
   useRespondJoinProject,
-} from "../../../../hooks/projects/useJoinProject";
-import { useUpdateMemberTitle } from "../../../../hooks/projects/useUpdateMemberTitle";
+} from "@/hooks/projects/useJoinProject";
+import { useUpdateMemberTitle } from "@/hooks/projects/useUpdateMemberTitle";
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
@@ -131,6 +131,12 @@ const ProjectDetailPage = () => {
     if (!data || !userId) return;
 
     const uid = userId.toString();
+
+    // Reset all states
+    setIsLeader(false);
+    setIsMember(false);
+    setIsRandomUser(false);
+
     if (
       data.leaderId?._id === uid ||
       data.coLeaders?.some((u) => u._id === uid)
@@ -140,9 +146,9 @@ const ProjectDetailPage = () => {
       setIsMember(true);
     } else {
       setIsRandomUser(true);
-      if (!data.public && !isInvite) redirect("/dashboard/projects");
+      if (!data.public && !isInvite) router.push("/dashboard/projects");
     }
-  }, [data, userId, isInvite]);
+  }, [data, userId, isInvite, router]);
 
   if (isLoading || !data) return <Loading />;
   if (error)
@@ -326,6 +332,37 @@ const ProjectDetailPage = () => {
             </div>
           </CardHeader>
         </Card>
+
+        {/* Top Join Project Button for Random Users */}
+        {isRandomUser && (data.public || isInvite) && !isFinished && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-6 rounded-xl flex flex-col items-center text-center gap-4 shadow-sm">
+            <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
+              <Users className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 dark:text-white">
+                {isRTL ? "انضم إلى هذا المشروع" : "Join this project"}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md">
+                {isRTL
+                  ? "يبدو أنك لست عضواً في هذا المشروع بعد. انضم الآن للبدء في المساهمة!"
+                  : "It looks like you're not a member of this project yet. Join now to start contributing!"}
+              </p>
+            </div>
+            <Button
+              onClick={handleJoinProject}
+              disabled={hasRequestedJoin || isJoining}
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 px-6 py-4 font-bold rounded-xl transition-all h-auto"
+            >
+              {hasRequestedJoin ? (
+                <Clock className="w-5 h-5" />
+              ) : (
+                <Plus className="w-5 h-5" />
+              )}
+              {hasRequestedJoin ? content.joinRequested : content.joinProject}
+            </Button>
+          </div>
+        )}
 
         {/* Details Section */}
         <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800 shadow-sm">
@@ -1126,26 +1163,6 @@ const ProjectDetailPage = () => {
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                )}
-
-                {/* Join Project Button */}
-                {isRandomUser && (data.public || isInvite) && !isFinished && (
-                  <Button
-                    onClick={handleJoinProject}
-                    disabled={hasRequestedJoin || isJoining}
-                    className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2 shadow-sm transition-all ml-auto rtl:mr-auto rtl:ml-0"
-                  >
-                    {hasRequestedJoin ? (
-                      <Clock className="w-4 h-4 shrink-0" />
-                    ) : (
-                      <Plus className="w-4 h-4 shrink-0" />
-                    )}
-                    <span className="truncate">
-                      {hasRequestedJoin
-                        ? content.joinRequested
-                        : content.joinProject}
-                    </span>
-                  </Button>
                 )}
               </div>
             </div>

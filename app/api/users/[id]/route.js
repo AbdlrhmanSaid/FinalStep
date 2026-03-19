@@ -1,14 +1,14 @@
-import dbConnect from "../../../../lib/db";
-import User from "../../../../models/User";
-import Task from "../../../../models/Task";
-import Project from "../../../../models/Project";
+import dbConnect from "@/lib/db";
+import User from "@/models/User";
+import Task from "@/models/Task";
+import Project from "@/models/Project";
 import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
 // Register models needed for populate
-import "../../../../models/Project";
-import "../../../../models/Task";
+import "@/models/Project";
+import "@/models/Task";
 
 export async function GET(request, { params }) {
   try {

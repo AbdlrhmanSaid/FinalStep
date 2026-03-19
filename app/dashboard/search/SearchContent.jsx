@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearch } from "../../../hooks/search/useSearch";
-import { useAppContext } from "../../../contexts/AppContext";
-import { translations } from "../../../lib/translations";
-import ProjectCard from "../components/ProjectCard";
+import { useSearch } from "@/hooks/search/useSearch";
+import { useAppContext } from "@/contexts/AppContext";
+import { translations } from "@/lib/translations";
+import ProjectCard from "@/app/dashboard/components/ProjectCard";
 import Link from "next/link";
-import Loading from "../../../components/Loading";
+import Loading from "@/components/Loading";
 import { Search, Users, Folder, AlertCircle, RefreshCw } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useDebounce } from "../../../hooks/useDebounce";
+import { useDebounce } from "@/hooks/useDebounce";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 

@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import Loading from "../../../../components/Loading";
+import Loading from "@/components/Loading";
 
 const ProjectDetailPage = dynamic(() => import("./ProjectDetailPage"), {
   loading: () => (

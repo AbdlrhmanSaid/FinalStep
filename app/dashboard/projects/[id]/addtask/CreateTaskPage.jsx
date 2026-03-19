@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useAppContext } from "../../../../../contexts/AppContext";
-import { translations } from "../../../../../lib/translations";
-import { useGetProject } from "../../../../../hooks/projects/useGetProjects";
-import { useCreateTask } from "../../../../../hooks/tasks/useTasks";
+import { useAppContext } from "@/contexts/AppContext";
+import { translations } from "@/lib/translations";
+import { useGetProject } from "@/hooks/projects/useGetProjects";
+import { useCreateTask } from "@/hooks/tasks/useTasks";
 import { useParams, useRouter } from "next/navigation";
-import CheckUserRole from "../../../../../lib/actions/checkUserRole";
-import Loading from "../../../../../components/Loading";
-import DatePicker from "../../../../../components/ui/DatePicker";
+import CheckUserRole from "@/lib/actions/checkUserRole";
+import Loading from "@/components/Loading";
+import DatePicker from "@/components/ui/DatePicker";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

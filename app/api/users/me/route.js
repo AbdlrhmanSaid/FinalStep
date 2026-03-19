@@ -1,5 +1,5 @@
-import dbConnect from "../../../../lib/db";
-import User from "../../../../models/User";
+import dbConnect from "@/lib/db";
+import User from "@/models/User";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
@@ -36,7 +36,6 @@ export async function PUT(request) {
     const userId = request.headers.get("userId");
     const body = await request.json();
 
-
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return NextResponse.json(
         { error: "Invalid or missing userId" },
@@ -60,14 +59,12 @@ export async function PUT(request) {
     ];
     protectedFields.forEach((field) => delete body[field]);
 
-
     // Use explicit $set to ensure Mongoose updates the fields correctly
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { $set: body },
       { new: true },
     );
-
 
     return NextResponse.json(updatedUser, { status: 200 });
   } catch (error) {

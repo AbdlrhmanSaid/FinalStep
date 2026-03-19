@@ -6,14 +6,14 @@ import {
   useGetTask,
   useMemberSubmit,
   useReviewMemberSubmission,
-} from "../../../../hooks/tasks/useTasks";
-import { translations } from "../../../../lib/translations";
+} from "@/hooks/tasks/useTasks";
+import { translations } from "@/lib/translations";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { format, isBefore, isToday } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
-import Loading from "../../../../components/Loading";
-import { useAppContext } from "../../../../contexts/AppContext";
+import Loading from "@/components/Loading";
+import { useAppContext } from "@/contexts/AppContext";
 import toast from "react-hot-toast";
 import {
   RefreshCw,
@@ -203,9 +203,6 @@ function MemberSubmissionCard({
                   ({isRTL ? "أنت" : "You"})
                 </span>
               )}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {memberSub?.userId?.email}
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
 "use client";
-import { useAppContext } from "../../contexts/AppContext";
+import { useAppContext } from "@/contexts/AppContext";
 import {
   Home,
   User,
@@ -15,14 +15,14 @@ import {
   Award,
   Clock,
 } from "lucide-react";
-import { translations } from "../../lib/translations";
+import { translations } from "@/lib/translations";
 import Link from "next/link";
-import { useDashboard } from "../../hooks/useDashboard";
-import Loading from "../../components/Loading";
+import { useDashboard } from "@/hooks/useDashboard";
+import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useUpdateTask } from "../../hooks/tasks/useTasks";
+import { useUpdateTask } from "@/hooks/tasks/useTasks";
 
 const ProgressBar = ({ value, max, color = "blue" }) => {
   const percentage = max > 0 ? (value / max) * 100 : 0;

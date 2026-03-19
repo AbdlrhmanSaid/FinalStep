@@ -1,11 +1,11 @@
 "use client";
 
 import ProjectCard from "../components/ProjectCard";
-import { translations } from "../../../lib/translations";
+import { translations } from "@/lib/translations";
 import Link from "next/link";
-import { useAppContext } from "../../../contexts/AppContext";
-import { useGetProjects } from "../../../hooks/projects/useGetProjects";
-import Loading from "../../../components/Loading";
+import { useAppContext } from "@/contexts/AppContext";
+import { useGetProjects } from "@/hooks/projects/useGetProjects";
+import Loading from "@/components/Loading";
 import {
   Mail,
   CirclePlus,

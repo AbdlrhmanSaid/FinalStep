@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Menu, X, Sun, Moon, Globe, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import UserMenu from "../../../components/UserMenu";
-import { useAppContext } from "../../../contexts/AppContext";
-import { translations } from "../../../lib/translations";
-import { useGetUserInvites } from "../../../hooks/invitations/useGetUserInvites";
+import UserMenu from "@/components/UserMenu";
+import { useAppContext } from "@/contexts/AppContext";
+import { translations } from "@/lib/translations";
+import { useGetUserInvites } from "@/hooks/invitations/useGetUserInvites";
 
 export default function DashboardNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

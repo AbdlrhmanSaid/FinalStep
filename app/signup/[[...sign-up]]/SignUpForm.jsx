@@ -3,7 +3,7 @@
 import { SignUp } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import Link from "next/link";
-import { translations } from "../../../lib/translations";
+import { translations } from "@/lib/translations";
 import { useEffect, useState } from "react";
 
 export default function SignUpForm() {
