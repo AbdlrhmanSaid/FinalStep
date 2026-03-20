@@ -30,6 +30,7 @@ export default function Hero({ t, isRTL }) {
               alt="Students collaborating on a project"
               width={500}
               height={500}
+              priority
             />
           </div>
         </div>

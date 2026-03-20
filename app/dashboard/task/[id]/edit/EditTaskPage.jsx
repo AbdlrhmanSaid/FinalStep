@@ -7,6 +7,7 @@ import { useAppContext } from "../../../../../contexts/AppContext";
 import Loading from "../../../../../components/Loading";
 import CheckUserRole from "../../../../../lib/actions/checkUserRole";
 import toast from "react-hot-toast";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,15 @@ import { translations } from "../../../../../lib/translations";
 import DatePicker from "../../../../../components/ui/DatePicker";
 import { useGetProject } from "../../../../../hooks/projects/useGetProjects";
 
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { Edit, RefreshCw } from "lucide-react";
+
 export default function EditTaskPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -35,7 +45,7 @@ export default function EditTaskPage() {
     referenceLink: "",
     priority: "medium",
     dueDate: "",
-    assignedTo: [], // array of user IDs
+    assignedTo: [],
     submissionMethod: "both",
     submissionDescription: "",
   });
@@ -43,7 +53,6 @@ export default function EditTaskPage() {
   const content = translations[language].dashboard.editTask;
   const addTaskContent = translations[language].dashboard.addTask;
 
-  // Load project members for the assign dropdown
   const projectId = task?.projectId?._id || task?.projectId;
   const { data: project } = useGetProject(projectId);
 
@@ -142,250 +151,310 @@ export default function EditTaskPage() {
 
   if (isLoading) return <Loading />;
   if (isError || !task)
-    return <div className="p-8 text-center text-red-500">Task not found.</div>;
+    return (
+      <div className="p-8 text-center text-red-500 font-bold">
+        Task not found.
+      </div>
+    );
 
   return (
     <CheckUserRole projectId={task.projectId._id || task.projectId}>
-      <div className="p-4 md:p-8 bg-white dark:bg-gray-900 dark:text-white min-h-screen">
-        <div className="max-w-3xl mx-auto">
-          <div className="mb-8 text-center">
-            <h2 className="text-2xl font-bold">{content.head}</h2>
-          </div>
-
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-6 bg-gray-50 dark:bg-gray-800 shadow-md border-gray-200 dark:border-gray-700 p-6 md:p-8 rounded-2xl border"
-          >
-            {/* Title */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">{content.title}</Label>
-              <Input
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                required
-                className="mt-1 h-11"
-              />
-            </div>
-
-            {/* Description */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">
-                {content.description}
-              </Label>
-              <Textarea
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                rows={5}
-                className="mt-1 min-h-[120px]"
-              />
-            </div>
-
-            {/* Reference Link */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">
-                {isRTL ? "رابط مرجعي (اختياري)" : "Reference Link (Optional)"}
-              </Label>
-              <Input
-                name="referenceLink"
-                type="url"
-                value={form.referenceLink}
-                onChange={handleChange}
-                placeholder="https://..."
-                className="mt-1 h-11"
-              />
-            </div>
-
-            {/* Priority */}
-            <div className="w-full">
-              <Label
-                htmlFor="priority"
-                className="text-sm font-medium block mb-2"
-              >
-                {content.priority}
-              </Label>
-              <select
-                id="priority"
-                name="priority"
-                value={form.priority}
-                onChange={handleChange}
-                className="w-full h-11 px-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="low">{isRTL ? "منخفضة" : "Low"}</option>
-                <option value="medium">{isRTL ? "متوسطة" : "Medium"}</option>
-                <option value="high">{isRTL ? "مرتفعة" : "High"}</option>
-              </select>
-            </div>
-
-            {/* Submission Method */}
-            <div className="w-full">
-              <Label
-                htmlFor="submissionMethod"
-                className="text-sm font-medium block mb-2"
-              >
-                {content.submissionMethod}
-              </Label>
-              <select
-                id="submissionMethod"
-                name="submissionMethod"
-                value={form.submissionMethod}
-                onChange={handleChange}
-                className="w-full h-11 px-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="both">{content.methodBoth}</option>
-                <option value="text">{content.methodText}</option>
-                <option value="link">{content.methodLink}</option>
-              </select>
-            </div>
-
-            {/* Submission Description */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">
-                {content.submissionDescriptionLabel}
-              </Label>
-              <Textarea
-                name="submissionDescription"
-                value={form.submissionDescription}
-                onChange={handleChange}
-                rows={3}
-                placeholder={content.submissionDescriptionPlaceholder}
-                className="mt-1 min-h-[80px]"
-              />
-            </div>
-
-            {/* Due Date */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium block">
-                {content.dueDate}
-              </Label>
-              <DatePicker
-                value={form.dueDate}
-                onChange={(val) =>
-                  setForm((prev) => ({ ...prev, dueDate: val }))
-                }
-                placeholder={content.dueDatePlaceholder || "Pick a due date..."}
-                locale={isRTL ? "ar" : "en"}
-              />
-              {form.dueDate && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {content.dueDateHint}
-                </p>
-              )}
-            </div>
-
-            {/* Assign Members */}
-            {teamMembers.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  {addTaskContent.assignTo}
-                </Label>
-                <Command className="border rounded-lg overflow-hidden dark:bg-gray-800 mt-1">
-                  <CommandInput
-                    placeholder={addTaskContent.searchMember}
-                    className="h-11"
-                  />
-                  <CommandList className="max-h-40 overflow-auto">
-                    {teamMembers.map((user) => (
-                      <CommandItem
-                        key={user._id}
-                        value={
-                          user.name !== "null null"
-                            ? user.name
-                            : user.email.split("@")[0].replace(/[0-9]/g, "")
-                        }
-                        onSelect={() => handleAssign(user._id)}
-                        className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-3"
-                      >
-                        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-sm font-medium">
-                          {user?.email?.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm">
-                            {user.name !== "null null"
-                              ? user.name
-                              : user.email.split("@")[0].replace(/[0-9]/g, "")}
-                          </p>
-                          <p className="text-xs text-gray-500">{user.email}</p>
-                        </div>
-                        {form.assignedTo.includes(user._id) && (
-                          <span className="ml-auto text-green-600 text-xs font-medium">
-                            ✓ {isRTL ? "مضاف" : "Added"}
-                          </span>
-                        )}
-                      </CommandItem>
-                    ))}
-                  </CommandList>
-                </Command>
-
-                {/* Selected members */}
-                {form.assignedTo.length > 0 && (
-                  <div className="space-y-2 mt-3">
-                    <Label className="text-sm font-medium">
-                      {addTaskContent.selectedMembers}
-                    </Label>
-                    <div className="flex flex-wrap gap-2">
-                      {form.assignedTo.map((uid) => {
-                        const user = teamMembers.find((u) => u._id === uid);
-                        // If user not found in teamMembers (e.g. leader), try task.assignedTo
-                        const fallback = (task.assignedTo || []).find(
-                          (u) => (u._id || u) === uid,
-                        );
-                        const displayUser = user || fallback;
-                        const displayName = displayUser
-                          ? typeof displayUser === "object"
-                            ? displayUser.name &&
-                              displayUser.name !== "null null"
-                              ? displayUser.name
-                              : displayUser.email?.split("@")[0] || uid
-                            : uid
-                          : uid;
-                        return (
-                          <Badge
-                            key={uid}
-                            onClick={() => handleRemoveAssigned(uid)}
-                            variant="outline"
-                            className="cursor-pointer hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-900/20 dark:text-white px-3 py-1.5 rounded-full flex items-center gap-2 transition-colors"
-                          >
-                            <div className="w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-700 flex items-center justify-center text-xs">
-                              {(typeof displayName === "string"
-                                ? displayName
-                                : String(displayName)
-                              )
-                                .charAt(0)
-                                .toUpperCase()}
-                            </div>
-                            {displayName}
-                            <span className="text-gray-400 hover:text-red-500">
-                              ×
-                            </span>
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+      <div className="p-4 md:p-8 bgMain min-h-screen transition-colors overflow-hidden">
+        <Card
+          className="max-w-3xl mx-auto border-gray-200 dark:border-gray-800 dark:bg-gray-800 shadow-md transition-colors"
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <CardHeader className="bg-gray-50/50 dark:bg-gray-800/20 border-b border-gray-100 dark:border-gray-800 mb-6 pb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600 dark:text-yellow-400 rounded-xl">
+                <Edit className="w-6 h-6" />
               </div>
-            )}
-
-            {/* Submit */}
-            <div className="flex justify-end pt-4">
-              <Button
-                type="submit"
-                disabled={isUpdating}
-                className="h-11 px-6 rounded-lg shadow-md"
-              >
-                {isUpdating
-                  ? isRTL
-                    ? "جاري التحديث..."
-                    : "Updating..."
-                  : isRTL
-                    ? "تحديث المهمة"
-                    : "Update Task"}
-              </Button>
+              <div>
+                <CardTitle className="text-xl md:text-2xl font-bold dark:text-white">
+                  {content.head}
+                </CardTitle>
+                <CardDescription className="text-sm text-gray-500 mt-1">
+                  {isRTL
+                    ? "تعديل معلومات وتفاصيل المهمة الحالية وميزاتها."
+                    : "Edit the current task details and properties."}
+                </CardDescription>
+              </div>
             </div>
-          </form>
-        </div>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6 pb-4">
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-[15px] font-semibold">
+                  {content.title}
+                </Label>
+                <Input
+                  id="title"
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
+                  required
+                  className="h-12 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm focus-visible:ring-blue-500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="description"
+                  className="text-[15px] font-semibold"
+                >
+                  {content.description}
+                </Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  rows={4}
+                  className="resize-none bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm focus-visible:ring-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="priority"
+                    className="text-[15px] font-semibold block"
+                  >
+                    {content.priority}
+                  </Label>
+                  <select
+                    id="priority"
+                    name="priority"
+                    value={form.priority}
+                    onChange={handleChange}
+                    className="w-full h-12 px-3 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option
+                      value="low"
+                      className="text-blue-600 dark:text-blue-400"
+                    >
+                      {isRTL ? "منخفضة" : "Low"}
+                    </option>
+                    <option
+                      value="medium"
+                      className="text-yellow-600 dark:text-yellow-400"
+                    >
+                      {isRTL ? "متوسطة" : "Medium"}
+                    </option>
+                    <option
+                      value="high"
+                      className="text-red-600 dark:text-red-400"
+                    >
+                      {isRTL ? "مرتفعة" : "High"}
+                    </option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="submissionMethod"
+                    className="text-[15px] font-semibold block"
+                  >
+                    {content.submissionMethod}
+                  </Label>
+                  <select
+                    id="submissionMethod"
+                    name="submissionMethod"
+                    value={form.submissionMethod}
+                    onChange={handleChange}
+                    className="w-full h-12 px-3 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="both">{content.methodBoth}</option>
+                    <option value="text">{content.methodText}</option>
+                    <option value="link">{content.methodLink}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="submissionDescription"
+                  className="text-[15px] font-semibold"
+                >
+                  {content.submissionDescriptionLabel}
+                </Label>
+                <Textarea
+                  id="submissionDescription"
+                  name="submissionDescription"
+                  value={form.submissionDescription}
+                  onChange={handleChange}
+                  rows={2}
+                  placeholder={content.submissionDescriptionPlaceholder}
+                  className="resize-none bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm focus-visible:ring-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div className="space-y-2 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                  <Label className="text-[15px] font-semibold block mb-2">
+                    {content.dueDate}
+                  </Label>
+                  <DatePicker
+                    value={form.dueDate}
+                    onChange={(val) =>
+                      setForm((prev) => ({ ...prev, dueDate: val }))
+                    }
+                    placeholder={
+                      content.dueDatePlaceholder || "Pick a due date..."
+                    }
+                    disablePast={false}
+                    locale={isRTL ? "ar" : "en"}
+                  />
+                  {form.dueDate && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      {content.dueDateHint}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                  <Label
+                    htmlFor="referenceLink"
+                    className="text-[15px] font-semibold block mb-2"
+                  >
+                    {isRTL
+                      ? "رابط مرجعي (اختياري)"
+                      : "Reference Link (Optional)"}
+                  </Label>
+                  <Input
+                    id="referenceLink"
+                    name="referenceLink"
+                    type="url"
+                    value={form.referenceLink}
+                    onChange={handleChange}
+                    placeholder="https://..."
+                    className="h-11 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm focus-visible:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              {/* Assign Members */}
+              {teamMembers.length > 0 && (
+                <div className="space-y-2 pt-2">
+                  <Label className="text-[15px] font-semibold">
+                    {addTaskContent.assignTo}
+                  </Label>
+                  <Command className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm dark:bg-gray-900 mt-1">
+                    <CommandInput
+                      placeholder={addTaskContent.searchMember}
+                      className="h-12 outline-none border-none ring-0 shadow-none focus-visible:ring-0 focus:outline-none"
+                    />
+                    <CommandList className="max-h-48 overflow-auto">
+                      {teamMembers.map((user) => (
+                        <CommandItem
+                          key={user._id}
+                          value={
+                            user.name !== "null null" && user.name
+                              ? user.name
+                              : user.email?.split("@")[0].replace(/[0-9]/g, "")
+                          }
+                          onSelect={() => handleAssign(user._id)}
+                          className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer flex items-center gap-3 transition-colors"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 flex items-center justify-center text-sm font-bold shadow-sm">
+                            {user?.email?.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-800 dark:text-white">
+                              {user.name !== "null null" && user.name
+                                ? user.name
+                                : user.email
+                                    ?.split("@")[0]
+                                    .replace(/[0-9]/g, "")}
+                            </p>
+                            {user.name && user.name !== "null null" && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                {user.email}
+                              </p>
+                            )}
+                          </div>
+                          {form.assignedTo.includes(user._id) && (
+                            <span className="ml-auto text-green-600 dark:text-green-400 text-xs font-bold">
+                              ✓ {isRTL ? "مضاف" : "Added"}
+                            </span>
+                          )}
+                        </CommandItem>
+                      ))}
+                    </CommandList>
+                  </Command>
+
+                  {/* Selected members */}
+                  {form.assignedTo.length > 0 && (
+                    <div className="space-y-2 mt-4 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                      <Label className="text-[14px] text-gray-600 dark:text-gray-300 font-medium">
+                        {addTaskContent.selectedMembers}
+                      </Label>
+                      <div className="flex flex-wrap gap-2">
+                        {form.assignedTo.map((uid) => {
+                          const user = teamMembers.find((u) => u._id === uid);
+                          const fallback = (task.assignedTo || []).find(
+                            (u) => (u._id || u) === uid,
+                          );
+                          const displayUser = user || fallback;
+                          const displayName = displayUser
+                            ? typeof displayUser === "object"
+                              ? displayUser.name &&
+                                displayUser.name !== "null null"
+                                ? displayUser.name
+                                : displayUser.email?.split("@")[0] || uid
+                              : uid
+                            : uid;
+                          return (
+                            <Badge
+                              key={uid}
+                              onClick={() => handleRemoveAssigned(uid)}
+                              variant="secondary"
+                              className="cursor-pointer bg-white dark:bg-gray-700 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 border border-gray-200 dark:border-gray-600 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all shadow-sm group"
+                            >
+                              <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 flex items-center justify-center text-[10px] font-bold">
+                                {(typeof displayName === "string"
+                                  ? displayName
+                                  : String(displayName)
+                                )
+                                  .charAt(0)
+                                  .toUpperCase()}
+                              </div>
+                              <span className="font-medium">{displayName}</span>
+                              <span className="text-gray-400 group-hover:text-red-500 font-bold ml-1">
+                                ×
+                              </span>
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="pt-6 border-t border-gray-100 dark:border-gray-800 mt-8">
+                <Button
+                  type="submit"
+                  disabled={isUpdating}
+                  className="w-full h-12 text-md font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                >
+                  {isUpdating ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      {isRTL ? "جاري التحديث..." : "Updating..."}
+                    </span>
+                  ) : (
+                    <>
+                      <RefreshCw className="w-5 h-5" />
+                      {isRTL ? "تحديث المهمة" : "Update Task"}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </CheckUserRole>
   );

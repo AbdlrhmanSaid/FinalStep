@@ -18,14 +18,23 @@ export async function GET() {
   });
 
   const finishedProjects = allProjects.filter(
-    (project) => project.status === "finished"
+    (project) => project.status === "finished",
   );
 
   const allTasks = await Task.find({
     assignedTo: { $in: [user._id] },
   });
 
-  const finishedTasks = allTasks.filter((task) => task.status === "completed");
+  const finishedTasks = allTasks.filter((task) => {
+    if (task.status === "completed") return true;
+    if (task.memberSubmissions && task.memberSubmissions.length > 0) {
+      const mySub = task.memberSubmissions.find(
+        (s) => (s.userId?._id || s.userId)?.toString() === user._id.toString(),
+      );
+      return mySub && mySub.status === "completed";
+    }
+    return false;
+  });
 
   const pendingInvites = await InviteRequest.find({
     email: user.email,
@@ -51,4 +60,3 @@ export async function GET() {
     recentTasks: recentTasks,
   });
 }
-

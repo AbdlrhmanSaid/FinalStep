@@ -72,7 +72,9 @@ export async function GET(request, { params }) {
       const taskQuery = Task.find({ assignedTo: user._id })
         .sort({ createdAt: -1 })
         .limit(30)
-        .select("title status priority dueDate createdAt projectId");
+        .select(
+          "title status priority dueDate createdAt projectId memberSubmissions",
+        );
 
       // Fetch all tasks for both owner and visitor
       const allTasks = await taskQuery.populate({
@@ -84,7 +86,16 @@ export async function GET(request, { params }) {
 
       recentTasks = validTasks.slice(0, 10);
       completedTasks = validTasks
-        .filter((t) => t.status === "completed")
+        .filter((t) => {
+          if (t.status === "completed") return true;
+          if (t.memberSubmissions && t.memberSubmissions.length > 0) {
+            const mySub = t.memberSubmissions.find(
+              (s) => (s.userId?._id || s.userId)?.toString() === id.toString(),
+            );
+            return mySub && mySub.status === "completed";
+          }
+          return false;
+        })
         .slice(0, 10);
     }
 

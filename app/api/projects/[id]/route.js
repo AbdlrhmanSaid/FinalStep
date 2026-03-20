@@ -140,7 +140,8 @@ export async function PUT(request, context) {
       return NextResponse.json(updatedProject, { status: 200 });
     }
 
-    const { inviteRequests = [], ...updateFields } = body;
+    const updateFields = { ...body };
+    delete updateFields.inviteRequests; // handled separately
 
     // ✅ تحقق من صلاحية قيمة status إن تم إرسالها
     if ("status" in updateFields) {
@@ -169,24 +170,27 @@ export async function PUT(request, context) {
       );
     }
 
-    // حذف الدعوات القديمة من جدول InviteRequest
-    await InviteRequest.deleteMany({ projectId: id });
+    if ("inviteRequests" in body) {
+      const inviteRequests = body.inviteRequests || [];
+      // حذف الدعوات القديمة من جدول InviteRequest
+      await InviteRequest.deleteMany({ projectId: id });
 
-    // إدخال الدعوات الجديدة إلى جدول InviteRequest
-    if (inviteRequests.length > 0) {
-      const invites = inviteRequests.map(({ email }) => ({
-        email,
-        projectId: id,
-        invitedBy: userId,
-        status: "pending",
+      // إدخال الدعوات الجديدة إلى جدول InviteRequest
+      if (inviteRequests.length > 0) {
+        const invites = inviteRequests.map(({ email }) => ({
+          email,
+          projectId: id,
+          invitedBy: userId,
+          status: "pending",
+        }));
+        await InviteRequest.insertMany(invites);
+      }
+
+      // تحديث الدعوات داخل المشروع
+      updateFields.inviteRequests = inviteRequests.map((i) => ({
+        email: i.email,
       }));
-      await InviteRequest.insertMany(invites);
     }
-
-    // تحديث الدعوات داخل المشروع
-    updateFields.inviteRequests = inviteRequests.map((i) => ({
-      email: i.email,
-    }));
 
     // ✅ الاحتفاظ بقائمة الأعضاء القديمة قبل التحديث
     const oldMembers = project.members.map((id) => id.toString());

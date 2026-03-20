@@ -13,45 +13,8 @@ export default function CreateProjectPage() {
   const onSubmit = (formData) => {
     return new Promise((resolve, reject) => {
       addProject(formData, {
-        onSuccess: async (createdProject) => {
-          try {
-            const receivers =
-              formData.inviteRequests?.map((i) => i.email).filter(Boolean) ||
-              [];
-
-            if (receivers.length === 0) {
-              return resolve(createdProject);
-            }
-
-            const response = await fetch("/api/send-invites", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                sender: sender,
-                receivers,
-                projectName: formData.title,
-              }),
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-              throw new Error(result.error || "Failed to send invites");
-            }
-
-            if (result.failed?.length > 0) {
-              console.warn("Failed invites:", result.failed);
-              toast.error(`Failed to send ${result.failed.length} invites`);
-            }
-
-            resolve(createdProject);
-          } catch (err) {
-            console.error("Invite sending error:", err);
-            // استمر حتى لو فشل إرسال الإيميلات
-            resolve(createdProject);
-          }
+        onSuccess: (createdProject) => {
+          resolve(createdProject);
         },
         onError: (err) => reject(err),
       });

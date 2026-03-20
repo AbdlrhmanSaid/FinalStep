@@ -22,44 +22,9 @@ export default function UpdateProjectPage() {
       updateProject(
         { id, data: formData, userId },
         {
-          onSuccess: async () => {
-            try {
-              const receivers =
-                formData.inviteRequests?.map((i) => i.email).filter(Boolean) ||
-                [];
-
-              if (receivers.length > 0) {
-                const response = await fetch("/api/send-invites", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    sender,
-                    receivers,
-                    projectName: formData.title,
-                  }),
-                });
-
-                if (!response.ok) {
-                  const errorData = await response.json();
-                  throw new Error(errorData.error || "Failed to send invites");
-                }
-
-                const result = await response.json();
-                if (result.failed && result.failed.length > 0) {
-                  console.warn("Some invites failed to send:", result.failed);
-                }
-              }
-              resolve();
-            } catch (err) {
-              console.error("Error sending invites:", err);
-              // You might want to show a toast notification here
-              reject(err);
-            }
-          },
-          onError: (err) => reject(err),
-        }
+          onSuccess: resolve,
+          onError: reject,
+        },
       );
     });
   };

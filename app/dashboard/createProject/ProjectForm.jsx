@@ -6,11 +6,18 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash } from "lucide-react";
+import { Plus, Globe, FolderPlus } from "lucide-react";
 import { useAppContext } from "../../../contexts/AppContext";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import DatePicker from "../../../components/ui/DatePicker";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 
 export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
   const { userId } = useAppContext();
@@ -20,23 +27,9 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
   const [description, setDescription] = useState("");
   const [publicProject, setPublicProject] = useState(false);
   const [deadline, setDeadline] = useState("");
-  const [invites, setInvites] = useState([""]);
-  const [errors, setErrors] = useState({ invites: [] });
-
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const inviteErrors = invites.map((email) =>
-      email && !validateEmail(email) ? "Invalid email" : "",
-    );
-
-    if (inviteErrors.some(Boolean)) {
-      setErrors({ invites: inviteErrors });
-      toast.error("Please fix the email errors before submitting");
-      return;
-    }
 
     const formData = {
       title,
@@ -44,14 +37,17 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
       public: publicProject,
       deadline: deadline || null,
       leaderId: userId,
-      inviteRequests: invites.filter(Boolean).map((email) => ({ email })),
     };
 
     try {
       await toast.promise(onSubmit(formData), {
-        loading: "Creating project and sending invites...",
-        success: "Project created successfully!",
-        error: (err) => err.message || "Failed to create project",
+        loading: isRTL ? "جاري إنشاء المشروع..." : "Creating project...",
+        success: isRTL
+          ? "تم إنشاء المشروع بنجاح!"
+          : "Project created successfully!",
+        error: (err) =>
+          err.message ||
+          (isRTL ? "فشل إنشاء المشروع" : "Failed to create project"),
       });
 
       // Reset form after successful submission
@@ -59,8 +55,6 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
       setDescription("");
       setPublicProject(false);
       setDeadline("");
-      setInvites([""]);
-      setErrors({ invites: [] });
 
       router.push("/dashboard/projects");
     } catch (err) {
@@ -68,195 +62,138 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
     }
   };
 
-  const updateArrayValue = (array, setArray, index, value) => {
-    const updated = [...array];
-    updated[index] = value;
-    setArray(updated);
-    setErrors((prev) => ({
-      ...prev,
-      invites: prev.invites.map((err, i) => (i === index ? "" : err)),
-    }));
-  };
-
-  const addField = () => {
-    if (invites[invites.length - 1] === "") {
-      toast.error("Please fill the current email field first");
-      return;
-    }
-    setInvites((prev) => [...prev, ""]);
-    setErrors((prev) => ({
-      ...prev,
-      invites: [...prev.invites, ""],
-    }));
-  };
-
-  const removeField = (index) => {
-    if (invites.length <= 1) {
-      setInvites([""]);
-      setErrors({ invites: [""] });
-      return;
-    }
-    setInvites(invites.filter((_, i) => i !== index));
-    setErrors((prev) => ({
-      ...prev,
-      invites: prev.invites.filter((_, i) => i !== index),
-    }));
-  };
-
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-6 max-w-xl mx-auto dark:text-white pb-10"
+    <Card
+      className="max-w-2xl mx-auto border-gray-200 dark:border-gray-800 shadow-md transition-colors"
       dir={isRTL ? "rtl" : "ltr"}
     >
-      {/* Project Title */}
-      <div>
-        <Label htmlFor="title" className="mb-2 block">
-          {content.titleInput}
-        </Label>
-        <Input
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          placeholder={content.titlePlaceholder}
-          className="dark:bg-gray-800 dark:border-gray-700"
-        />
-      </div>
+      <CardHeader className="bg-gray-50/50 dark:bg-gray-800/20 border-b border-gray-100 dark:border-gray-800 mb-6 pb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl">
+            <FolderPlus className="w-6 h-6" />
+          </div>
+          <div>
+            <CardTitle className="text-xl md:text-2xl font-bold dark:text-white">
+              {content.title}
+            </CardTitle>
+            <CardDescription className="text-sm text-gray-500 mt-1">
+              {isRTL
+                ? "قم بإنشاء مشروعك الجديد وابدأ بخطواتك الأولى."
+                : "Create your new project and start your first step."}
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
 
-      {/* Project Description */}
-      <div>
-        <Label htmlFor="description" className="mb-2 block">
-          {content.describe}
-        </Label>
-        <Textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder={content.descriptionPlaceholder}
-          className="dark:bg-gray-800 dark:border-gray-700"
-          rows={4}
-        />
-      </div>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6 pb-4">
+          {/* Project Title */}
+          <div className="space-y-1">
+            <Label
+              htmlFor="title"
+              className="text-[15px] font-semibold flex items-center gap-2 mb-2"
+            >
+              {content.titleInput}
+            </Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              placeholder={content.titlePlaceholder}
+              className="h-12 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm transition-all focus-visible:ring-blue-500"
+            />
+          </div>
 
-      {/* Public Project Switch */}
-      <div
-        className={`flex items-center justify-between p-2 rounded-lg bg-gray-100 dark:bg-gray-800 $`}
-      >
-        <Label htmlFor="public" className="text-sm font-medium">
-          {content.isPublic}
-        </Label>
-        <Switch
-          id="public"
-          checked={publicProject}
-          onCheckedChange={setPublicProject}
-          className={`${isRTL ? "ml-2 flex-row-reverse" : "mr-2"}`}
-        />
-      </div>
+          {/* Project Description */}
+          <div className="space-y-1">
+            <Label
+              htmlFor="description"
+              className="text-[15px] font-semibold flex items-center gap-2 mb-2"
+            >
+              {content.describe}
+            </Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={content.descriptionPlaceholder}
+              className="resize-none bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm transition-all focus-visible:ring-blue-500"
+              rows={5}
+            />
+          </div>
 
-      {/* Project Deadline */}
-      <div>
-        <Label htmlFor="deadline" className="mb-2 block">
-          {content.deadline}
-        </Label>
-        <DatePicker
-          value={deadline}
-          onChange={setDeadline}
-          placeholder={content.deadlinePlaceholder || "Pick a deadline date..."}
-          disablePast={true}
-          locale={isRTL ? "ar" : "en"}
-        />
-        {deadline && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {content.deadlineHint}
-          </p>
-        )}
-      </div>
-
-      {/* Email Invitations */}
-      <div className="space-y-3">
-        <Label className="block">{content.inviteRequests}</Label>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          {content.inviteDescription}
-        </p>
-
-        {invites.map((email, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <div className="flex-1">
-              <Input
-                type="email"
-                placeholder="email@example.com"
-                value={email}
-                onChange={(e) =>
-                  updateArrayValue(invites, setInvites, index, e.target.value)
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+            {/* Project Deadline */}
+            <div className="space-y-1 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+              <Label
+                htmlFor="deadline"
+                className="text-[15px] font-semibold block mb-3"
+              >
+                {content.deadline}
+              </Label>
+              <DatePicker
+                value={deadline}
+                onChange={setDeadline}
+                placeholder={
+                  content.deadlinePlaceholder || "Pick a deadline date..."
                 }
-                className="dark:bg-gray-800 dark:border-gray-700"
+                disablePast={true}
+                locale={isRTL ? "ar" : "en"}
               />
-              {errors.invites[index] && (
-                <p className="mt-1 text-sm text-red-500">
-                  {errors.invites[index]}
+              {deadline && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">
+                  {content.deadlineHint}
                 </p>
               )}
             </div>
+
+            {/* Public/Private Switch */}
+            <div className="space-y-1 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-800 flex flex-col justify-center items-center h-full min-h-[120px]">
+              <div className="flex flex-col items-center justify-center space-y-3 w-full">
+                <Globe
+                  className={`w-8 h-8 ${publicProject ? "text-green-500" : "text-gray-400"}`}
+                />
+                <div className="flex items-center gap-3">
+                  <Label
+                    htmlFor="public"
+                    className="text-[15px] font-semibold cursor-pointer"
+                  >
+                    {content.isPublic}
+                  </Label>
+                  <Switch
+                    id="public"
+                    checked={publicProject}
+                    onCheckedChange={setPublicProject}
+                    className={`${isRTL && "flex-row-reverse"}`}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="pt-6 border-t border-gray-100 dark:border-gray-800 mt-8">
             <Button
-              type="button"
-              size="icon"
-              variant="destructive"
-              onClick={() => removeField(index)}
-              aria-label="Remove email"
-              className="shrink-0"
+              type="submit"
+              className="w-full h-12 text-md font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+              disabled={isPending}
             >
-              <Trash size={16} />
+              {isPending ? (
+                <span className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  {content.pindingProject}
+                </span>
+              ) : (
+                <>
+                  <Plus className="w-5 h-5" />
+                  {content.createProject}
+                </>
+              )}
             </Button>
           </div>
-        ))}
-
-        <Button
-          type="button"
-          variant="outline"
-          onClick={addField}
-          className="mt-2"
-        >
-          <Plus size={16} className={isRTL ? "ml-2" : "mr-2"} />
-          {content.addinvite}
-        </Button>
-      </div>
-
-      {/* Submit Button */}
-      <Button
-        type="submit"
-        className="w-full mt-6"
-        disabled={isPending}
-        size="lg"
-      >
-        {isPending ? (
-          <span className="flex items-center">
-            <svg
-              className="animate-spin -ml-1 mr-3 h-4 w-4 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-            {content.pindingProject}
-          </span>
-        ) : (
-          content.createProject
-        )}
-      </Button>
-    </form>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
