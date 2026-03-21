@@ -3,6 +3,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "react-hot-toast";
 import JsonLd from "../components/JsonLd";
+import ScrollToTop from "../components/ScrollToTop";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -90,6 +91,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} ${notoSansArabic.variable} antialiased`}
       >
         <Providers>
+          <ScrollToTop />
           <Toaster />
           <main>{children}</main>
         </Providers>

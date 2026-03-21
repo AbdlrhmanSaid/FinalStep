@@ -81,8 +81,14 @@ function TaskStatusBadge({ status, t }) {
       icon: XCircle,
       cls: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
     },
+    ended: {
+      label: t.taskStatusEnded || "Ended",
+      icon: XCircle,
+      cls: "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300",
+    },
   };
-  const { label, icon: Icon, cls } = map[status] ?? map.open;
+  const statusKey = status === "ended" ? "ended" : status;
+  const { label, icon: Icon, cls } = map[statusKey] ?? map.open;
   return (
     <span
       className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${cls}`}
@@ -537,28 +543,6 @@ function ProfileTab({ user, t, isRTL, isOwner }) {
 
   return (
     <div className="space-y-5">
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-col items-center gap-1 shadow-sm">
-          <Crown className="w-5 h-5 text-yellow-500" />
-          <span className="text-2xl font-bold text-gray-900 dark:text-white">
-            {user.projectsLeading?.length ?? 0}
-          </span>
-          <span className="text-xs text-center text-gray-500 dark:text-gray-400">
-            {t.projectsLeading}
-          </span>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-col items-center gap-1 shadow-sm">
-          <Users className="w-5 h-5 text-blue-500" />
-          <span className="text-2xl font-bold text-gray-900 dark:text-white">
-            {user.projectsMember?.length ?? 0}
-          </span>
-          <span className="text-xs text-center text-gray-500 dark:text-gray-400">
-            {t.projectsMember}
-          </span>
-        </div>
-      </div>
-
       {/* Completed Tasks */}
       {showTasks && (
         <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
@@ -878,7 +862,7 @@ const UserProfilePage = ({ isDark }) => {
 
   return (
     <div className="min-h-screen bgMain p-4 md:p-6" dir={isRTL ? "rtl" : "ltr"}>
-      <div className="max-w-2xl mx-auto space-y-5">
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Back and Refresh */}
         <div className="flex justify-between items-center">
           <Button
@@ -980,45 +964,77 @@ const UserProfilePage = ({ isDark }) => {
           </div>
         </div>
 
-        {/* Tabs — owner sees Settings tab */}
-        {isOwner && (
-          <div className="flex rounded-xl bg-gray-100 dark:bg-gray-800 p-1 gap-1 border border-gray-200 dark:border-gray-700">
-            <button
-              onClick={() => setActiveTab("profile")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
-                activeTab === "profile"
-                  ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-              }`}
-            >
-              <Eye className="w-4 h-4" />
-              {ts.tabProfile}
-            </button>
-            <button
-              onClick={() => setActiveTab("settings")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
-                activeTab === "settings"
-                  ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-              }`}
-            >
-              <Settings className="w-4 h-4" />
-              {ts.tabSettings}
-            </button>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative items-start">
+          <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-8">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+              <h2 className="text-base font-semibold text-gray-800 dark:text-white mb-4">
+                {t.projectsLeading ? (isRTL ? "الاحصائيات" : "Stats") : "Stats"}
+              </h2>
+              <div className="flex flex-col gap-4">
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-600 p-4 flex flex-col items-center gap-1 shadow-sm">
+                  <Crown className="w-6 h-6 text-yellow-500 mb-1" />
+                  <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                    {user.projectsLeading?.length ?? 0}
+                  </span>
+                  <span className="text-xs text-center text-gray-500 dark:text-gray-400">
+                    {t.projectsLeading}
+                  </span>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-600 p-4 flex flex-col items-center gap-1 shadow-sm">
+                  <Users className="w-6 h-6 text-blue-500 mb-1" />
+                  <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                    {user.projectsMember?.length ?? 0}
+                  </span>
+                  <span className="text-xs text-center text-gray-500 dark:text-gray-400">
+                    {t.projectsMember}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-        )}
 
-        {/* Content */}
-        {activeTab === "settings" && isOwner ? (
-          <SettingsTab
-            user={user}
-            userId={currentUserId}
-            t={ts}
-            isRTL={isRTL}
-          />
-        ) : (
-          <ProfileTab user={user} t={t} isRTL={isRTL} isOwner={isOwner} />
-        )}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Tabs — owner sees Settings tab */}
+            {isOwner && (
+              <div className="flex rounded-3xl bg-white dark:bg-gray-800 p-2 gap-2 border border-gray-100 dark:border-gray-700 shadow-sm">
+                <button
+                  onClick={() => setActiveTab("profile")}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all ${
+                    activeTab === "profile"
+                      ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  }`}
+                >
+                  <Eye className="w-4 h-4" />
+                  {ts.tabProfile}
+                </button>
+                <button
+                  onClick={() => setActiveTab("settings")}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all ${
+                    activeTab === "settings"
+                      ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  }`}
+                >
+                  <Settings className="w-4 h-4" />
+                  {ts.tabSettings}
+                </button>
+              </div>
+            )}
+
+            {/* Content */}
+            {activeTab === "settings" && isOwner ? (
+              <SettingsTab
+                user={user}
+                userId={currentUserId}
+                t={ts}
+                isRTL={isRTL}
+              />
+            ) : (
+              <ProfileTab user={user} t={t} isRTL={isRTL} isOwner={isOwner} />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

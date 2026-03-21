@@ -8,17 +8,37 @@ import UserMenu from "@/components/UserMenu";
 import { useAppContext } from "@/contexts/AppContext";
 import { translations } from "@/lib/translations";
 import { useGetUserInvites } from "@/hooks/invitations/useGetUserInvites";
+import { useGetTasks } from "@/hooks/tasks/useTasks";
 
 export default function DashboardNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { isRTL, isDark, toggleLanguage, toggleTheme, language, email } =
-    useAppContext();
+  const {
+    userId,
+    isRTL,
+    isDark,
+    toggleLanguage,
+    toggleTheme,
+    language,
+    email,
+  } = useAppContext();
   const content = translations[language];
 
   // جلب عدد الدعوات المعلقة
   const { data: invites } = useGetUserInvites(email);
   const pendingInvitesCount = invites?.length ?? 0;
+
+  // جلب المهام لحساب المهام التي تنتظر المراجعة
+  const { data: tasks } = useGetTasks();
+  const pendingReviewsCount =
+    tasks?.filter((task) => {
+      const isLeader =
+        task.projectId?.leaderId?.toString() === userId ||
+        task.projectId?.coLeaders?.some(
+          (id) => (id._id || id).toString() === userId,
+        );
+      return isLeader && task.status === "submitted";
+    })?.length ?? 0;
 
   const isActive = (path) => {
     if (path === "/dashboard") {
@@ -69,7 +89,7 @@ export default function DashboardNav() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1 flex-1 justify-center px-4 overflow-x-auto">
+          <div className="hidden lg:flex items-center gap-1 p-2 flex-1 justify-center px-4 overflow-x-auto">
             <Link href={"/dashboard"} className={getLinkClasses("/dashboard")}>
               {content.dashboardNav.home}
             </Link>
@@ -104,6 +124,11 @@ export default function DashboardNav() {
               className={getLinkClasses("/dashboard/tasks")}
             >
               {content.dashboardNav.team}
+              {pendingReviewsCount > 0 && (
+                <span className="absolute -top-1 -end-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-orange-500 text-white text-[10px] font-bold leading-none shadow">
+                  {pendingReviewsCount > 99 ? "99+" : pendingReviewsCount}
+                </span>
+              )}
             </Link>
             <Link
               href={"/dashboard/profile"}
@@ -203,6 +228,11 @@ export default function DashboardNav() {
                 className={getMobileLinkClasses("/dashboard/tasks")}
               >
                 {content.dashboardNav.team}
+                {pendingReviewsCount > 0 && (
+                  <span className="ms-auto min-w-[22px] h-[22px] px-1.5 flex items-center justify-center rounded-full bg-orange-500 text-white text-xs font-bold leading-none shadow">
+                    {pendingReviewsCount > 99 ? "99+" : pendingReviewsCount}
+                  </span>
+                )}
               </Link>
               <Link
                 onClick={() => setIsMenuOpen(false)}

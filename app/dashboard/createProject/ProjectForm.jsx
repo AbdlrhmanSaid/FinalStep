@@ -64,7 +64,7 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
 
   return (
     <Card
-      className="max-w-2xl mx-auto border-gray-200 dark:border-gray-800 shadow-md transition-colors"
+      className="max-w-2xl mx-auto border-gray-200 dark:border-gray-800 dark:bg-gray-900 shadow-md transition-colors"
       dir={isRTL ? "rtl" : "ltr"}
     >
       <CardHeader className="bg-gray-50/50 dark:bg-gray-800/20 border-b border-gray-100 dark:border-gray-800 mb-6 pb-6">

@@ -32,16 +32,26 @@ const TasksClient = () => {
   const { data: tasks, isLoading, refetch, isFetching } = useGetTasks();
   const { mutate: updateTask } = useUpdateTask();
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("myTasks");
   const content = translations[language].dashboard.tasks;
 
   // ترتيب وفلترة المهام
   const filteredAndSortedTasks = useMemo(() => {
     if (!tasks || !userId) return [];
 
-    // فلترة المهام الخاصة بالمستخدم
-    let myTasks = tasks.filter((task) =>
-      task.assignedTo?.some((user) => user._id === userId),
-    );
+    // فلترة المهام الخاصة بالمستخدم أو المهام التي تحتاج مراجعة
+    let myTasks = tasks.filter((task) => {
+      if (activeTab === "myTasks") {
+        return task.assignedTo?.some((u) => (u._id || u).toString() === userId);
+      } else {
+        const isLeader =
+          task.projectId?.leaderId?.toString() === userId ||
+          task.projectId?.coLeaders?.some(
+            (id) => (id._id || id).toString() === userId,
+          );
+        return isLeader && task.status === "submitted";
+      }
+    });
 
     // البحث
     if (searchQuery.trim()) {
@@ -56,7 +66,7 @@ const TasksClient = () => {
     return myTasks.sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
     );
-  }, [tasks, userId, searchQuery]);
+  }, [tasks, userId, searchQuery, activeTab]);
 
   const handleStatusChange = (taskId, newStatus) => {
     updateTask(
@@ -110,6 +120,49 @@ const TasksClient = () => {
           </div>
         </div>
 
+        {/* Tabs */}
+        <div className="flex flex-col md:flex-row bg-white dark:bg-gray-800 rounded-lg p-1 mb-6 shadow-sm border border-gray-200 dark:border-gray-700">
+          <button
+            onClick={() => setActiveTab("myTasks")}
+            className={`flex-1 flex justify-center py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
+              activeTab === "myTasks"
+                ? "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 shadow-sm"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+            }`}
+          >
+            {content.tabMyTasks || "My Tasks"}
+          </button>
+          <button
+            onClick={() => setActiveTab("review")}
+            className={`flex-1 flex justify-center items-center gap-2 py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
+              activeTab === "review"
+                ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 shadow-sm"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+            }`}
+          >
+            {content.tabReviewTasks || "Pending Reviews"}
+            {(() => {
+              if (!tasks) return null;
+              const pendingCount = tasks.filter((task) => {
+                const isLeader =
+                  task.projectId?.leaderId?.toString() === userId ||
+                  task.projectId?.coLeaders?.some(
+                    (id) => id.toString() === userId,
+                  );
+                return isLeader && task.status === "submitted";
+              }).length;
+              if (pendingCount > 0) {
+                return (
+                  <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-orange-500 text-white text-[10px] font-bold">
+                    {pendingCount}
+                  </span>
+                );
+              }
+              return null;
+            })()}
+          </button>
+        </div>
+
         {/* Search Bar */}
         <div className="mb-6 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -141,12 +194,22 @@ const TasksClient = () => {
               </svg>
             </div>
             <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-2">
-              {searchQuery ? content.noResults : content.emptyTitle}
+              {searchQuery
+                ? content.noResults
+                : activeTab === "review"
+                  ? isRTL
+                    ? "لا توجد مراجعات"
+                    : "No Reviews Pending"
+                  : content.emptyTitle}
             </h3>
             <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
               {searchQuery
                 ? content.tryDifferentSearch
-                : content.emptyDescription}
+                : activeTab === "review"
+                  ? isRTL
+                    ? "لا توجد مهام تنتظر مراجعتك حالياً."
+                    : "There are no tasks pending your review right now."
+                  : content.emptyDescription}
             </p>
           </div>
         ) : (
@@ -178,12 +241,15 @@ const TasksClient = () => {
                             {task.assignedTo.map((user, idx) => {
                               // Only show others
                               if ((user._id || user) === userId) return null;
-                              
-                              const displayName = user.name && user.name !== "null null" 
-                                ? user.name 
-                                : user.email?.split("@")[0].replace(/[0-9]/g, "") || "?";
+
+                              const displayName =
+                                user.name && user.name !== "null null"
+                                  ? user.name
+                                  : user.email
+                                      ?.split("@")[0]
+                                      .replace(/[0-9]/g, "") || "?";
                               return (
-                                <span 
+                                <span
                                   key={user._id || idx}
                                   className="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
                                 >
@@ -224,17 +290,15 @@ const TasksClient = () => {
                               <CheckCircle className="w-3.5 h-3.5 shrink-0" />
                             );
                             label = isRTL
-                              ? `منتهي • ${fmtDate}`
-                              : `Ended • ${fmtDate}`;
-                          } else if (isOverdue) {
-                            bg = "bg-red-100 dark:bg-red-900/40";
-                            text = "text-red-700 dark:text-red-300";
-                            icon = (
-                              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                            );
+                              ? `مكتملة • ${fmtDate}`
+                              : `Completed • ${fmtDate}`;
+                          } else if (task.status === "ended" || isOverdue) {
+                            bg = "bg-gray-200 dark:bg-gray-700";
+                            text = "text-gray-700 dark:text-gray-300";
+                            icon = <XCircle className="w-3.5 h-3.5 shrink-0" />;
                             label = isRTL
-                              ? `متأخر • ${fmtDate}`
-                              : `Overdue • ${fmtDate}`;
+                              ? `منتهية • ${fmtDate}`
+                              : `Ended • ${fmtDate}`;
                           } else if (isUrgent) {
                             bg = "bg-orange-100 dark:bg-orange-900/30";
                             text = "text-orange-700 dark:text-orange-300";

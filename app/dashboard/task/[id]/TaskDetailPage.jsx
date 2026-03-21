@@ -39,6 +39,8 @@ const getStatusStyle = (status) => {
       return "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200";
     case "rejected":
       return "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200";
+    case "ended":
+      return "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
     default:
       return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200";
   }
@@ -66,8 +68,14 @@ const getMemberStatusBadge = (status, isRTL) => {
       cls: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
       icon: <XCircle className="w-3 h-3" />,
     },
+    ended: {
+      label: isRTL ? "منتهية" : "Ended",
+      cls: "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300",
+      icon: <XCircle className="w-3 h-3" />,
+    },
   };
-  return map[status] || map.open;
+  const statusKey = status === "ended" ? "ended" : status;
+  return map[statusKey] || map.open;
 };
 
 // ─── Sub-component: a single member's submission card ───────────────────────
@@ -276,6 +284,17 @@ function MemberSubmissionCard({
                     locale: dateLocale,
                   })}
                 </p>
+              )}
+
+              {status === "completed" && memberSub?.review?.reviewedBy && (
+                <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                  <p className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    {content.acceptedBy}:{" "}
+                    {memberSub.review.reviewedBy.name ||
+                      memberSub.review.reviewedBy.email?.split("@")[0]}
+                  </p>
+                </div>
               )}
             </div>
           )}

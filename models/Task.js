@@ -83,14 +83,9 @@ const TaskSchema = new Schema(
       ref: "User",
       required: true,
     },
-    // Overall task status - auto-computed:
-    // "open"      → at least one member hasn't submitted yet
-    // "submitted" → at least one member submitted (but not all accepted)
-    // "completed" → ALL members' submissions accepted
-    // "rejected"  → kept for backward compat / single-member tasks
     status: {
       type: String,
-      enum: ["open", "submitted", "rejected", "completed"],
+      enum: ["open", "submitted", "rejected", "completed", "ended"],
       default: "open",
     },
     referenceLink: {
@@ -153,8 +148,34 @@ const TaskSchema = new Schema(
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        if (
+          ret.status !== "completed" &&
+          ret.status !== "rejected" &&
+          ret.dueDate &&
+          new Date(ret.dueDate) < new Date()
+        ) {
+          ret.status = "ended";
+        }
+        return ret;
+      },
+    },
+    toObject: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        if (
+          ret.status !== "completed" &&
+          ret.status !== "rejected" &&
+          ret.dueDate &&
+          new Date(ret.dueDate) < new Date()
+        ) {
+          ret.status = "ended";
+        }
+        return ret;
+      },
+    },
   },
 );
 
