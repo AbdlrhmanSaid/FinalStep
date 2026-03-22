@@ -174,7 +174,8 @@ const ProjectDetailPage = () => {
         return (
           effectiveStatus !== "completed" &&
           effectiveStatus !== "finished" &&
-          effectiveStatus !== "rejected"
+          effectiveStatus !== "rejected" &&
+          effectiveStatus !== "ended"
         );
       }
       if (taskFilter === "completed") {
@@ -185,6 +186,13 @@ const ProjectDetailPage = () => {
           effectiveStatus === "completed" || effectiveStatus === "finished"
         );
       }
+      if (taskFilter === "end") {
+        const effectiveStatus = isLeader
+          ? task.status
+          : getMySubmissionStatus(task);
+        return effectiveStatus === "ended";
+      }
+
       return true; // "all"
     });
   }, [tasks, data, isLeader, userId, taskFilter, getMySubmissionStatus]);

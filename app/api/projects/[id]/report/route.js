@@ -23,8 +23,12 @@ export async function GET(req, { params }) {
       "name email",
     );
 
-    const completedTasks = tasks.filter((task) => task.status === "completed");
-    const remainingTasks = tasks.filter((task) => task.status !== "completed");
+    const completedTasks = tasks.filter(
+      (task) => task.toJSON().status === "completed",
+    );
+    const remainingTasks = tasks.filter(
+      (task) => task.toJSON().status !== "completed",
+    );
 
     const formatName = (user) => {
       if (!user) return "Unknown";
@@ -34,7 +38,8 @@ export async function GET(req, { params }) {
 
     let overdueTasksCount = 0;
 
-    const taskDetails = tasks.map((task) => {
+    const taskDetails = tasks.map((taskDocument) => {
+      const task = taskDocument.toJSON();
       const due = new Date(task.dueDate);
       const today = new Date();
       const isOverdue =
@@ -52,7 +57,7 @@ export async function GET(req, { params }) {
         dueDate: task.dueDate,
         isOverdue,
         submissionMethod: task.submissionMethod,
-        assignedTo: task.assignedTo.map(formatName),
+        assignedTo: task.assignedTo ? task.assignedTo.map(formatName) : [],
       };
     });
 

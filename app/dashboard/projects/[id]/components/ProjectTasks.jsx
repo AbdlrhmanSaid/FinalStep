@@ -169,7 +169,15 @@ export default function ProjectTasks({
                   size="sm"
                   className={`flex-1 sm:flex-none ${taskFilter === "completed" ? "shadow-sm" : ""}`}
                 >
-                  {isRTL ? "المنتهي" : "Completed"}
+                  {isRTL ? "المكتمل" : "Completed"}
+                </Button>
+                <Button
+                  variant={taskFilter === "end" ? "default" : "ghost"}
+                  onClick={() => setTaskFilter("end")}
+                  size="sm"
+                  className={`flex-1 sm:flex-none ${taskFilter === "end" ? "shadow-sm" : ""}`}
+                >
+                  {isRTL ? "المنتهي" : "End"}
                 </Button>
               </div>
             )}

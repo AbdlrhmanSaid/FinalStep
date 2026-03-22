@@ -172,9 +172,9 @@ const ReportPage = () => {
                   <div className="task-header">
                     <h4>{safeValue(task.title)}</h4>
                     <span className={`status ${task.status}`}>
-                      {task.status === "completed"
-                        ? content.statusCompleted
-                        : content.statusOpen}
+                      {translations[language]?.dashboard?.taskDetails?.status?.[
+                        task.status
+                      ] || task.status}
                     </span>
                   </div>
 

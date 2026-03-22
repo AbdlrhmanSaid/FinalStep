@@ -96,18 +96,31 @@ export default function TeamReportPage() {
         return;
       }
 
-      const completedCount = memberTasks.filter(
-        (t) => t.status === "completed",
-      ).length;
-      const overdueCount = memberTasks.filter(
-        (t) =>
-          t.dueDate &&
-          t.status !== "completed" &&
-          isBefore(new Date(t.dueDate), new Date()) &&
-          !isToday(new Date(t.dueDate)),
-      ).length;
+      const getMemberEffectiveStatus = (task, memberId) => {
+        if (!task.memberSubmissions || task.memberSubmissions.length === 0)
+          return task.status;
+        const mySub = task.memberSubmissions.find(
+          (s) =>
+            (s.userId?._id || s.userId)?.toString() === memberId?.toString(),
+        );
+        return mySub ? mySub.status : task.status;
+      };
 
-      let completionRate = completedCount / totalTasks;
+      const completedCount = memberTasks.filter(
+        (t) => getMemberEffectiveStatus(t, member._id) === "completed",
+      ).length;
+      const overdueCount = memberTasks.filter((t) => {
+        const mStatus = getMemberEffectiveStatus(t, member._id);
+        return (
+          t.dueDate &&
+          mStatus !== "completed" &&
+          mStatus !== "submitted" &&
+          isBefore(new Date(t.dueDate), new Date()) &&
+          !isToday(new Date(t.dueDate))
+        );
+      }).length;
+
+      let completionRate = totalTasks > 0 ? completedCount / totalTasks : 0;
       let rating = 0;
       if (completionRate >= 0.9) rating = 5;
       else if (completionRate >= 0.7) rating = 4;
@@ -123,8 +136,8 @@ export default function TeamReportPage() {
 
       if (overdueCount > 0) {
         notes += isRTL
-          ? ` (لديه ${overdueCount} مهام متأخرة)`
-          : ` (${overdueCount} overdue tasks)`;
+          ? ` (لديه ${overdueCount} مهام متأخرة/منتهية)`
+          : ` (${overdueCount} overdue/ended tasks)`;
         if (rating > 1) rating -= 1;
       }
 
@@ -229,19 +242,38 @@ export default function TeamReportPage() {
                       t.assignedTo?.some((u) => u._id === member._id),
                   ) || [];
 
+                const getMemberEffectiveStatus = (task, memberId) => {
+                  if (
+                    !task.memberSubmissions ||
+                    task.memberSubmissions.length === 0
+                  )
+                    return task.status;
+                  const mySub = task.memberSubmissions.find(
+                    (s) =>
+                      (s.userId?._id || s.userId)?.toString() ===
+                      memberId?.toString(),
+                  );
+                  return mySub ? mySub.status : task.status;
+                };
+
                 const activeTasks = memberTasks.filter(
-                  (t) => t.status !== "completed",
+                  (t) =>
+                    getMemberEffectiveStatus(t, member._id) !== "completed",
                 );
                 const completedTasks = memberTasks.filter(
-                  (t) => t.status === "completed",
-                );
-                const overdueTasks = memberTasks.filter(
                   (t) =>
-                    t.dueDate &&
-                    t.status !== "completed" &&
-                    isBefore(new Date(t.dueDate), new Date()) &&
-                    !isToday(new Date(t.dueDate)),
+                    getMemberEffectiveStatus(t, member._id) === "completed",
                 );
+                const overdueTasks = memberTasks.filter((t) => {
+                  const mStatus = getMemberEffectiveStatus(t, member._id);
+                  return (
+                    t.dueDate &&
+                    mStatus !== "completed" &&
+                    mStatus !== "submitted" &&
+                    isBefore(new Date(t.dueDate), new Date()) &&
+                    !isToday(new Date(t.dueDate))
+                  );
+                });
 
                 const evalData = evaluations[member._id] || {
                   rating: 0,

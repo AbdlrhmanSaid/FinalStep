@@ -34,7 +34,7 @@ const MemberSubmissionSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["open", "submitted", "completed", "rejected"],
+      enum: ["open", "submitted", "completed", "rejected", "ended"],
       default: "open",
     },
     review: {
@@ -154,10 +154,25 @@ const TaskSchema = new Schema(
         if (
           ret.status !== "completed" &&
           ret.status !== "rejected" &&
+          ret.status !== "submitted" &&
           ret.dueDate &&
           new Date(ret.dueDate) < new Date()
         ) {
           ret.status = "ended";
+        }
+
+        if (ret.memberSubmissions && Array.isArray(ret.memberSubmissions)) {
+          ret.memberSubmissions.forEach((sub) => {
+            if (
+              sub.status !== "completed" &&
+              sub.status !== "rejected" &&
+              sub.status !== "submitted" &&
+              ret.dueDate &&
+              new Date(ret.dueDate) < new Date()
+            ) {
+              sub.status = "ended";
+            }
+          });
         }
         return ret;
       },
@@ -168,10 +183,25 @@ const TaskSchema = new Schema(
         if (
           ret.status !== "completed" &&
           ret.status !== "rejected" &&
+          ret.status !== "submitted" &&
           ret.dueDate &&
           new Date(ret.dueDate) < new Date()
         ) {
           ret.status = "ended";
+        }
+
+        if (ret.memberSubmissions && Array.isArray(ret.memberSubmissions)) {
+          ret.memberSubmissions.forEach((sub) => {
+            if (
+              sub.status !== "completed" &&
+              sub.status !== "rejected" &&
+              sub.status !== "submitted" &&
+              ret.dueDate &&
+              new Date(ret.dueDate) < new Date()
+            ) {
+              sub.status = "ended";
+            }
+          });
         }
         return ret;
       },
