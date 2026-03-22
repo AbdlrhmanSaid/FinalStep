@@ -31,13 +31,13 @@ export default function Navbar({
                   transition-all duration-300
                   ${isRTL ? "rtl" : "ltr"}`}
       >
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <div className="flex items-center space-x-4 rtl:space-x-reverse shrink-0 group">
+            <div className="flex items-center gap-1 shrink-0 group">
               <Link
                 href="/"
-                className="flex items-center gap-2 shrink-0 group transition-transform duration-300"
+                className="flex items-center gap-1 shrink-0 group transition-transform duration-300"
               >
                 <div className="relative overflow-hidden rounded-lg w-9 h-9 transition-transform duration-300 group-hover:scale-105 ">
                   <img
@@ -57,39 +57,37 @@ export default function Navbar({
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:block">
-              <div className={`flex items-center gap-8 `}>
-                <a
-                  href="#features"
+            <div className="hidden md:flex items-center gap-1 p-2 flex-1 justify-center px-4 overflow-x-auto">
+              <a
+                href="#features"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                {t.features}
+              </a>
+              <a
+                href="#about"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                {t.about}
+              </a>
+              <a
+                href="#contact"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                {t.contact}
+              </a>
+              {isSignedIn && (
+                <Link
+                  href="/dashboard"
                   className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  {t.features}
-                </a>
-                <a
-                  href="#about"
-                  className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  {t.about}
-                </a>
-                <a
-                  href="#contact"
-                  className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  {t.contact}
-                </a>
-                {isSignedIn && (
-                  <Link
-                    href="/dashboard"
-                    className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    {t.dashboard}
-                  </Link>
-                )}
-              </div>
+                  {t.dashboard}
+                </Link>
+              )}
             </div>
 
             {/* Controls */}
-            <div className={`flex items-center space-x-4 rtl:space-x-reverse`}>
+            <div className="flex items-center gap-2 shrink-0">
               {/* Language Toggle */}
               <button
                 onClick={toggleLanguage}
