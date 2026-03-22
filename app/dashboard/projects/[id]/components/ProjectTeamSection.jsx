@@ -44,7 +44,7 @@ export default function ProjectTeamSection({
       </button>
 
       <div
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+        className={`transition-all duration-300 ease-in-out overflow-auto ${
           teamOpen ? "max-h-[600px] gap-2 opacity-100" : "max-h-0 opacity-0"
         }`}
       >

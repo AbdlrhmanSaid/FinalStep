@@ -6,7 +6,7 @@ import Navbar from "@/app/dashboard/components/Navbar";
 import DashboardFooter from "@/app/dashboard/components/DashboardFooter";
 
 export const metadata = {
-  title: "FinalStep Dashboard",
+  title: "Dashboard",
   description: "Modern bilingual project management dashboard",
 };
 

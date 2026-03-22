@@ -77,10 +77,10 @@ export default function DashboardNav() {
         <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <div className="flex items-center gap-3 shrink-0 group">
+            <div className="flex items-center gap-1 shrink-0 group">
               <Link
                 href={"/"}
-                className="flex items-center gap-3 shrink-0 group transition-transform duration-300"
+                className="flex items-center gap-1 shrink-0 group transition-transform duration-300"
               >
                 <div className="relative overflow-hidden rounded-lg w-9 h-9 transition-transform duration-300 group-hover:scale-105 ">
                   <img
