@@ -6,7 +6,7 @@ export async function PUT(request, { params }) {
   try {
     await dbConnect();
 
-    const { id: projectId } = params;
+    const { id: projectId } = await params;
     const body = await request.json();
     const { userId } = body;
 

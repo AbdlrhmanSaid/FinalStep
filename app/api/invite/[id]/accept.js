@@ -6,7 +6,7 @@ import User from "../../../../models/User";
 export async function PUT(request, { params }) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
     const { userId } = await request.json();
 
     const invite = await InviteRequest.findById(id);

@@ -182,7 +182,7 @@ export default function TeamReportPage() {
   return (
     <CheckUserRole projectId={id}>
       <div className="team-report-wrapper" dir={isRTL ? "rtl" : "ltr"}>
-        <div className="flex gap-4 mb-6">
+        <div className="flex md:flex-row flex-col gap-4 mb-6">
           <Button
             onClick={handlePrint}
             disabled={isPrinting}

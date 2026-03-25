@@ -10,6 +10,12 @@ const UserSchema = new Schema(
     name: {
       type: String,
       required: true,
+      get: function (v) {
+        if (!v || v === "null null" || v.trim().toLowerCase() === "null null") {
+          return this.email ? this.email.split("@")[0] : "Unknown User";
+        }
+        return v;
+      },
     },
     email: {
       type: String,
@@ -43,7 +49,11 @@ const UserSchema = new Schema(
       ],
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: { getters: true },
+    toObject: { getters: true },
+  },
 );
 
 const User = models.User || model("User", UserSchema);

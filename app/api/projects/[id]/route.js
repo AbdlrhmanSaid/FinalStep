@@ -53,7 +53,7 @@ export async function GET(request, { params }) {
 export async function DELETE(request, context) {
   try {
     await dbConnect();
-    const { params } = await context;
+    const params = await context.params;
     const { id } = params;
     const userId = request.headers.get("userId");
 
@@ -98,8 +98,8 @@ export async function PUT(request, context) {
   try {
     await dbConnect();
 
-    const { params } = context;
-    const { id } = await params;
+    const params = await context.params;
+    const { id } = params;
     const userId = request.headers.get("userId");
     const body = await request.json();
 

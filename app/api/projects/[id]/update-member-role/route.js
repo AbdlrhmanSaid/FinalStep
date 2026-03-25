@@ -7,7 +7,7 @@ import Task from "../../../../../models/Task";
 export async function PUT(req, { params }) {
   try {
     await dbConnect();
-    const { id: projectId } = params;
+    const { id: projectId } = await params;
     const { userId, action } = await req.json();
 
     const project = await Project.findById(projectId);

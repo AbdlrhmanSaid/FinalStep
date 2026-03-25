@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 export async function POST(request, context) {
   try {
     await dbConnect();
-    const { params } = await context;
+    const params = await context.params;
     const { id } = params;
 
     // Using formData or JSON depending on caller, UpdateTeam uses JSON

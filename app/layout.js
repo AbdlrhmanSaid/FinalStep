@@ -83,7 +83,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" dir="ltr">
+    <html lang="en" dir="ltr" data-scroll-behavior="smooth">
       <head>
         <JsonLd />
       </head>

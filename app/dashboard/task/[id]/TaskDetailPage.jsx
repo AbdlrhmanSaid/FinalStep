@@ -80,7 +80,6 @@ const getMemberStatusBadge = (status, isRTL) => {
   return map[statusKey] || map.open;
 };
 
-// ─── Sub-component: a single member's submission card ───────────────────────
 
 function MemberSubmissionCard({
   memberSub,

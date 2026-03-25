@@ -4,7 +4,7 @@ import Project from "../../../../../models/Project";
 export async function PUT(req, { params }) {
   try {
     await dbConnect();
-    const { id: projectId } = params;
+    const { id: projectId } = await params;
 
     // Parse the body to get userId, title, and action
     const { userId, title } = await req.json();
