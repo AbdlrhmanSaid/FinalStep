@@ -148,12 +148,15 @@ export async function PUT(request, { params }) {
         memberSub = task.memberSubmissions[task.memberSubmissions.length - 1];
       }
 
-      // Only allow submit when status is open or rejected
-      if (memberSub.status !== "open" && memberSub.status !== "rejected") {
+      if (submittingUserId !== userId && !isLeader) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      }
+
+      // Only allow submit when status is open, rejected, or completed
+      if (!["open", "rejected", "completed"].includes(memberSub.status)) {
         return NextResponse.json(
           {
-            error:
-              "Cannot resubmit: submission is already under review or completed",
+            error: "Cannot resubmit: submission is already under review",
           },
           { status: 400 },
         );

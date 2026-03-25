@@ -80,7 +80,6 @@ const getMemberStatusBadge = (status, isRTL) => {
   return map[statusKey] || map.open;
 };
 
-
 function MemberSubmissionCard({
   memberSub,
   isCurrentUser,
@@ -314,119 +313,126 @@ function MemberSubmissionCard({
             </div>
           )}
 
-          {/* Current user: submit or resubmit */}
-          {isCurrentUser && (status === "open" || status === "rejected") && (
-            <>
-              {!showSubmitForm ? (
-                <div className="flex justify-end">
-                  <Button
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={() => {
-                      setSubmissionDesc(memberSub?.description || "");
-                      setSubmissionLinks(
-                        memberSub?.links?.length > 0 ? memberSub.links : [""],
-                      );
-                      setShowSubmitForm(true);
-                    }}
-                  >
-                    <Send className="w-4 h-4 mr-1" />
-                    {status === "rejected"
-                      ? isRTL
-                        ? "إعادة التسليم"
-                        : "Resubmit"
-                      : content.submitTask}
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {submissionMethod !== "link" && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {content.submissionDescription}
-                      </label>
-                      <textarea
-                        rows={3}
-                        className="w-full p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
-                        placeholder={content.describeWork}
-                        value={submissionDesc}
-                        onChange={(e) => setSubmissionDesc(e.target.value)}
-                      />
-                    </div>
-                  )}
-                  {submissionMethod !== "text" && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {content.submissionLinks}
-                      </label>
-                      <div className="space-y-2">
-                        {submissionLinks.map((link, idx) => (
-                          <div key={idx} className="flex gap-2">
-                            <input
-                              type="text"
-                              className="flex-1 p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
-                              placeholder={
-                                content.linksPlaceholder || "https://..."
-                              }
-                              value={link}
-                              onChange={(e) => {
-                                const newLinks = [...submissionLinks];
-                                newLinks[idx] = e.target.value;
-                                setSubmissionLinks(newLinks);
-                              }}
-                            />
-                            {submissionLinks.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const newLinks = submissionLinks.filter(
-                                    (_, i) => i !== idx,
-                                  );
-                                  setSubmissionLinks(newLinks);
-                                }}
-                                className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded border border-transparent"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                      <div className="mt-2 text-start">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setSubmissionLinks([...submissionLinks, ""])
-                          }
-                          className="text-sm text-blue-600 dark:text-blue-400 inline-flex items-center gap-1 hover:underline"
-                        >
-                          <Plus className="w-4 h-4" />
-                          {isRTL ? "إضافة رابط آخر" : "Add another link"}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex justify-end gap-2">
+          {/* Current user or Leader: submit or resubmit */}
+          {(isCurrentUser || isProjectLeader) &&
+            (status === "open" ||
+              status === "rejected" ||
+              status === "completed") && (
+              <>
+                {!showSubmitForm ? (
+                  <div className="flex justify-end pt-3 border-t border-gray-100 dark:border-gray-700">
                     <Button
-                      variant="outline"
-                      onClick={() => setShowSubmitForm(false)}
-                      disabled={isSubmitting}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={() => {
+                        setSubmissionDesc(memberSub?.description || "");
+                        setSubmissionLinks(
+                          memberSub?.links?.length > 0 ? memberSub.links : [""],
+                        );
+                        setShowSubmitForm(true);
+                      }}
                     >
-                      {content.cancel}
-                    </Button>
-                    <Button
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                      onClick={handleSubmit}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting
-                        ? content.processing
-                        : content.confirmSubmit}
+                      <Send className="w-4 h-4 mr-1" />
+                      {status === "completed"
+                        ? isRTL
+                          ? "تعديل التسليم"
+                          : "Edit Submission"
+                        : status === "rejected"
+                          ? isRTL
+                            ? "إعادة التسليم"
+                            : "Resubmit"
+                          : content.submitTask}
                     </Button>
                   </div>
-                </div>
-              )}
-            </>
-          )}
+                ) : (
+                  <div className="space-y-3">
+                    {submissionMethod !== "link" && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          {content.submissionDescription}
+                        </label>
+                        <textarea
+                          rows={3}
+                          className="w-full p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
+                          placeholder={content.describeWork}
+                          value={submissionDesc}
+                          onChange={(e) => setSubmissionDesc(e.target.value)}
+                        />
+                      </div>
+                    )}
+                    {submissionMethod !== "text" && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          {content.submissionLinks}
+                        </label>
+                        <div className="space-y-2">
+                          {submissionLinks.map((link, idx) => (
+                            <div key={idx} className="flex gap-2">
+                              <input
+                                type="text"
+                                className="flex-1 p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
+                                placeholder={
+                                  content.linksPlaceholder || "https://..."
+                                }
+                                value={link}
+                                onChange={(e) => {
+                                  const newLinks = [...submissionLinks];
+                                  newLinks[idx] = e.target.value;
+                                  setSubmissionLinks(newLinks);
+                                }}
+                              />
+                              {submissionLinks.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newLinks = submissionLinks.filter(
+                                      (_, i) => i !== idx,
+                                    );
+                                    setSubmissionLinks(newLinks);
+                                  }}
+                                  className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded border border-transparent"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-2 text-start">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setSubmissionLinks([...submissionLinks, ""])
+                            }
+                            className="text-sm text-blue-600 dark:text-blue-400 inline-flex items-center gap-1 hover:underline"
+                          >
+                            <Plus className="w-4 h-4" />
+                            {isRTL ? "إضافة رابط آخر" : "Add another link"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowSubmitForm(false)}
+                        disabled={isSubmitting}
+                      >
+                        {content.cancel}
+                      </Button>
+                      <Button
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting
+                          ? content.processing
+                          : content.confirmSubmit}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
 
           {/* Leader: accept / reject */}
           {isProjectLeader && status === "submitted" && (
