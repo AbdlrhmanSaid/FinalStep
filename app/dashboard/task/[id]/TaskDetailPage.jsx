@@ -24,6 +24,8 @@ import {
   ChevronUp,
   Send,
   User,
+  Plus,
+  X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -98,7 +100,7 @@ function MemberSubmissionCard({
     memberSub?.description || "",
   );
   const [submissionLinks, setSubmissionLinks] = useState(
-    memberSub?.links?.join(", ") || "",
+    memberSub?.links?.length > 0 ? memberSub.links : [""],
   );
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [reviewNote, setReviewNote] = useState("");
@@ -131,10 +133,7 @@ function MemberSubmissionCard({
       toast.error(content.provideDescription);
       return;
     }
-    const links = submissionLinks
-      .split(",")
-      .map((l) => l.trim())
-      .filter((l) => l);
+    const links = submissionLinks.map((l) => l.trim()).filter((l) => l);
 
     if (submissionMethod !== "text") {
       if (links.length === 0) {
@@ -246,14 +245,19 @@ function MemberSubmissionCard({
       {expanded && (
         <div className="p-4 border-t border-gray-100 dark:border-gray-700 space-y-4">
           {/* Submission details */}
-          {memberSub?.description && (
+          {(memberSub?.description ||
+            (memberSub?.links && memberSub.links.length > 0)) && (
             <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg space-y-2">
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                {content.submissionDescription}
-              </h4>
-              <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
-                {memberSub.description}
-              </p>
+              {memberSub?.description && (
+                <>
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                    {content.submissionDescription}
+                  </h4>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
+                    {memberSub.description}
+                  </p>
+                </>
+              )}
 
               {memberSub.links?.length > 0 && (
                 <div>
@@ -320,7 +324,9 @@ function MemberSubmissionCard({
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                     onClick={() => {
                       setSubmissionDesc(memberSub?.description || "");
-                      setSubmissionLinks(memberSub?.links?.join(", ") || "");
+                      setSubmissionLinks(
+                        memberSub?.links?.length > 0 ? memberSub.links : [""],
+                      );
                       setShowSubmitForm(true);
                     }}
                   >
@@ -353,16 +359,51 @@ function MemberSubmissionCard({
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         {content.submissionLinks}
                       </label>
-                      <input
-                        type="text"
-                        className="w-full p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
-                        placeholder={content.linksPlaceholder}
-                        value={submissionLinks}
-                        onChange={(e) => setSubmissionLinks(e.target.value)}
-                      />
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {content.enterValidUrls}
-                      </p>
+                      <div className="space-y-2">
+                        {submissionLinks.map((link, idx) => (
+                          <div key={idx} className="flex gap-2">
+                            <input
+                              type="text"
+                              className="flex-1 p-2 border dark:border-gray-600 rounded bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-white"
+                              placeholder={
+                                content.linksPlaceholder || "https://..."
+                              }
+                              value={link}
+                              onChange={(e) => {
+                                const newLinks = [...submissionLinks];
+                                newLinks[idx] = e.target.value;
+                                setSubmissionLinks(newLinks);
+                              }}
+                            />
+                            {submissionLinks.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newLinks = submissionLinks.filter(
+                                    (_, i) => i !== idx,
+                                  );
+                                  setSubmissionLinks(newLinks);
+                                }}
+                                className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded border border-transparent"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-2 text-start">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSubmissionLinks([...submissionLinks, ""])
+                          }
+                          className="text-sm text-blue-600 dark:text-blue-400 inline-flex items-center gap-1 hover:underline"
+                        >
+                          <Plus className="w-4 h-4" />
+                          {isRTL ? "إضافة رابط آخر" : "Add another link"}
+                        </button>
+                      </div>
                     </div>
                   )}
                   <div className="flex justify-end gap-2">
