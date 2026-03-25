@@ -54,7 +54,7 @@ export default function ProjectTasks({
   dateLocale,
   getMySubmissionStatus,
 }) {
-  const [tasksOpen, setTasksOpen] = useState(false);
+  const [tasksOpen, setTasksOpen] = useState(true);
 
   if (!isLeader && !isMember) {
     return null;
