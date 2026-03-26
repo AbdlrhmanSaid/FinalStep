@@ -1,271 +1,481 @@
-/* أساسيات الصفحة */
-.report-container {
-  background-color: #f3f4f6;
+/* ══════════════════════════════════════════════════
+   ReportPage — Modern Design
+   دعم RTL/LTR + Print
+══════════════════════════════════════════════════ */
+
+/* ── Container ────────────────────────────────── */
+.rp-container {
   min-height: 100vh;
-  padding: 1.5rem;
+  background: #f0f2f8;
+  padding: 2rem 1rem 4rem;
 }
 
-.error-message {
-  padding: 1rem;
+.rp-error {
+  padding: 2rem;
   text-align: center;
   color: #ef4444;
+  font-size: 1rem;
 }
 
-.print-button {
+/* ── Action bar ───────────────────────────────── */
+.rp-actions {
+  max-width: 860px;
+  margin: 0 auto 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Print settings hint card ─────────────────── */
+.rp-print-hint {
+  max-width: 860px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 0.85rem 1.1rem;
+}
+
+.rp-hint-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+
+.rp-hint-body { flex: 1; }
+
+.rp-hint-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 0.4rem;
+}
+
+.rp-hint-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.25rem;
+}
+
+.rp-hint-list li { font-size: 0.78rem; color: #78350f; }
+
+.rp-hint-key { font-weight: 600; }
+
+.rp-hint-val {
+  font-weight: 700;
+  color: #b45309;
+  background: #fef3c7;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.rp-print-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-/* صفحة التقرير */
-.report-page {
-  background-color: white;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  max-width: 56rem;
-  margin: 0 auto;
-}
-
-/* عنوان التقرير */
-.report-header {
-  text-align: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.report-header h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.report-header h2 {
-  font-size: 1.125rem;
+  background: #4f46e5;
+  color: white;
+  border-radius: 10px;
+  padding: 0.55rem 1.25rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: #2563eb;
-  margin-top: 0.25rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(79,70,229,0.35);
+  transition: background 0.2s, transform 0.15s;
+}
+.rp-print-btn:hover { background: #4338ca; transform: translateY(-1px); }
+.rp-print-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* ── Report paper ─────────────────────────────── */
+.rp-page {
+  background: #fff;
+  max-width: 860px;
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+  overflow: hidden;
 }
 
-/* معلومات القائد */
-.leader-info,
-.coleaders-info {
-  background-color: #f9fafb;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
+/* ── Header ───────────────────────────────────── */
+.rp-header {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  padding: 2.5rem 2.5rem 2rem;
+  text-align: center;
+  color: white;
+}
+
+.rp-header-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  padding: 0.25rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   margin-bottom: 0.75rem;
 }
 
-.leader-info h3,
-.coleaders-info h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.25rem;
+.rp-project-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem;
+  line-height: 1.2;
 }
 
-.leader-info p,
-.coleaders-info p {
-  color: #1f2937;
-}
-
-/* إحصائيات المهام */
-.tasks-stats {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-@media (min-width: 768px) {
-  .tasks-stats {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.stat-card {
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid;
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-.stat-card h4 {
-  font-size: 0.8rem;
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-}
-
-.stat-card p {
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.total-tasks {
-  background-color: #eff6ff;
-  border-color: #bfdbfe;
-}
-
-.total-tasks h4 {
-  color: #2563eb;
-}
-
-.total-tasks p {
-  color: #1e40af;
-}
-
-.completed-tasks {
-  background-color: #ecfdf5;
-  border-color: #a7f3d0;
-}
-
-.completed-tasks h4 {
-  color: #059669;
-}
-
-.completed-tasks p {
-  color: #065f46;
-}
-
-.remaining-tasks {
-  background-color: #fff7ed;
-  border-color: #fed7aa;
-}
-
-.remaining-tasks h4 {
-  color: #d97706;
-}
-
-.remaining-tasks p {
-  color: #92400e;
-}
-
-/* قائمة المهام */
-.tasks-list {
-  margin-bottom: 1rem;
-}
-
-.tasks-list h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-}
-
-.tasks-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.task-item {
-  padding: 0.75rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  page-break-inside: avoid;
-  break-inside: avoid;
-}
-
-.task-item:hover {
-  background-color: #f9fafb;
-}
-
-.task-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.task-header h4 {
-  font-weight: 500;
-  color: #1f2937;
-  font-size: 0.9rem;
+.rp-date {
+  font-size: 0.85rem;
+  opacity: 0.8;
   margin: 0;
 }
 
-.status {
-  padding: 0.15rem 0.4rem;
+/* ── Team strip ───────────────────────────────── */
+.rp-team-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  background: #fafafa;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.rp-team-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.rp-team-icon {
+  color: #6366f1;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.rp-team-label {
+  display: block;
   font-size: 0.7rem;
   font-weight: 600;
-  border-radius: 9999px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.status.completed {
-  color: #166534;
+.rp-team-value {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1f2937;
 }
 
-.status.open {
-  color: #4b5563;
+/* ── Stats grid ───────────────────────────────── */
+.rp-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-bottom: 1px solid #f1f1f1;
 }
 
-.task-details {
+.rp-stat {
+  padding: 1.25rem 1rem;
+  text-align: center;
+  border-right: 1px solid #f1f1f1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.rp-stat:last-child { border-right: none; }
+
+[dir="rtl"] .rp-stat { border-right: none; border-left: 1px solid #f1f1f1; }
+[dir="rtl"] .rp-stat:last-child { border-left: none; }
+
+.rp-stat-num {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.rp-stat-lbl {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.rp-stat-total  .rp-stat-num { color: #4f46e5; }
+.rp-stat-done   .rp-stat-num { color: #059669; }
+.rp-stat-remain .rp-stat-num { color: #d97706; }
+.rp-stat-overdue .rp-stat-num { color: #dc2626; }
+
+/* ── Progress ─────────────────────────────────── */
+.rp-progress-section {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.rp-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.rp-progress-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.rp-progress-pct {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #4f46e5;
+}
+
+.rp-progress-track {
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.rp-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  border-radius: 99px;
+  transition: width 0.6s ease;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.rp-progress-caption {
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+/* ── Tasks section ────────────────────────────── */
+.rp-tasks-section {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.rp-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rp-tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── Task card ────────────────────────────────── */
+.rp-task-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  background: #fafafa;
+  page-break-inside: avoid;
+  break-inside: avoid;
+  transition: box-shadow 0.2s;
+}
+
+.rp-task-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+
+.rp-task-card.rp-task-overdue {
+  border-color: #fecaca;
+  background: #fff9f9;
+}
+
+.rp-task-top {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.rp-task-index {
+  width: 22px;
+  height: 22px;
+  background: #ede9fe;
+  color: #6d28d9;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rp-task-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+  flex: 1;
+  margin: 0;
+}
+
+.rp-task-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  margin-top: 0.25rem;
+  margin-bottom: 0.4rem;
 }
 
-.priority {
-  padding: 0.15rem 0.4rem;
-  font-size: 0.7rem;
-  border-radius: 9999px;
-  font-weight: 600;
+.rp-task-assigned {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  flex-wrap: wrap;
 }
 
-.priority.high {
-  color: #991b1b;
-}
-
-.priority.medium {
-  color: #92400e;
-}
-
-.priority.low {
-  color: #4b5563;
-}
-
-.submission-method {
-  padding: 0.15rem 0.4rem;
-  font-size: 0.65rem;
-  color: #4b5563;
-  border-radius: 9999px;
-  background-color: #f3f4f6;
+.rp-assigned-names {
+  color: #374151;
   font-weight: 500;
 }
 
-.assigned-to {
-  padding: 0.15rem 0.4rem;
-  font-size: 0.7rem;
-  color: #1e40af;
-  border-radius: 9999px;
+/* ── Badges ───────────────────────────────────── */
+.rp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
   font-weight: 600;
 }
 
-/* ملخص التقرير */
-.report-summary {
-  background-color: #f9fafb;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
-  page-break-inside: avoid;
-  break-inside: avoid;
+/* Status */
+.rp-status.s-completed { background: #d1fae5; color: #065f46; }
+.rp-status.s-submitted { background: #dbeafe; color: #1e40af; }
+.rp-status.s-open      { background: #f3f4f6; color: #374151; }
+.rp-status.s-rejected  { background: #fee2e2; color: #991b1b; }
+.rp-status.s-ended     { background: #fef3c7; color: #92400e; }
+
+/* Priority */
+.rp-priority.p-high   { background: #fee2e2; color: #991b1b; }
+.rp-priority.p-medium { background: #fef3c7; color: #92400e; }
+.rp-priority.p-low    { background: #f3f4f6; color: #374151; }
+
+/* Method */
+.rp-method { background: #ede9fe; color: #5b21b6; }
+
+/* Due date */
+.rp-due      { background: #f0fdf4; color: #166534; }
+.rp-due-late { background: #fee2e2; color: #991b1b; }
+
+/* ── Summary ──────────────────────────────────── */
+.rp-summary {
+  padding: 1.5rem 2rem;
+  background: #f9fafb;
+  border-bottom: 1px solid #f1f1f1;
 }
 
-.report-summary h3 {
-  font-size: 1rem;
-  font-weight: 600;
+.rp-summary-body p {
+  font-size: 0.88rem;
   color: #374151;
-  margin-bottom: 0.25rem;
+  margin: 0 0 0.4rem;
+  line-height: 1.6;
 }
 
-.report-summary p {
-  color: #4b5563;
-  font-size: 0.8rem;
+.rp-summary-warn {
+  color: #b45309 !important;
+  background: #fffbeb;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
 }
 
-.report-summary p + p {
-  margin-top: 0.25rem;
+/* ── Footer ───────────────────────────────────── */
+.rp-footer {
+  padding: 1rem 2rem;
+  text-align: center;
+}
+
+.rp-footer p {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.rp-footer a {
+  color: #4f46e5;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* ══════════════════════════════════════════════════
+   🖨️ PRINT STYLES
+══════════════════════════════════════════════════ */
+@media print {
+  body * { visibility: hidden; }
+
+  #page, #page * { visibility: visible; }
+
+  #page {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+    background: white;
+    font-size: 10pt;
+    color: #000;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .no-print { display: none !important; }
+
+  .rp-header {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+    color: white !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .rp-task-card,
+  .rp-summary,
+  .rp-progress-section,
+  .rp-stat {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .rp-stats-grid { grid-template-columns: repeat(4, 1fr); }
+
+  @page {
+    size: A4 portrait;
+    margin: 1.2cm;
+  }
+}
+
+/* ── Responsive ───────────────────────────────── */
+@media (max-width: 640px) {
+  .rp-header { padding: 1.5rem 1rem; }
+  .rp-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .rp-team-strip, .rp-tasks-section, .rp-progress-section,
+  .rp-summary, .rp-footer { padding: 1rem; }
 }

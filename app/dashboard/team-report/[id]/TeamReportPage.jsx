@@ -16,6 +16,9 @@ import {
   Clock,
   RefreshCw,
   AlertCircle,
+  BarChart3,
+  Users,
+  TrendingUp,
 } from "lucide-react";
 import { isBefore, isToday } from "date-fns";
 import "./TeamReportPage.css";
@@ -37,7 +40,6 @@ export default function TeamReportPage() {
   const { language, isRTL } = useAppContext();
   const content = translations[language]?.dashboard?.teamReport || {};
 
-  // ── All hooks MUST be before any early return ─────────────────────────────
   const [evaluations, setEvaluations] = useState({});
   const [isPrinting, setIsPrinting] = useState(false);
 
@@ -47,18 +49,11 @@ export default function TeamReportPage() {
   };
   const isRefetching = isProjectFetching || isTasksFetching;
 
-  // ── Early returns AFTER all hooks ─────────────────────────────────────────
   if (isProjectLoading || isTasksLoading) return <Loading />;
+  if (!project)
+    return <div className="tr-error">Error loading project data</div>;
 
-  if (!project) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-red-500">Error loading project data</p>
-      </div>
-    );
-  }
-
-  // ── Derived data (after early returns, safe to use project) ───────────────
+  // ── helpers ──────────────────────────────────────────────
   const coLeaderIds = new Set((project.coLeaders || []).map((u) => u._id));
   const uniqueMembers = (project.members || []).filter(
     (u) => !coLeaderIds.has(u._id),
@@ -66,388 +61,469 @@ export default function TeamReportPage() {
   const allMembers = uniqueMembers.map((u) => ({ ...u, _role: "member" }));
 
   const today = new Date();
-  const dateString = today.toLocaleDateString(
-    language === "ar" ? "ar-EG" : "en-US",
-    {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    },
-  );
+  const dateString = today.toLocaleDateString(isRTL ? "ar-EG" : "en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
-  // ── Handlers (use allMembers safely after early returns) ──────────────────
+  const getMemberEffectiveStatus = (task, memberId) => {
+    if (!task.memberSubmissions?.length) return task.status;
+    const mySub = task.memberSubmissions.find(
+      (s) => (s.userId?._id || s.userId)?.toString() === memberId?.toString(),
+    );
+    return mySub ? mySub.status : task.status;
+  };
+
+  const getMemberStats = (member) => {
+    const memberTasks =
+      tasks?.filter(
+        (t) =>
+          t.projectId?._id === id &&
+          t.assignedTo?.some((u) => u._id === member._id),
+      ) || [];
+
+    const completed = memberTasks.filter(
+      (t) => getMemberEffectiveStatus(t, member._id) === "completed",
+    );
+    const submitted = memberTasks.filter(
+      (t) => getMemberEffectiveStatus(t, member._id) === "submitted",
+    );
+    const active = memberTasks.filter(
+      (t) => !["completed"].includes(getMemberEffectiveStatus(t, member._id)),
+    );
+    const overdue = memberTasks.filter((t) => {
+      const s = getMemberEffectiveStatus(t, member._id);
+      return (
+        t.dueDate &&
+        s !== "completed" &&
+        s !== "submitted" &&
+        isBefore(new Date(t.dueDate), new Date()) &&
+        !isToday(new Date(t.dueDate))
+      );
+    });
+
+    const pct =
+      memberTasks.length > 0
+        ? Math.round((completed.length / memberTasks.length) * 100)
+        : 0;
+    return { total: memberTasks, completed, submitted, active, overdue, pct };
+  };
+
   const handleAutoEvaluate = () => {
-    const newEvaluations = { ...evaluations };
+    const next = { ...evaluations };
     allMembers.forEach((member) => {
-      const memberTasks =
-        tasks?.filter(
-          (t) =>
-            t.projectId?._id === id &&
-            t.assignedTo?.some((u) => u._id === member._id),
-        ) || [];
-      const totalTasks = memberTasks.length;
-
-      if (totalTasks === 0) {
-        newEvaluations[member._id] = {
+      const { total, completed, overdue } = getMemberStats(member);
+      if (total.length === 0) {
+        next[member._id] = {
           rating: 0,
-          notes: isRTL ? "ليس لديه مهام لتقييمه" : "No tasks to evaluate",
+          notes: isRTL ? "ليس لديه مهام" : "No tasks assigned",
         };
         return;
       }
-
-      const getMemberEffectiveStatus = (task, memberId) => {
-        if (!task.memberSubmissions || task.memberSubmissions.length === 0)
-          return task.status;
-        const mySub = task.memberSubmissions.find(
-          (s) =>
-            (s.userId?._id || s.userId)?.toString() === memberId?.toString(),
-        );
-        return mySub ? mySub.status : task.status;
-      };
-
-      const completedCount = memberTasks.filter(
-        (t) => getMemberEffectiveStatus(t, member._id) === "completed",
-      ).length;
-      const overdueCount = memberTasks.filter((t) => {
-        const mStatus = getMemberEffectiveStatus(t, member._id);
-        return (
-          t.dueDate &&
-          mStatus !== "completed" &&
-          mStatus !== "submitted" &&
-          isBefore(new Date(t.dueDate), new Date()) &&
-          !isToday(new Date(t.dueDate))
-        );
-      }).length;
-
-      let completionRate = totalTasks > 0 ? completedCount / totalTasks : 0;
-      let rating = 0;
-      if (completionRate >= 0.9) rating = 5;
-      else if (completionRate >= 0.7) rating = 4;
-      else if (completionRate >= 0.5) rating = 3;
-      else if (completionRate >= 0.3) rating = 2;
-      else if (completionRate > 0) rating = 1;
-      else rating = 0;
-
-      const percentage = Math.round(completionRate * 100);
-      let notes = isRTL
-        ? `نسبة الإنجاز: ${percentage}%`
-        : `Completion Rate: ${percentage}%`;
-
-      if (overdueCount > 0) {
+      const rate = completed.length / total.length;
+      let rating =
+        rate >= 0.9
+          ? 5
+          : rate >= 0.7
+            ? 4
+            : rate >= 0.5
+              ? 3
+              : rate >= 0.3
+                ? 2
+                : rate > 0
+                  ? 1
+                  : 0;
+      const pct = Math.round(rate * 100);
+      let notes = isRTL ? `نسبة الإنجاز: ${pct}%` : `Completion Rate: ${pct}%`;
+      if (overdue.length > 0) {
         notes += isRTL
-          ? ` (لديه ${overdueCount} مهام متأخرة/منتهية)`
-          : ` (${overdueCount} overdue/ended tasks)`;
+          ? ` · ${overdue.length} مهام متأخرة`
+          : ` · ${overdue.length} overdue`;
         if (rating > 1) rating -= 1;
       }
-
-      newEvaluations[member._id] = { rating, notes };
+      next[member._id] = { rating, notes };
     });
-    setEvaluations(newEvaluations);
+    setEvaluations(next);
   };
 
-  const handlePrint = async () => {
-    const element = document.getElementById("team-report-page");
-    if (!element) return;
+  const handlePrint = () => {
     setIsPrinting(true);
-    try {
-      const html2pdf = (await import("html2pdf.js")).default;
-      await html2pdf()
-        .from(element)
-        .set({
-          margin: [10, 10, 10, 10],
-          filename: `Team_Report_${project.title}.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, logging: false },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        })
-        .save();
-    } catch (err) {
-      console.error("PDF generation error:", err);
-    } finally {
+    setTimeout(() => {
+      window.print();
       setIsPrinting(false);
-    }
+    }, 300);
   };
 
-  const updateEvaluation = (memberId, field, value) => {
+  const updateEvaluation = (memberId, field, value) =>
     setEvaluations((prev) => ({
       ...prev,
-      [memberId]: {
-        ...prev[memberId],
-        [field]: value,
-      },
+      [memberId]: { ...prev[memberId], [field]: value },
     }));
-  };
+
+  const getMemberName = (m) =>
+    m.name && m.name !== "null null"
+      ? m.name
+      : m.email?.split("@")[0].replace(/[0-9]/g, "");
+
+  // ── summary totals ────────────────────────────────────────
+  const totalCompleted = allMembers.reduce(
+    (acc, m) => acc + getMemberStats(m).completed.length,
+    0,
+  );
+  const totalTasks = allMembers.reduce(
+    (acc, m) => acc + getMemberStats(m).total.length,
+    0,
+  );
+  const totalOverdue = allMembers.reduce(
+    (acc, m) => acc + getMemberStats(m).overdue.length,
+    0,
+  );
+  const teamPct =
+    totalTasks > 0 ? Math.round((totalCompleted / totalTasks) * 100) : 0;
 
   return (
     <CheckUserRole projectId={id}>
-      <div className="team-report-wrapper" dir={isRTL ? "rtl" : "ltr"}>
-        <div className="flex md:flex-row flex-col gap-4 mb-6">
+      <div className="tr-container" dir={isRTL ? "rtl" : "ltr"}>
+        {/* ── Action bar ── */}
+        <div className="tr-actions no-print">
           <Button
             onClick={handlePrint}
             disabled={isPrinting}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-50"
+            className="tr-btn tr-btn-print"
           >
-            <Printer size={18} className={isPrinting ? "animate-pulse" : ""} />
+            <Printer size={16} className={isPrinting ? "animate-pulse" : ""} />
             {isPrinting
               ? isRTL
                 ? "جارٍ الإنشاء..."
                 : "Generating..."
               : content.print}
           </Button>
-
-          <Button
-            onClick={handleAutoEvaluate}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
-          >
-            <Star size={18} />
+          <Button onClick={handleAutoEvaluate} className="tr-btn tr-btn-eval">
+            <Star size={16} />
             {isRTL ? "تقييم آلي" : "Auto Evaluate"}
           </Button>
-
           <Button
             onClick={handleRefresh}
             disabled={isRefetching}
-            className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white disabled:opacity-50"
-            title={isRTL ? "تحديث" : "Refresh"}
+            className="tr-btn tr-btn-refresh"
           >
             <RefreshCw
-              size={18}
+              size={16}
               className={isRefetching ? "animate-spin" : ""}
             />
             {isRTL ? "تحديث" : "Refresh"}
           </Button>
         </div>
 
-        <div id="team-report-page" className="team-report-page">
-          <div className="team-report-header">
-            <h1>{content.title}</h1>
-            <p>{project.title}</p>
-            <p className="report-date">{dateString}</p>
+        {/* ── Print settings hint ── */}
+        <div className="tr-print-hint no-print">
+          <div className="tr-hint-body">
+            <p className="tr-hint-title">
+              {isRTL
+                ? "إعدادات الطباعة الصحيحة:"
+                : "Recommended print settings:"}
+            </p>
+            <ul className="tr-hint-list">
+              <li>
+                <span className="tr-hint-key">
+                  {isRTL ? "الوجهة" : "Destination"}
+                </span>{" "}
+                → <span className="tr-hint-val">Save as PDF</span>
+              </li>
+              <li>
+                <span className="tr-hint-key">
+                  {isRTL ? "الصفحات" : "Pages"}
+                </span>{" "}
+                → <span className="tr-hint-val">{isRTL ? "الكل" : "All"}</span>
+              </li>
+              <li>
+                <span className="tr-hint-key">
+                  {isRTL ? "صفحات لكل ورقة" : "Pages per sheet"}
+                </span>{" "}
+                → <span className="tr-hint-val">1</span>
+              </li>
+              <li>
+                <span className="tr-hint-key">
+                  {isRTL ? "الهوامش" : "Margins"}
+                </span>{" "}
+                →{" "}
+                <span className="tr-hint-val">
+                  {isRTL ? "افتراضي" : "Default"}
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* ══════════════ PRINTABLE PAGE ══════════════ */}
+        <div id="team-report-page" className="tr-page">
+          {/* ── Header ── */}
+          <div className="tr-header">
+            <div className="tr-header-badge">
+              {isRTL ? "تقرير الفريق" : "Team Report"}
+            </div>
+            <h1 className="tr-project-title">{project.title}</h1>
+            <p className="tr-date">{dateString}</p>
           </div>
 
+          {/* ── Team overview strip ── */}
+          <div className="tr-overview">
+            <div className="tr-ov-item">
+              <Users size={20} className="tr-ov-icon" />
+              <span className="tr-ov-num">{allMembers.length}</span>
+              <span className="tr-ov-lbl">{isRTL ? "أعضاء" : "Members"}</span>
+            </div>
+            <div className="tr-ov-item">
+              <CheckCircle size={20} className="tr-ov-icon tr-ov-green" />
+              <span className="tr-ov-num tr-ov-green">{totalCompleted}</span>
+              <span className="tr-ov-lbl">
+                {isRTL ? "مهام مكتملة" : "Completed"}
+              </span>
+            </div>
+            <div className="tr-ov-item">
+              <AlertCircle size={20} className="tr-ov-icon tr-ov-red" />
+              <span className="tr-ov-num tr-ov-red">{totalOverdue}</span>
+              <span className="tr-ov-lbl">{isRTL ? "متأخرة" : "Overdue"}</span>
+            </div>
+            <div className="tr-ov-item">
+              <TrendingUp size={20} className="tr-ov-icon tr-ov-purple" />
+              <span className="tr-ov-num tr-ov-purple">{teamPct}%</span>
+              <span className="tr-ov-lbl">
+                {isRTL ? "نسبة الفريق" : "Team Rate"}
+              </span>
+            </div>
+          </div>
+
+          {/* ── Team progress bar ── */}
+          <div className="tr-team-progress">
+            <div className="tr-tp-header">
+              <span>
+                <BarChart3 size={14} />{" "}
+                {isRTL ? "إنجاز الفريق الكلي" : "Overall Team Progress"}
+              </span>
+              <span className="tr-tp-pct">{teamPct}%</span>
+            </div>
+            <div className="tr-tp-track">
+              <div className="tr-tp-fill" style={{ width: `${teamPct}%` }} />
+            </div>
+          </div>
+
+          {/* ── Members ── */}
           {allMembers.length === 0 ? (
-            <p
-              className="no-tasks"
-              style={{ textAlign: "center", padding: "2.5rem 0" }}
-            >
-              {content.noMembers}
-            </p>
+            <p className="tr-no-members">{content.noMembers}</p>
           ) : (
-            <div>
+            <div className="tr-members">
               {allMembers.map((member) => {
-                const memberTasks =
-                  tasks?.filter(
-                    (t) =>
-                      t.projectId?._id === id &&
-                      t.assignedTo?.some((u) => u._id === member._id),
-                  ) || [];
-
-                const getMemberEffectiveStatus = (task, memberId) => {
-                  if (
-                    !task.memberSubmissions ||
-                    task.memberSubmissions.length === 0
-                  )
-                    return task.status;
-                  const mySub = task.memberSubmissions.find(
-                    (s) =>
-                      (s.userId?._id || s.userId)?.toString() ===
-                      memberId?.toString(),
-                  );
-                  return mySub ? mySub.status : task.status;
-                };
-
-                const activeTasks = memberTasks.filter(
-                  (t) =>
-                    getMemberEffectiveStatus(t, member._id) !== "completed",
-                );
-                const completedTasks = memberTasks.filter(
-                  (t) =>
-                    getMemberEffectiveStatus(t, member._id) === "completed",
-                );
-                const overdueTasks = memberTasks.filter((t) => {
-                  const mStatus = getMemberEffectiveStatus(t, member._id);
-                  return (
-                    t.dueDate &&
-                    mStatus !== "completed" &&
-                    mStatus !== "submitted" &&
-                    isBefore(new Date(t.dueDate), new Date()) &&
-                    !isToday(new Date(t.dueDate))
-                  );
-                });
-
+                const stats = getMemberStats(member);
                 const evalData = evaluations[member._id] || {
                   rating: 0,
                   notes: "",
                 };
-
-                const memberName =
-                  member.name && member.name !== "null null"
-                    ? member.name
-                    : member.email?.split("@")[0].replace(/[0-9]/g, "");
+                const name = getMemberName(member);
 
                 return (
-                  <div key={member._id} className="team-member-card">
-                    <div className="team-member-row">
-                      {/* Member Info & Rating */}
-                      <div className="team-member-info">
-                        <h3>{memberName}</h3>
-                        <p className="member-role">
+                  <div key={member._id} className="tr-member-card">
+                    {/* ── Card header ── */}
+                    <div className="tr-member-header">
+                      <div className="tr-member-avatar">
+                        {name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="tr-member-info">
+                        <h3 className="tr-member-name">{name}</h3>
+                        <p className="tr-member-role">
                           {project.customRoles?.[member._id] ||
-                            translations[language].dashboard.updateProject
-                              .members}
+                            (isRTL ? "عضو" : "Member")}
                         </p>
-                        <p>{member.email}</p>
-
-                        <label className="team-rating-label">
-                          {content.rating}
-                        </label>
-                        <div className="team-rating-stars">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                              key={star}
-                              onClick={() =>
-                                updateEvaluation(member._id, "rating", star)
+                        <p className="tr-member-email">{member.email}</p>
+                      </div>
+                      {/* rating stars */}
+                      <div className="tr-stars no-print">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <button
+                            key={s}
+                            onClick={() =>
+                              updateEvaluation(member._id, "rating", s)
+                            }
+                            className="tr-star-btn"
+                          >
+                            <Star
+                              size={20}
+                              color={
+                                s <= evalData.rating ? "#f59e0b" : "#d1d5db"
                               }
-                              className={`star-btn ${
-                                star <= evalData.rating ? "active" : ""
-                              }`}
-                            >
-                              <Star
-                                size={24}
-                                color={
-                                  star <= evalData.rating
-                                    ? "#fbbf24"
-                                    : "#d1d5db"
-                                }
-                                fill={
-                                  star <= evalData.rating
-                                    ? "#fbbf24"
-                                    : "transparent"
-                                }
-                              />
-                            </button>
-                          ))}
-                        </div>
+                              fill={
+                                s <= evalData.rating ? "#f59e0b" : "transparent"
+                              }
+                            />
+                          </button>
+                        ))}
                       </div>
-
-                      {/* Task Breakdown */}
-                      <div className="team-member-tasks">
-                        <div className="team-tasks-box">
-                          <h4>
-                            <span
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.5rem",
-                              }}
-                            >
-                              <Clock size={16} color="#d97706" />{" "}
-                              {content.activeTasks}
-                            </span>
-                            <span className="task-count">
-                              {activeTasks.length}
-                            </span>
-                          </h4>
-                          <ul>
-                            {activeTasks.length > 0 ? (
-                              activeTasks.map((t) => (
-                                <li key={t._id}>{t.title}</li>
-                              ))
-                            ) : (
-                              <li className="no-tasks">
-                                {content.noActiveTasks}
-                              </li>
-                            )}
-                          </ul>
-                        </div>
-
-                        <div className="team-tasks-box">
-                          <h4>
-                            <span
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.5rem",
-                              }}
-                            >
-                              <CheckCircle size={16} color="#059669" />{" "}
-                              {content.completedTasks}
-                            </span>
-                            <span className="task-count">
-                              {completedTasks.length}
-                            </span>
-                          </h4>
-                          <ul>
-                            {completedTasks.length > 0 ? (
-                              completedTasks.map((t) => (
-                                <li key={t._id}>{t.title}</li>
-                              ))
-                            ) : (
-                              <li className="no-tasks">
-                                {content.noCompletedTasks}
-                              </li>
-                            )}
-                          </ul>
-                        </div>
-
-                        <div className="team-tasks-box">
-                          <h4>
-                            <span
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.5rem",
-                              }}
-                            >
-                              <AlertCircle size={16} color="#dc2626" />{" "}
-                              {isRTL ? "مهام متأخرة" : "Overdue Tasks"}
-                            </span>
-                            <span
-                              className="task-count"
-                              style={{
-                                color: "#dc2626",
-                                backgroundColor: "#fef2f2",
-                              }}
-                            >
-                              {overdueTasks.length}
-                            </span>
-                          </h4>
-                          <ul>
-                            {overdueTasks.length > 0 ? (
-                              overdueTasks.map((t) => (
-                                <li key={t._id} style={{ color: "#dc2626" }}>
-                                  {t.title}
-                                </li>
-                              ))
-                            ) : (
-                              <li className="no-tasks">
-                                {isRTL
-                                  ? "لا يوجد مهام متأخرة"
-                                  : "No overdue tasks"}
-                              </li>
-                            )}
-                          </ul>
-                        </div>
+                      {/* rating print-only */}
+                      <div className="tr-stars-print print-only">
+                        {"★".repeat(evalData.rating)}
+                        {"☆".repeat(5 - evalData.rating)}
                       </div>
+                    </div>
 
-                      {/* Notes Section */}
-                      <div className="team-member-notes">
-                        <label className="team-notes-label">
-                          {content.notes}
-                        </label>
-                        <textarea
-                          value={evalData.notes}
-                          onChange={(e) =>
-                            updateEvaluation(
-                              member._id,
-                              "notes",
-                              e.target.value,
-                            )
-                          }
-                          placeholder={content.writeNotes}
-                          className="team-notes-input"
+                    {/* ── Member progress bar ── */}
+                    <div className="tr-member-progress">
+                      <div className="tr-mp-row">
+                        <span>{isRTL ? "نسبة الإنجاز" : "Completion"}</span>
+                        <span className="tr-mp-pct">{stats.pct}%</span>
+                      </div>
+                      <div className="tr-mp-track">
+                        <div
+                          className="tr-mp-fill"
+                          style={{
+                            width: `${stats.pct}%`,
+                            background:
+                              stats.pct >= 70
+                                ? "#059669"
+                                : stats.pct >= 40
+                                  ? "#d97706"
+                                  : "#dc2626",
+                          }}
                         />
                       </div>
+                    </div>
+
+                    {/* ── Stats mini ── */}
+                    <div className="tr-mini-stats">
+                      <div className="tr-mini-stat tr-ms-total">
+                        <span className="tr-ms-num">{stats.total.length}</span>
+                        <span className="tr-ms-lbl">
+                          {isRTL ? "الكل" : "Total"}
+                        </span>
+                      </div>
+                      <div className="tr-mini-stat tr-ms-done">
+                        <span className="tr-ms-num">
+                          {stats.completed.length}
+                        </span>
+                        <span className="tr-ms-lbl">
+                          {isRTL ? "منجزة" : "Done"}
+                        </span>
+                      </div>
+                      <div className="tr-mini-stat tr-ms-sub">
+                        <span className="tr-ms-num">
+                          {stats.submitted.length}
+                        </span>
+                        <span className="tr-ms-lbl">
+                          {isRTL ? "مسلمة" : "Submitted"}
+                        </span>
+                      </div>
+                      <div className="tr-mini-stat tr-ms-over">
+                        <span className="tr-ms-num">
+                          {stats.overdue.length}
+                        </span>
+                        <span className="tr-ms-lbl">
+                          {isRTL ? "متأخرة" : "Overdue"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* ── Tasks breakdown ── */}
+                    <div className="tr-tasks-grid">
+                      {/* active */}
+                      <div className="tr-tasks-box tr-tb-active">
+                        <div className="tr-tb-head">
+                          <Clock size={14} className="tr-tb-icon-active" />
+                          <span>
+                            {content.activeTasks ||
+                              (isRTL ? "مهام نشطة" : "Active")}
+                          </span>
+                          <span className="tr-tb-count">
+                            {stats.active.length}
+                          </span>
+                        </div>
+                        <ul className="tr-tb-list">
+                          {stats.active.length > 0 ? (
+                            stats.active.map((t) => (
+                              <li key={t._id}>{t.title}</li>
+                            ))
+                          ) : (
+                            <li className="tr-empty">
+                              {content.noActiveTasks ||
+                                (isRTL ? "لا توجد" : "None")}
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                      {/* completed */}
+                      <div className="tr-tasks-box tr-tb-done">
+                        <div className="tr-tb-head">
+                          <CheckCircle size={14} className="tr-tb-icon-done" />
+                          <span>
+                            {content.completedTasks ||
+                              (isRTL ? "مكتملة" : "Completed")}
+                          </span>
+                          <span className="tr-tb-count-done">
+                            {stats.completed.length}
+                          </span>
+                        </div>
+                        <ul className="tr-tb-list">
+                          {stats.completed.length > 0 ? (
+                            stats.completed.map((t) => (
+                              <li key={t._id}>{t.title}</li>
+                            ))
+                          ) : (
+                            <li className="tr-empty">
+                              {content.noCompletedTasks ||
+                                (isRTL ? "لا توجد" : "None")}
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                      {/* overdue */}
+                      <div className="tr-tasks-box tr-tb-over">
+                        <div className="tr-tb-head">
+                          <AlertCircle size={14} className="tr-tb-icon-over" />
+                          <span>{isRTL ? "متأخرة" : "Overdue"}</span>
+                          <span className="tr-tb-count-over">
+                            {stats.overdue.length}
+                          </span>
+                        </div>
+                        <ul className="tr-tb-list">
+                          {stats.overdue.length > 0 ? (
+                            stats.overdue.map((t) => (
+                              <li key={t._id} className="tr-over-item">
+                                {t.title}
+                              </li>
+                            ))
+                          ) : (
+                            <li className="tr-empty">
+                              {isRTL ? "لا يوجد" : "None"}
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* ── Notes ── */}
+                    <div className="tr-notes-wrap">
+                      <label className="tr-notes-label">
+                        {content.notes || (isRTL ? "ملاحظات" : "Notes")}
+                      </label>
+                      <textarea
+                        value={evalData.notes}
+                        onChange={(e) =>
+                          updateEvaluation(member._id, "notes", e.target.value)
+                        }
+                        placeholder={
+                          content.writeNotes ||
+                          (isRTL
+                            ? "اكتب ملاحظاتك هنا..."
+                            : "Write your notes...")
+                        }
+                        className="tr-notes-input no-print"
+                      />
+                      {/* print only notes */}
+                      {evalData.notes && (
+                        <div className="tr-notes-print print-only">
+                          {evalData.notes}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -455,43 +531,19 @@ export default function TeamReportPage() {
             </div>
           )}
 
-          {/* Report Footer */}
-          <div
-            className="report-footer"
-            style={{
-              marginTop: "2rem",
-              textAlign: "center",
-              borderTop: "1px solid #eee",
-              paddingTop: "1rem",
-              paddingBottom: "1rem",
-            }}
-          >
-            <p
-              style={{
-                margin: 0,
-                color: "#666",
-                fontSize: "0.9rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "4px",
-              }}
-            >
-              {language === "ar"
-                ? "تم إنشاء هذا التقرير بواسطة"
-                : "This report was generated by"}
+          {/* ── Footer ── */}
+          <div className="tr-footer">
+            <p>
+              {isRTL ? "تم إنشاء هذا التقرير بواسطة" : "Generated by"}{" "}
               <a
                 href="https://final-step.vercel.app/"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  color: "#4f46e5",
-                  textDecoration: "none",
-                  fontWeight: "bold",
-                }}
               >
                 FinalStep
               </a>
+              {" · "}
+              {dateString}
             </p>
           </div>
         </div>

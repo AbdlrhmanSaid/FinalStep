@@ -105,24 +105,6 @@ const ProjectDetailPage = () => {
     }
   }, [data, userId, isInvite, router]);
 
-  const handleTitleEdit = useCallback(
-    (e, targetUserId, currentTitle) => {
-      e.preventDefault();
-      const newTitle = window.prompt(
-        isRTL ? "أدخل اللقب الجديد:" : "Enter new title:",
-        currentTitle,
-      );
-      if (newTitle !== null) {
-        updateMemberTitle({
-          projectId: data._id,
-          userId: targetUserId,
-          title: newTitle,
-        });
-      }
-    },
-    [data, isRTL, updateMemberTitle],
-  );
-
   const handleJoinProject = useCallback(() => {
     joinProject({
       projectId: data._id,
@@ -266,7 +248,7 @@ const ProjectDetailPage = () => {
           content={content}
           isRTL={isRTL}
           isLeader={isLeader}
-          handleTitleEdit={handleTitleEdit}
+          updateMemberTitle={updateMemberTitle}
         />
 
         <ProjectJoinRequests
