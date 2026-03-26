@@ -62,3 +62,6 @@ Thumbs.db
 # Logs
 logs/
 *.log
+
+# Project documentation (local reference only)
+PROJECT_DETAILS.md
