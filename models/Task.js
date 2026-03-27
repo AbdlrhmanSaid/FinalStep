@@ -32,6 +32,14 @@ const MemberSubmissionSchema = new Schema(
       type: Date,
       default: null,
     },
+    isLateSubmission: {
+      type: Boolean,
+      default: false,
+    },
+    lateDays: {
+      type: Number,
+      default: 0,
+    },
     status: {
       type: String,
       enum: ["open", "submitted", "completed", "rejected", "ended"],
@@ -107,6 +115,10 @@ const TaskSchema = new Schema(
       type: String,
       trim: true,
       default: "",
+    },
+    allowLateSubmission: {
+      type: Boolean,
+      default: true, // Task creator decides — true by default (open)
     },
     // Per-member submissions (replaces the single submission/review fields)
     memberSubmissions: [MemberSubmissionSchema],

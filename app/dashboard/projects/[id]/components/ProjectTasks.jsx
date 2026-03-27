@@ -327,6 +327,7 @@ export default function ProjectTasks({
                             {isLeader && !isFinished && (
                               <div className="flex gap-2">
                                 <TooltipProvider>
+                                  {/* Edit Task Button */}
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <Link
@@ -345,13 +346,12 @@ export default function ProjectTasks({
                                       <p>{content.edit}</p>
                                     </TooltipContent>
                                   </Tooltip>
-                                </TooltipProvider>
 
-                                <TooltipProvider>
+                                  {/* Delete Task Button */}
                                   <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <AlertDialogTrigger asChild>
                                           <Button
                                             size="icon"
                                             variant="ghost"
@@ -359,12 +359,13 @@ export default function ProjectTasks({
                                           >
                                             <Trash className="w-4 h-4" />
                                           </Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <p>{content.delete}</p>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </AlertDialogTrigger>
+                                        </AlertDialogTrigger>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>{content.delete}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+
                                     <AlertDialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                                       <AlertDialogHeader>
                                         <AlertDialogTitle className="text-gray-800 dark:text-white">
@@ -379,10 +380,7 @@ export default function ProjectTasks({
                                           {modal.cancel}
                                         </AlertDialogCancel>
                                         <AlertDialogAction
-                                          onClick={() => {
-                                            deleteTask(task._id);
-                                            refetchTasks();
-                                          }}
+                                          onClick={() => deleteTask(task._id)}
                                           className="bg-red-600 hover:bg-red-700"
                                         >
                                           {modal.confirm}

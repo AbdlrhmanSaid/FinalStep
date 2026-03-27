@@ -66,20 +66,12 @@ export async function PUT(request, { params }) {
     const project = task.projectId;
 
     // ── Deadline check ───────────────────────────────────────────────────────
-    if (project && task.dueDate && new Date(task.dueDate) < new Date()) {
-      const isLeader =
-        project.leaderId?.toString() === userId ||
-        project.coLeaders?.map((id) => id.toString()).includes(userId);
-      if (!isLeader) {
-        return NextResponse.json(
-          {
-            error:
-              "Task deadline has passed. Only the project leader can make changes.",
-          },
-          { status: 403 },
-        );
-      }
-    }
+    // Members can still submit after deadline, but it will be marked as late
+    // and will affect their evaluation score. Only general edits (PUT without
+    // action) are restricted to leaders after the deadline.
+    const isDeadlinePassed =
+      project && task.dueDate && new Date(task.dueDate) < new Date();
+
 
     // ── Is the current user a project leader / co-leader? ────────────────────
     const isLeader =
@@ -152,8 +144,13 @@ export async function PUT(request, { params }) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
       }
 
-      // Only allow submit when status is open, rejected, or completed
-      if (!["open", "rejected", "completed"].includes(memberSub.status)) {
+      // Only allow submit when status is open, rejected, completed, or ended
+      if (![
+        "open",
+        "rejected",
+        "completed",
+        "ended",
+      ].includes(memberSub.status)) {
         return NextResponse.json(
           {
             error: "Cannot resubmit: submission is already under review",
@@ -166,6 +163,25 @@ export async function PUT(request, { params }) {
       memberSub.links = links;
       memberSub.submittedAt = new Date();
       memberSub.status = "submitted";
+
+      // Mark as late submission if deadline has passed
+      if (isDeadlinePassed) {
+        // Block if task creator disabled late submissions
+        if (task.allowLateSubmission === false) {
+          return NextResponse.json(
+            { error: "Late submissions are not allowed for this task." },
+            { status: 403 },
+          );
+        }
+        memberSub.isLateSubmission = true;
+        const dueDate = new Date(task.dueDate);
+        const now = new Date();
+        const diffMs = now - dueDate;
+        memberSub.lateDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      } else {
+        memberSub.isLateSubmission = false;
+        memberSub.lateDays = 0;
+      }
 
       recomputeTaskStatus(task);
       task.markModified("memberSubmissions");
@@ -273,6 +289,7 @@ export async function PUT(request, { params }) {
         "referenceLink",
         "submissionMethod",
         "submissionDescription",
+        "allowLateSubmission",
       ];
       allowedFields.forEach((f) => {
         if (body[f] !== undefined) task[f] = body[f];
@@ -284,6 +301,22 @@ export async function PUT(request, { params }) {
     }
 
     // Simple field updates (title, description, priority, dueDate …)
+    // Only leaders can do general field updates after deadline
+    if (isDeadlinePassed) {
+      const isLeader =
+        project?.leaderId?.toString() === userId ||
+        project?.coLeaders?.map((id) => id.toString()).includes(userId);
+      if (!isLeader) {
+        return NextResponse.json(
+          {
+            error:
+              "Task deadline has passed. Only the project leader can make changes.",
+          },
+          { status: 403 },
+        );
+      }
+    }
+
     const allowedFields = [
       "title",
       "description",
@@ -292,6 +325,7 @@ export async function PUT(request, { params }) {
       "referenceLink",
       "submissionMethod",
       "submissionDescription",
+      "allowLateSubmission",
     ];
     allowedFields.forEach((f) => {
       if (body[f] !== undefined) task[f] = body[f];

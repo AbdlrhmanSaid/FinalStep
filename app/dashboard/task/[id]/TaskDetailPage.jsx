@@ -313,12 +313,35 @@ function MemberSubmissionCard({
             </div>
           )}
 
+          {/* Late submission badge */}
+          {memberSub?.isLateSubmission && (
+            <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 px-3 py-2 rounded-lg">
+              <span className="text-amber-600 dark:text-amber-400 text-sm font-semibold">
+                ⚠️ {isRTL ? `تم التسليم متأخراً${memberSub.lateDays > 0 ? ` (بعد ${memberSub.lateDays} يوم)` : ""}` : `Late submission${memberSub.lateDays > 0 ? ` (${memberSub.lateDays} day${memberSub.lateDays > 1 ? "s" : ""} late)` : ""}`}
+              </span>
+            </div>
+          )}
+
           {/* Current user or Leader: submit or resubmit */}
           {(isCurrentUser || isProjectLeader) &&
             (status === "open" ||
               status === "rejected" ||
-              status === "completed") && (
+              status === "completed" ||
+              status === "ended") && (
               <>
+                {/* Late submission warning */}
+                {status === "ended" && (
+                  <div className="flex flex-col gap-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 px-3 py-2.5 rounded-lg">
+                    <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+                      ⚠️ {isRTL ? "انتهى موعد التسليم" : "Deadline has passed"}
+                    </p>
+                    <p className="text-xs text-amber-600 dark:text-amber-500">
+                      {isRTL
+                        ? "يمكنك التسليم الآن، لكن سيُحتسب كتسليم متأخر ويؤثر على تقييمك."
+                        : "You can still submit, but it will be marked as a late submission and will affect your evaluation score."}
+                    </p>
+                  </div>
+                )}
                 {!showSubmitForm ? (
                   <div className="flex justify-end pt-3 border-t border-gray-100 dark:border-gray-700">
                     <Button
@@ -340,7 +363,11 @@ function MemberSubmissionCard({
                           ? isRTL
                             ? "إعادة التسليم"
                             : "Resubmit"
-                          : content.submitTask}
+                          : status === "ended"
+                            ? isRTL
+                              ? "تسليم متأخر"
+                              : "Submit Late"
+                            : content.submitTask}
                     </Button>
                   </div>
                 ) : (

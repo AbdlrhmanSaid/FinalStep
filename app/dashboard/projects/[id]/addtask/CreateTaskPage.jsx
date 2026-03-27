@@ -50,6 +50,7 @@ export default function CreateTaskPage() {
     assignedTo: [],
     submissionMethod: "both",
     submissionDescription: "",
+    allowLateSubmission: true,
   });
 
   const handleChange = (e) => {
@@ -360,6 +361,37 @@ export default function CreateTaskPage() {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Late Submission Toggle */}
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[15px] font-semibold text-gray-800 dark:text-white">
+                    {isRTL ? "السماح بالتسليم المتأخر" : "Allow Late Submission"}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {form.allowLateSubmission
+                      ? isRTL
+                        ? "الأعضاء يقدرون يسلموا بعد الـ deadline (يُحتسب متأخر)"
+                        : "Members can submit after the deadline (marked as late)"
+                      : isRTL
+                        ? "لا يُسمح بالتسليم بعد انتهاء الـ deadline"
+                        : "Submissions blocked after the deadline"}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setForm((prev) => ({ ...prev, allowLateSubmission: !prev.allowLateSubmission }))}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                    form.allowLateSubmission ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      form.allowLateSubmission ? (isRTL ? "-translate-x-6" : "translate-x-6") : (isRTL ? "-translate-x-1" : "translate-x-1")
+                    }`}
+                  />
+                </button>
               </div>
 
               <div className="pt-6 border-t border-gray-100 dark:border-gray-800 mt-8">

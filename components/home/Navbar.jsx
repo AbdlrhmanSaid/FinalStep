@@ -42,9 +42,8 @@ export default function Navbar({
                 <div className="relative overflow-hidden rounded-lg w-9 h-9 transition-transform duration-300 group-hover:scale-105 ">
                   <img
                     src={
-                      isDark
-                        ? "/assets/images/favicon_dark.png"
-                        : "/assets/images/favicon_white.png"
+                      
+                        "/assets/images/favicon_white.png"
                     }
                     alt="FinalStep Logo"
                     className="w-full h-full object-cover"
