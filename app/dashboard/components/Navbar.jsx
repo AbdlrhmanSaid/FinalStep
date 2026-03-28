@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Menu,
   X,
@@ -12,7 +13,6 @@ import {
   FolderOpen,
   Mail,
   ListChecks,
-  UserCircle,
   LogOut,
   Settings,
 } from "lucide-react";
@@ -28,7 +28,14 @@ import { useGetTasks } from "@/hooks/tasks/useTasks";
 export default function DashboardNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const mobileMenuButtonRef = useRef(null);
+  const mobileMenuPanelRef = useRef(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const {
     userId,
     isRTL,
@@ -62,6 +69,42 @@ export default function DashboardNav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const onResize = () => {
+      if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+        setIsMenuOpen(false);
+      }
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || !isMenuOpen) return;
+
+    const closeIfOutside = (event) => {
+      const t = event.target;
+      if (
+        mobileMenuButtonRef.current?.contains(t) ||
+        mobileMenuPanelRef.current?.contains(t)
+      ) {
+        return;
+      }
+      setIsMenuOpen(false);
+    };
+
+    document.addEventListener("mousedown", closeIfOutside);
+    document.addEventListener("touchstart", closeIfOutside);
+    return () => {
+      document.removeEventListener("mousedown", closeIfOutside);
+      document.removeEventListener("touchstart", closeIfOutside);
+    };
+  }, [mounted, isMenuOpen]);
+
   const isActive = (path) => {
     if (path === "/dashboard") {
       return pathname === path;
@@ -90,7 +133,7 @@ export default function DashboardNav() {
   return (
     <>
       <nav
-        className={`fixed top-0 h-20 w-full z-50 transition-all duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 right-0 w-full h-20 z-[99999] overflow-visible transition-all duration-300 ease-in-out ${
           scrolled
             ? "bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm py-1"
             : "bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 py-1.5"
@@ -207,9 +250,12 @@ export default function DashboardNav() {
               {/* Mobile menu button */}
               <div className="lg:hidden ml-1 rtl:mr-1 rtl:ml-0">
                 <button
+                  ref={mobileMenuButtonRef}
+                  type="button"
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   className={`p-2 rounded-xl transition-all duration-300 ${isMenuOpen ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"}`}
                   aria-label="Toggle menu"
+                  aria-expanded={isMenuOpen}
                 >
                   <div className="relative w-6 h-6 flex items-center justify-center">
                     <span
@@ -228,120 +274,126 @@ export default function DashboardNav() {
             </div>
           </div>
         </div>
-
-        {/* Mobile Navigation Dropdown */}
-        <div
-          className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out bg-white dark:bg-gray-900 shadow-xl ${
-            isMenuOpen
-              ? "max-h-[500px] border-b border-gray-100 dark:border-gray-800 opacity-100"
-              : "max-h-0 opacity-0"
-          }`}
-        >
-          <div className="px-4 py-4 flex flex-col gap-2">
-            <Link
-              onClick={() => setIsMenuOpen(false)}
-              href="/dashboard"
-              className={getMobileLinkClasses("/dashboard")}
-            >
-              <div
-                className={`p-2 rounded-lg ${isActive("/dashboard") ? "bg-white dark:bg-gray-800 shadow-sm" : "bg-gray-100 dark:bg-gray-800"}`}
-              >
-                <Home className="w-5 h-5" />
-              </div>
-              {content.dashboardNav.home}
-            </Link>
-
-            <Link
-              onClick={() => setIsMenuOpen(false)}
-              href="/dashboard/search"
-              className={getMobileLinkClasses("/dashboard/search")}
-            >
-              <div
-                className={`p-2 rounded-lg ${isActive("/dashboard/search") ? "bg-white dark:bg-gray-800 shadow-sm" : "bg-gray-100 dark:bg-gray-800"}`}
-              >
-                <Search className="w-5 h-5" />
-              </div>
-              {content.dashboardNav.search}
-            </Link>
-
-            <Link
-              onClick={() => setIsMenuOpen(false)}
-              href={"/dashboard/projects"}
-              className={getMobileLinkClasses("/dashboard/projects")}
-            >
-              <div
-                className={`p-2 rounded-lg ${isActive("/dashboard/projects") ? "bg-white dark:bg-gray-800 shadow-sm" : "bg-gray-100 dark:bg-gray-800"}`}
-              >
-                <FolderOpen className="w-5 h-5" />
-              </div>
-              {content.dashboardNav.projects}
-            </Link>
-
-            <Link
-              onClick={() => setIsMenuOpen(false)}
-              href={"/dashboard/invitations"}
-              className={getMobileLinkClasses("/dashboard/invitations")}
-            >
-              <div
-                className={`p-2 rounded-lg ${isActive("/dashboard/invitations") ? "bg-white dark:bg-gray-800 shadow-sm" : "bg-gray-100 dark:bg-gray-800"}`}
-              >
-                <Mail className="w-5 h-5 relative" />
-              </div>
-              <span className="flex-1">{content.dashboardNav.invitations}</span>
-              {pendingInvitesCount > 0 && (
-                <span className="min-w-[24px] h-[24px] px-2 flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold shadow-sm shadow-red-500/20">
-                  {pendingInvitesCount > 99 ? "99+" : pendingInvitesCount}
-                </span>
-              )}
-            </Link>
-
-            <Link
-              onClick={() => setIsMenuOpen(false)}
-              href={"/dashboard/tasks"}
-              className={getMobileLinkClasses("/dashboard/tasks")}
-            >
-              <div
-                className={`p-2 rounded-lg ${isActive("/dashboard/tasks") ? "bg-white dark:bg-gray-800 shadow-sm" : "bg-gray-100 dark:bg-gray-800"}`}
-              >
-                <ListChecks className="w-5 h-5 relative" />
-              </div>
-              <span className="flex-1">{content.dashboardNav.team}</span>
-              {pendingReviewsCount > 0 && (
-                <span className="min-w-[24px] h-[24px] px-2 flex items-center justify-center rounded-full bg-orange-500 text-white text-xs font-bold shadow-sm shadow-orange-500/20">
-                  {pendingReviewsCount > 99 ? "99+" : pendingReviewsCount}
-                </span>
-              )}
-            </Link>
-
-            <Link
-              onClick={() => setIsMenuOpen(false)}
-              href={"/dashboard/settings"}
-              className={getMobileLinkClasses("/dashboard/settings")}
-            >
-              <div
-                className={`p-2 rounded-lg ${isActive("/dashboard/settings") ? "bg-white dark:bg-gray-800 shadow-sm" : "bg-gray-100 dark:bg-gray-800"}`}
-              >
-                <Settings className="w-5 h-5 relative" />
-              </div>
-              <span className="flex-1">
-                {content.dashboardNav.settings || "الإعدادات"}
-              </span>
-            </Link>
-
-            <button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 w-full text-start"
-            >
-              <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30">
-                <LogOut className="w-5 h-5" />
-              </div>
-              {content.dashboardNav.logout || "تسجيل الخروج"}
-            </button>
-          </div>
-        </div>
       </nav>
       {/* Spacer to prevent content from going under the fixed navbar */}
       <div className="h-20 lg:h-[72px] w-full shrink-0"></div>
+
+      {mounted &&
+        isMenuOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={mobileMenuPanelRef}
+            id="dashboard-mobile-nav-menu"
+            className={`lg:hidden fixed top-20 left-0 right-0 z-[99998] max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain bg-white dark:bg-gray-900 shadow-xl border-b border-gray-100 dark:border-gray-800 ${isRTL ? "rtl" : "ltr"}`}
+          >
+            <div className="px-4 py-4 flex flex-col gap-2 max-w-screen-2xl mx-auto sm:px-6">
+              <Link
+                onClick={() => setIsMenuOpen(false)}
+                href="/dashboard"
+                className={getMobileLinkClasses("/dashboard")}
+              >
+                <div
+                  className={`p-2 rounded-lg ${isActive("/dashboard") ? "bg-white dark:bg-gray-800 shadow-sm" : "bg-gray-100 dark:bg-gray-800"}`}
+                >
+                  <Home className="w-5 h-5" />
+                </div>
+                {content.dashboardNav.home}
+              </Link>
+
+              <Link
+                onClick={() => setIsMenuOpen(false)}
+                href="/dashboard/search"
+                className={getMobileLinkClasses("/dashboard/search")}
+              >
+                <div
+                  className={`p-2 rounded-lg ${isActive("/dashboard/search") ? "bg-white dark:bg-gray-800 shadow-sm" : "bg-gray-100 dark:bg-gray-800"}`}
+                >
+                  <Search className="w-5 h-5" />
+                </div>
+                {content.dashboardNav.search}
+              </Link>
+
+              <Link
+                onClick={() => setIsMenuOpen(false)}
+                href={"/dashboard/projects"}
+                className={getMobileLinkClasses("/dashboard/projects")}
+              >
+                <div
+                  className={`p-2 rounded-lg ${isActive("/dashboard/projects") ? "bg-white dark:bg-gray-800 shadow-sm" : "bg-gray-100 dark:bg-gray-800"}`}
+                >
+                  <FolderOpen className="w-5 h-5" />
+                </div>
+                {content.dashboardNav.projects}
+              </Link>
+
+              <Link
+                onClick={() => setIsMenuOpen(false)}
+                href={"/dashboard/invitations"}
+                className={getMobileLinkClasses("/dashboard/invitations")}
+              >
+                <div
+                  className={`p-2 rounded-lg ${isActive("/dashboard/invitations") ? "bg-white dark:bg-gray-800 shadow-sm" : "bg-gray-100 dark:bg-gray-800"}`}
+                >
+                  <Mail className="w-5 h-5 relative" />
+                </div>
+                <span className="flex-1">
+                  {content.dashboardNav.invitations}
+                </span>
+                {pendingInvitesCount > 0 && (
+                  <span className="min-w-[24px] h-[24px] px-2 flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold shadow-sm shadow-red-500/20">
+                    {pendingInvitesCount > 99 ? "99+" : pendingInvitesCount}
+                  </span>
+                )}
+              </Link>
+
+              <Link
+                onClick={() => setIsMenuOpen(false)}
+                href={"/dashboard/tasks"}
+                className={getMobileLinkClasses("/dashboard/tasks")}
+              >
+                <div
+                  className={`p-2 rounded-lg ${isActive("/dashboard/tasks") ? "bg-white dark:bg-gray-800 shadow-sm" : "bg-gray-100 dark:bg-gray-800"}`}
+                >
+                  <ListChecks className="w-5 h-5 relative" />
+                </div>
+                <span className="flex-1">{content.dashboardNav.team}</span>
+                {pendingReviewsCount > 0 && (
+                  <span className="min-w-[24px] h-[24px] px-2 flex items-center justify-center rounded-full bg-orange-500 text-white text-xs font-bold shadow-sm shadow-orange-500/20">
+                    {pendingReviewsCount > 99 ? "99+" : pendingReviewsCount}
+                  </span>
+                )}
+              </Link>
+
+              <Link
+                onClick={() => setIsMenuOpen(false)}
+                href={"/dashboard/settings"}
+                className={getMobileLinkClasses("/dashboard/settings")}
+              >
+                <div
+                  className={`p-2 rounded-lg ${isActive("/dashboard/settings") ? "bg-white dark:bg-gray-800 shadow-sm" : "bg-gray-100 dark:bg-gray-800"}`}
+                >
+                  <Settings className="w-5 h-5 relative" />
+                </div>
+                <span className="flex-1">
+                  {content.dashboardNav.settings || "الإعدادات"}
+                </span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 w-full text-start"
+              >
+                <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30">
+                  <LogOut className="w-5 h-5" />
+                </div>
+                {content.dashboardNav.logout || "تسجيل الخروج"}
+              </button>
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

@@ -17,10 +17,12 @@ const layout = async ({ children }) => {
     <QueryProvider>
       <AppProvider user={user}>
         <div className="antialiased min-h-screen flex flex-col">
-          <nav>
+          <nav className="relative z-[999] w-full overflow-visible">
             <Navbar />
           </nav>
-          <main className="flex-1 dark:bg-gray-900">{children}</main>
+          <main className="flex-1 dark:bg-gray-900 relative z-0">
+            {children}
+          </main>
           <footer>
             <DashboardFooter />
           </footer>
