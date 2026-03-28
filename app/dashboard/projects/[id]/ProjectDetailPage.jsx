@@ -16,6 +16,7 @@ import {
 import { useAppContext } from "@/contexts/AppContext";
 import { translations } from "@/lib/translations";
 import Loading from "@/components/Loading";
+import ErrorState from "@/components/ErrorState";
 
 import { useLeaveProject } from "@/hooks/invitations/useLeaveProject";
 import { useUpdateProjectStatus } from "@/hooks/projects/useUpdateProjectStatus";
@@ -179,13 +180,12 @@ const ProjectDetailPage = () => {
     });
   }, [tasks, data, isLeader, userId, taskFilter, getMySubmissionStatus]);
 
-  if (isLoading || !data) return <Loading />;
-  if (error)
-    return (
-      <div className="min-h-screen bg-white dark:bg-gray-900 dark:text-white text-center p-10 transition-colors">
-        Error: {error.message}
-      </div>
-    );
+  if (isLoading) return <Loading />;
+  if (error) {
+    const isNotFound = error.response?.status === 404 || error.response?.data?.error === "Project not found";
+    return <ErrorState type={isNotFound ? "projectNotFound" : "general"} customMessage={isNotFound ? "" : error.message} refreshAction={refetchProject} />;
+  }
+  if (!data) return <ErrorState type="projectNotFound" />;
 
   const handleEdit = () => redirect(`/dashboard/updateProject/${data._id}`);
   const handleReport = () => redirect(`/dashboard/report/${data._id}`);

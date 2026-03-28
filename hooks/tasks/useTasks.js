@@ -25,7 +25,9 @@ export const useGetTask = (id) => {
         const res = await axios.get(`/api/tasks/${id}`);
         return res.data;
       } catch (error) {
-        toast.error("Failed to fetch task details");
+        if (error.response?.status !== 404 && error.response?.status !== 400) {
+          toast.error("Failed to fetch task details");
+        }
         throw error;
       }
     },

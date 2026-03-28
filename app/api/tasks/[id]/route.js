@@ -9,6 +9,14 @@ export async function GET(request, { params }) {
 
     await dbConnect();
 
+    const mongoose = require("mongoose");
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { error: "Invalid task ID" },
+        { status: 400 },
+      );
+    }
+
     const task = await Task.findById(id)
       .populate("projectId")
       .populate("assignedTo")

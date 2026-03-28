@@ -13,6 +13,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { format, isBefore, isToday } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import Loading from "@/components/Loading";
+import ErrorState from "@/components/ErrorState";
 import { useAppContext } from "@/contexts/AppContext";
 import toast from "react-hot-toast";
 import {
@@ -556,10 +557,9 @@ const TaskDetailPage = () => {
   const content = translations[language].dashboard.taskDetails;
 
   if (isLoading) return <Loading />;
-  if (isError || !task)
-    return (
-      <div className="p-8 text-center text-red-500">{content.taskNotFound}</div>
-    );
+  if (isError || !task) {
+    return <ErrorState type="taskNotFound" />;
+  }
 
   const isProjectLeader =
     task.projectId?.leaderId?.toString() === userId?.toString() ||
