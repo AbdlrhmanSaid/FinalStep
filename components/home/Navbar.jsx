@@ -76,12 +76,19 @@ export default function Navbar({
               >
                 {t.contact}
               </a>
-              {isSignedIn && (
+              {isSignedIn ? (
                 <Link
                   href="/dashboard"
                   className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   {t.dashboard}
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  {t.login}
                 </Link>
               )}
             </div>
@@ -162,7 +169,7 @@ export default function Navbar({
                     href="/login"
                     className="block text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500 px-3 py-2 rounded-md text-base font-medium"
                   >
-                    {t.getStarted}
+                    {t.login}
                   </Link>
                 )}
               </div>
