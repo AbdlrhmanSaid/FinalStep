@@ -4,8 +4,20 @@ const UserSchema = new Schema(
   {
     clerkId: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true,
+    },
+    password: {
+      type: String, // Optional for OAuth users
+    },
+    googleId: {
+      type: String,
+      sparse: true,
+      unique: true,
+    },
+    avatar: {
+      type: String,
+      default: "",
     },
     name: {
       type: String,

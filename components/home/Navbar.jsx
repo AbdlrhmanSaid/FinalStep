@@ -2,7 +2,7 @@
 
 import { Button } from "../ui/button";
 import { Moon, Sun, Globe, Menu, X, GraduationCap } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import UserMenu from "../UserMenu";
@@ -17,7 +17,8 @@ export default function Navbar({
   toggleLanguage,
   setIsMenuOpen,
 }) {
-  const { isSignedIn } = useUser();
+  const { data: session } = useSession();
+  const isSignedIn = !!session;
   const router = useRouter();
 
   return (

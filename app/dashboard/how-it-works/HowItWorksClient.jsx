@@ -9,6 +9,10 @@ import {
   CircleCheck,
   Mail,
   User,
+  ListChecks,
+  Settings,
+  FileText,
+  Search
 } from "lucide-react";
 import "./style.css";
 
@@ -51,10 +55,30 @@ export default function HowItWorksClient() {
       ? "في هذه الصفحة، يمكنك مراجعة دعوات المشاريع المرسلة إليك، واختيار قبولها أو رفضها بنقرة واحدة فقط - مما يجعل التعاون سلسًا وسهلاً."
       : "On this page, you can review project invitations sent to you. Each invitation allows you to quickly accept or decline participation with a single click - making collaboration smooth and easy.",
 
-    profileTitle: isRTL ? "الملف الشخصي" : "Profile Page",
+    tasksTitle: isRTL ? "مهام الفريق" : "Team Tasks",
+    tasksText: isRTL
+      ? "تتيح لك هذه الصفحة عرض جميع المهام الموكلة إليك بوضوح. يمكنك تسليم مهامك، وتتبع حالتها، وإعادة التعديل على التسليمات حتى لو تم قبولها مسبقاً من القائد، كما يدعم النظام تسليم المهام حتى بعد انتهاء الوقت المحدد (مع احتساب التأخير)."
+      : "This page allows you to view all your assigned tasks clearly. You can submit your work, track its status, and even reopen/edit submissions after they've been accepted. The system also supports late submissions seamlessly (while tracking the delay).",
+
+    reportsTitle: isRTL ? "التقارير المتطورة" : "Advanced Reports",
+    reportsText: isRTL
+      ? "يوفر النظام تقارير ذكية وشاملة سواء للمشاريع أو أداء الفريق، مدعومة بأنظمة تقييم تلقائية (Smart Evaluate). تم تحديث نظام الطباعة للاعتماد على طباعة المتصفح للحصول على جودة فائقة وصيغة منظمة."
+      : "The system provides smart, comprehensive reports for both projects and team performance, powered by automated evaluation algorithms. The printing system has been modernized to use native browser printing for superior quality.",
+
+    profileTitle: isRTL ? "الملف الشخصي" : "Public Profile",
     profileText: isRTL
-      ? "صفحة ملفك الشخصي تعرض جميع بياناتك بشكل منظم وواضح في مكان واحد."
-      : "Your profile keeps all your details neatly organized in one place.",
+      ? "صفحة ملفك الشخصي تعرض بياناتك العامة، والمشاريع، والروابط المهنية الخاصة بك، لتمثل واجهتك لباقي أعضاء النظام."
+      : "Your public profile showcases your details, projects, and professional links, acting as your identity to other system members.",
+
+    settingsTitle: isRTL ? "إعدادات الحساب" : "Account Settings",
+    settingsText: isRTL
+      ? "تم فصل الإعدادات في صفحة مخصصة تتيح لك تعديل بياناتك الشخصية، الخصوصية، وتغيير كلمة المرور. إذا كنت قد سجلت دخولك عبر جوجل لأول مرة، يمكنك إعداد كلمة مرور محلية من هنا بكل سهولة."
+      : "Settings are now in a dedicated page where you can update personal info, privacy, and passwords. If you signed in via Google initially, you can set up a local password here effortlessly.",
+
+    searchTitle: isRTL ? "البحث الشامل" : "Global Search",
+    searchText: isRTL
+      ? "ابحث عن أي مشروع أو شخص في النظام بسهولة عبر صفحة البحث المركزية."
+      : "Find any project or person in the system easily through the centralized search page.",
   };
 
   return (
@@ -180,7 +204,7 @@ export default function HowItWorksClient() {
           </section>
 
           {/* الملف الشخصي */}
-          <section className="hiw-section">
+          <section className="hiw-section mb-12">
             <div className="hiw-section-header">
               <div className="hiw-icon-wrapper green">
                 <User className="w-6 h-6 text-green-500 dark:text-green-400" />
@@ -191,6 +215,74 @@ export default function HowItWorksClient() {
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                   {t.profileText}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* المهام */}
+          <section className="hiw-section mb-12">
+            <div className="hiw-section-header">
+              <div className="hiw-icon-wrapper" style={{ backgroundColor: '#f97316' }}>
+                <ListChecks className="w-6 h-6 text-white" />
+              </div>
+              <div className="hiw-section-content">
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-3">
+                  {t.tasksTitle}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {t.tasksText}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* التقارير */}
+          <section className="hiw-section mb-12">
+            <div className="hiw-section-header">
+              <div className="hiw-icon-wrapper" style={{ backgroundColor: '#8b5cf6' }}>
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <div className="hiw-section-content">
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-3">
+                  {t.reportsTitle}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {t.reportsText}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* الإعدادات */}
+          <section className="hiw-section mb-12">
+            <div className="hiw-section-header">
+              <div className="hiw-icon-wrapper bg-gray-500">
+                <Settings className="w-6 h-6 text-white" />
+              </div>
+              <div className="hiw-section-content">
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-3">
+                  {t.settingsTitle}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {t.settingsText}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* البحث */}
+          <section className="hiw-section">
+            <div className="hiw-section-header">
+              <div className="hiw-icon-wrapper" style={{ backgroundColor: '#14b8a6' }}>
+                <Search className="w-6 h-6 text-white" />
+              </div>
+              <div className="hiw-section-content">
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-3">
+                  {t.searchTitle}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {t.searchText}
                 </p>
               </div>
             </div>

@@ -2,7 +2,6 @@ import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Task from "@/models/Task";
 import Project from "@/models/Project";
-import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
@@ -51,16 +50,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Fetch Clerk image URL (server-side, uses secret key)
-    let imageUrl = null;
-    try {
-      const client = await clerkClient();
-      const clerkUser = await client.users.getUser(user.clerkId);
-      imageUrl = clerkUser.imageUrl ?? null;
-    } catch {
-      // Clerk lookup failed - just skip the image
-      imageUrl = null;
-    }
+    let imageUrl = user.avatar || null;
 
     // Fetch tasks — owner sees all, others only see tasks from public projects
     // Also respect showTasks privacy setting for non-owners

@@ -5,7 +5,9 @@ import { translations } from "../lib/translations";
 import { Loader2 } from "lucide-react";
 
 export default function Loading() {
-  const { language, isDark } = useAppContext();
+  const context = useAppContext();
+  const language = context?.language || "en";
+  const isDark = context?.isDark || false;
   const content = translations[language]?.loading || "Loading...";
   const isRTL = language === "ar";
   const subtitle =

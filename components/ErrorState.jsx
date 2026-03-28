@@ -7,7 +7,10 @@ import { useAppContext } from "@/contexts/AppContext";
 import { translations } from "@/lib/translations";
 
 export default function ErrorState({ type = "general", customMessage, refreshAction }) {
-  const { language, isRTL } = useAppContext();
+  const context = useAppContext();
+  const language = context?.language || "en";
+  const isRTL = context?.isRTL || false;
+  
   const t = translations[language]?.errors || translations.en.errors;
   const router = useRouter();
 
