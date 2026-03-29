@@ -343,11 +343,13 @@ export default function EditTaskPage() {
                   <Label className="text-[15px] font-semibold">
                     {addTaskContent.assignTo}
                   </Label>
-                  <Command className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm dark:bg-gray-900 mt-1">
-                    <CommandInput
-                      placeholder={addTaskContent.searchMember}
-                      className="h-12 outline-none border-none ring-0 shadow-none focus-visible:ring-0 focus:outline-none"
-                    />
+                  <Command className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm dark:bg-gray-900 mt-1" dir={isRTL ? "rtl" : "ltr"}>
+                    <div className="relative">
+                      <CommandInput
+                        placeholder={addTaskContent.searchMember}
+                        className={`h-12 outline-none border-none ring-0 shadow-none focus-visible:ring-0 focus:outline-none ${isRTL ? "pr-10" : "pl-10"}`}
+                      />
+                    </div>
                     <CommandList className="max-h-48 overflow-auto">
                       {teamMembers.map((user) => (
                         <CommandItem
@@ -358,27 +360,29 @@ export default function EditTaskPage() {
                               : user.email?.split("@")[0].replace(/[0-9]/g, "")
                           }
                           onSelect={() => handleAssign(user._id)}
-                          className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer flex items-center gap-3 transition-colors"
+                          className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer flex items-center justify-between gap-3 transition-colors min-w-0"
                         >
-                          <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 flex items-center justify-center text-sm font-bold shadow-sm">
-                            {user?.email?.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-800 dark:text-white">
-                              {user.name !== "null null" && user.name
-                                ? user.name
-                                : user.email
-                                    ?.split("@")[0]
-                                    .replace(/[0-9]/g, "")}
-                            </p>
-                            {user.name && user.name !== "null null" && (
-                              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                                {user.email}
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 flex items-center justify-center text-sm font-bold shadow-sm shrink-0">
+                              {user?.email?.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-semibold text-gray-800 dark:text-white truncate">
+                                {user.name !== "null null" && user.name
+                                  ? user.name
+                                  : user.email
+                                      ?.split("@")[0]
+                                      .replace(/[0-9]/g, "")}
                               </p>
-                            )}
+                              {user.name && user.name !== "null null" && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium truncate">
+                                  {user.email}
+                                </p>
+                              )}
+                            </div>
                           </div>
                           {form.assignedTo.includes(user._id) && (
-                            <span className="ml-auto text-green-600 dark:text-green-400 text-xs font-bold">
+                            <span className="shrink-0 text-green-600 dark:text-green-400 text-xs font-bold flex items-center gap-1">
                               ✓ {isRTL ? "مضاف" : "Added"}
                             </span>
                           )}
@@ -437,7 +441,7 @@ export default function EditTaskPage() {
               )}
 
               {/* Late Submission Toggle */}
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 gap-4">
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[15px] font-semibold text-gray-800 dark:text-white">
                     {isRTL ? "السماح بالتسليم المتأخر" : "Allow Late Submission"}

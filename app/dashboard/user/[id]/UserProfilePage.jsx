@@ -26,20 +26,14 @@ import {
   FolderOpen,
   FolderCheck,
   ClipboardList,
-  Settings,
-  Eye,
   CheckCircle,
   Clock,
   XCircle,
   Send,
   Lock,
-  Link2,
   Github,
   Linkedin,
   Facebook,
-  Plus,
-  Trash2,
-  Save,
   ExternalLink,
   RefreshCw,
 } from "lucide-react";
@@ -528,16 +522,16 @@ function ProjectsSection({
             return (
               <div
                 key={proj._id}
-                className="flex items-center justify-between gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700"
+                className="md:flex items-center justify-between gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700"
               >
-                <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto overflow-hidden">
+                <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                   {proj.status === "finished" ? (
                     <FolderCheck className="w-5 h-5 text-green-500 shrink-0" />
                   ) : (
                     <FolderOpen className="w-5 h-5 text-blue-500 shrink-0" />
                   )}
-                  <div className="min-w-0 flex flex-col sm:flex-row sm:items-center gap-2 w-full">
-                    <div className="flex items-center gap-2">
+                  <div className="min-w-0 flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
+                    <div className="md:flex items-center gap-2 min-w-0 flex-1">
                       <p className="font-medium text-sm text-gray-800 dark:text-white truncate">
                         {proj.title}
                       </p>
@@ -553,7 +547,7 @@ function ProjectsSection({
                           : statusOpen}
                       </span>
                       {proj.public === false && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 ms-1 shrink-0">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 shrink-0">
                           Private
                         </span>
                       )}
@@ -561,9 +555,9 @@ function ProjectsSection({
 
                     {/* Numbers and Percentages */}
                     {count > 0 && (
-                      <div className="flex items-center gap-2 sm:border-l border-gray-300 dark:border-gray-600 sm:pl-3 rtl:pl-0 rtl:border-l-0 rtl:sm:border-r rtl:sm:pr-3 shrink-0 w-full sm:w-auto mt-1 sm:mt-0">
+                      <div className="flex items-center gap-2 sm:border-s border-gray-300 dark:border-gray-600 sm:ps-3 shrink-0 mt-1 sm:mt-0">
                         <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                          {count} tasks
+                          {count} {isRTL ? "مهام" : "tasks"}
                         </span>
                         <div className="w-16 h-1.5 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden shrink-0">
                           <div

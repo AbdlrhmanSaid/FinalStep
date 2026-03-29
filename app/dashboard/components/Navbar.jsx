@@ -376,7 +376,7 @@ export default function DashboardNav() {
                   <Settings className="w-5 h-5 relative" />
                 </div>
                 <span className="flex-1">
-                  {content.dashboardNav.settings || "الإعدادات"}
+                  {isRTL ? "الإعدادات" : "Settings"}
                 </span>
               </Link>
 
