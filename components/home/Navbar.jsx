@@ -1,9 +1,7 @@
 "use client";
 
-import { Button } from "../ui/button";
-import { Moon, Sun, Globe, Menu, X, GraduationCap } from "lucide-react";
+import { Moon, Sun, Globe, Menu, X } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import UserMenu from "../UserMenu";
 
@@ -11,7 +9,6 @@ export default function Navbar({
   t,
   isRTL,
   isDark,
-  language,
   isMenuOpen,
   toggleTheme,
   toggleLanguage,
@@ -19,7 +16,6 @@ export default function Navbar({
 }) {
   const { data: session } = useSession();
   const isSignedIn = !!session;
-  const router = useRouter();
 
   return (
     <>
@@ -42,10 +38,7 @@ export default function Navbar({
               >
                 <div className="relative overflow-hidden rounded-lg w-9 h-9 transition-transform duration-300 group-hover:scale-105 ">
                   <img
-                    src={
-                      
-                        "/assets/images/favicon_white.png"
-                    }
+                    src={"/assets/images/favicon_white.png"}
                     alt="FinalStep Logo"
                     className="w-full h-full object-cover"
                   />
@@ -58,6 +51,12 @@ export default function Navbar({
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-1 p-2 flex-1 justify-center px-4 overflow-x-auto">
+              <a
+                href="/"
+                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                {t.Home}
+              </a>
               <a
                 href="#features"
                 className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
