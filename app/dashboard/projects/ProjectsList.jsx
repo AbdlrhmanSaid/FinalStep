@@ -8,14 +8,13 @@ import { useGetProjects } from "@/hooks/projects/useGetProjects";
 import Loading from "@/components/Loading";
 import {
   Mail,
-  CirclePlus,
+  Plus,
   Folder,
-  Users,
   Search,
   Grid,
   List,
-  ChevronDown,
   RefreshCw,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -32,15 +31,17 @@ export default function ProjectsList() {
     sort: "newest",
   });
 
-  const leadingProjects = data?.filter(
+  const uniqueProjects = data ? Array.from(new Map(data.map(p => [p._id, p])).values()) : [];
+
+  const leadingProjects = uniqueProjects.filter(
     (proj) =>
-      proj.leaderId?._id === userId ||
-      proj.coLeaders?.some((u) => u._id === userId),
+      proj.leaderId?._id?.toString() === userId?.toString() ||
+      proj.coLeaders?.some((u) => u._id?.toString() === userId?.toString()),
   );
 
-  const participatingProjects = data?.filter(
+  const participatingProjects = uniqueProjects.filter(
     (proj) =>
-      proj.members?.some((member) => member._id === userId) &&
+      proj.members?.some((member) => member._id?.toString() === userId?.toString()) &&
       !leadingProjects?.some((leadProj) => leadProj._id === proj._id),
   );
 
@@ -90,124 +91,147 @@ export default function ProjectsList() {
       } flex flex-col`}
     >
       {/* Header Section */}
-      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="flex items-center gap-4">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
-                <Folder className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
-                  {content.dashboard.title}
-                </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-300 text-2xl">
-                  {isRTL
-                    ? "إدارة وتتبع جميع مشاريعك"
-                    : "Manage and track all your projects"}
-                </p>
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 font-medium">
+                <span>{isRTL ? "لوحة التحكم" : "Dashboard"}</span>
+                <span className="mx-2 text-gray-300 dark:text-gray-700">/</span>
+                <span className="text-gray-900 dark:text-white font-bold">
+                  {isRTL ? "المشاريع" : "Projects"}
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => refetch()}
                 disabled={isRefetching}
-                className="p-3 rounded-xl bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 text-gray-400 hover:text-gray-600 dark:group-hover:text-gray-200 transition-colors"
                 title={isRTL ? "تحديث" : "Refresh"}
               >
                 <RefreshCw
-                  className={`w-5 h-5 ${isRefetching ? "animate-spin text-blue-500" : ""}`}
+                  className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
                 />
               </button>
-              <Link href="/dashboard/invitations" className="flex-shrink-0">
-                <button
-                  className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
-                  aria-label={content.dashboard.invitations.title}
-                >
-                  <Mail className="w-5 h-5" />
-                </button>
-              </Link>
-              <Link
-                href="/dashboard/createProject"
-                className="flex-grow md:flex-grow-0"
-              >
-                <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 font-medium">
-                  <CirclePlus className="w-5 h-5" />
+
+              <Link href="/dashboard/createProject">
+                <button className="ml-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-sm shadow-blue-500/20">
+                  <Plus className="w-4 h-4" />
                   {content.dashboard.quickActions.createProject}
                 </button>
               </Link>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Filters Section */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="relative flex-1 w-full max-w-lg">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder={
-                  isRTL ? "البحث في المشاريع..." : "Search projects..."
-                }
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-              />
+      {/* Hero & Metrics */}
+      <section className="bg-white dark:bg-gray-900 py-8 border-b border-gray-100 dark:border-gray-800/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                {isRTL ? "مشاريعك" : "Your Projects"}
+                <span className="ml-3 text-sm font-medium text-gray-400 bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 rounded-full align-middle">
+                  {data?.length || 0}
+                </span>
+              </h1>
+              <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-xl text-sm leading-relaxed">
+                {isRTL
+                  ? "تتبع تقدم مشاريعك، تواصل مع فريقك، وحقق أهدافك في مكان واحد منظم."
+                  : "Track progress, collaborate with your team, and achieve goals in one organized workspace."}
+              </p>
             </div>
 
-            <div className="flex flex-wrap sm:flex-nowrap gap-3 w-full md:w-auto items-center">
-              <div className="relative w-full sm:w-40">
-                <select
-                  aria-label={isRTL ? "تصفية حسب الحالة" : "Filter by status"}
-                  value={filters.status}
-                  onChange={(e) =>
-                    setFilters({ ...filters, status: e.target.value })
-                  }
-                  className="appearance-none w-full pl-3 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all text-sm"
+            <div className="flex items-center gap-8 py-2 px-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+              <div className="flex flex-col">
+                <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">
+                  {isRTL ? "نشط" : "Active Tasks"}
+                </span>
+                <span className="text-xl font-black text-blue-600 dark:text-blue-400 leading-none">
+                  {uniqueProjects.reduce(
+                    (acc, p) =>
+                      acc +
+                      (p.tasks?.filter((t) => t.status !== "completed")
+                        .length || 0),
+                    0,
+                  ) || 0}
+                </span>
+              </div>
+              <div className="w-[1px] h-8 bg-gray-200 dark:bg-gray-700" />
+              <div className="flex flex-col">
+                <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">
+                  {isRTL ? "إنجاز" : "Completion"}
+                </span>
+                <span className="text-xl font-black text-green-600 dark:text-green-400 leading-none">
+                  {uniqueProjects.length > 0
+                    ? Math.round(
+                        (uniqueProjects.filter((p) => p.status === "finished").length /
+                          uniqueProjects.length) *
+                          100,
+                      )
+                    : 0}
+                  %
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Workbench Toolbar */}
+      <section className="bg-gray-50/50 dark:bg-gray-900/50 py-4 border-b border-gray-100 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            {/* Tabs (Segmented Control) */}
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full lg:w-auto"
+              dir={isRTL ? "rtl" : "ltr"}
+            >
+              <TabsList className="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl h-10 border border-gray-200 dark:border-gray-700">
+                <TabsTrigger
+                  value="leading"
+                  className="rounded-lg px-6 text-sm font-medium transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
                 >
-                  <option value="all">
-                    {isRTL ? "كل الحالات" : "All Statuses"}
-                  </option>
-                  <option value="open">{isRTL ? "مفتوحة" : "Open"}</option>
-                  <option value="finished">
-                    {isRTL ? "منتهية" : "Finished"}
-                  </option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  {content.dashboard.sections.leading}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="participating"
+                  className="rounded-lg px-6 text-sm font-medium transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400"
+                >
+                  {content.dashboard.sections.participating}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <div className="flex items-center gap-3 w-full lg:w-auto">
+              {/* Search Bar */}
+              <div className="relative flex-1 lg:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder={isRTL ? "البحث..." : "Search..."}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
+                />
               </div>
 
-              <div className="relative w-full sm:w-40">
-                <select
-                  aria-label={isRTL ? "ترتيب حسب" : "Sort by"}
-                  value={filters.sort}
-                  onChange={(e) =>
-                    setFilters({ ...filters, sort: e.target.value })
-                  }
-                  className="appearance-none w-full pl-3 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all text-sm"
-                >
-                  <option value="newest">{isRTL ? "الأحدث" : "Newest"}</option>
-                  <option value="oldest">{isRTL ? "الأقدم" : "Oldest"}</option>
-                  <option value="name">{isRTL ? "بالاسم" : "By Name"}</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
-
-              <div className="flex gap-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg border border-gray-200 dark:border-gray-600">
+              {/* View Switcher */}
+              <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-1.5 rounded transition-all ${viewMode === "grid" ? "bg-white dark:bg-gray-800 shadow-sm text-blue-600 dark:text-blue-400" : "hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300"}`}
-                  aria-label={isRTL ? "عرض شبكي" : "Grid view"}
+                  className={`p-1.5 rounded-lg transition-all ${viewMode === "grid" ? "bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-gray-400"}`}
                 >
                   <Grid className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-1.5 rounded transition-all ${viewMode === "list" ? "bg-white dark:bg-gray-800 shadow-sm text-blue-600 dark:text-blue-400" : "hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300"}`}
-                  aria-label={isRTL ? "عرض قائم" : "List view"}
+                  className={`p-1.5 rounded-lg transition-all ${viewMode === "list" ? "bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-gray-400"}`}
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -215,49 +239,11 @@ export default function ProjectsList() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="w-full"
-          dir={isRTL ? "rtl" : "ltr"}
-        >
-          {/* Tabs List */}
-          <TabsList className="grid grid-cols-1 md:grid-cols-2 w-full h-full max-w-2xl mx-auto mb-8 bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 gap-2">
-            <TabsTrigger
-              value="leading"
-              className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <Folder className="w-5 h-5 hidden md:block" />
-              <span className="text-sm sm:text-base font-semibold text-center truncate">
-                {content.dashboard.sections.leading}
-              </span>
-              {filteredLeadingProjects?.length > 0 && (
-                <span className="text-xs font-bold bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full min-w-[1.75rem] text-center data-[state=active]:bg-white/30">
-                  {filteredLeadingProjects.length}
-                </span>
-              )}
-            </TabsTrigger>
-
-            <TabsTrigger
-              value="participating"
-              className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl transition-all data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              <Users className="w-5 h-5 hidden md:block" />
-              <span className="text-sm sm:text-base font-semibold text-center truncate">
-                {content.dashboard.sections.participating}
-              </span>
-              {filteredParticipatingProjects?.length > 0 && (
-                <span className="text-xs font-bold bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full min-w-[1.75rem] text-center data-[state=active]:bg-white/30">
-                  {filteredParticipatingProjects.length}
-                </span>
-              )}
-            </TabsTrigger>
-          </TabsList>
-
+      {/* Main Content Area */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+        <Tabs value={activeTab} className="w-full">
           {/* Leading Projects Tab */}
           <TabsContent value="leading" className="mt-6">
             {filteredLeadingProjects?.length > 0 ? (
@@ -265,33 +251,15 @@ export default function ProjectsList() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredLeadingProjects.map((project) => (
                     <Link
-                      key={project._id}
+                      key={`lead-grid-${project._id}`}
                       href={`/dashboard/projects/${project._id}`}
                       className="group block"
                     >
                       <ProjectCard
-                        project={{
-                          title: project.title,
-                          description: project.description,
-                          createdAt: new Date(project.createdAt),
-                          tasks: project.tasks?.length || 0,
-                          status:
-                            project.status === "finished"
-                              ? "finished"
-                              : project.public
-                                ? "active"
-                                : "pending",
-                          deadline: project.deadline,
-                          leader: project.leaderId?.name,
-                          joinRequestsCount:
-                            project.joinRequests?.filter(
-                              (req) => req.status === "pending",
-                            ).length || 0,
-                        }}
+                        project={project}
                         content={content.dashboard}
                         isRTL={isRTL}
-                        members={project.members?.length || 0}
-                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 group-hover:border-blue-500 dark:group-hover:border-blue-400 hover:-translate-y-2 h-full overflow-hidden"
+                        className="h-full"
                         viewMode={viewMode}
                       />
                     </Link>
@@ -301,33 +269,15 @@ export default function ProjectsList() {
                 <div className="space-y-4">
                   {filteredLeadingProjects.map((project) => (
                     <Link
-                      key={project._id}
+                      key={`lead-list-${project._id}`}
                       href={`/dashboard/projects/${project._id}`}
                       className="group block"
                     >
                       <ProjectCard
-                        project={{
-                          title: project.title,
-                          description: project.description,
-                          createdAt: new Date(project.createdAt),
-                          tasks: project.tasks?.length || 0,
-                          status:
-                            project.status === "finished"
-                              ? "finished"
-                              : project.public
-                                ? "active"
-                                : "pending",
-                          deadline: project.deadline,
-                          leader: project.leaderId?.name,
-                          joinRequestsCount:
-                            project.joinRequests?.filter(
-                              (req) => req.status === "pending",
-                            ).length || 0,
-                        }}
+                        project={project}
                         content={content.dashboard}
                         isRTL={isRTL}
-                        members={project.members?.length || 0}
-                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:border-blue-500 dark:group-hover:border-blue-400 hover:scale-[1.01]"
+                        className="h-full"
                         viewMode={viewMode}
                       />
                     </Link>
@@ -363,7 +313,7 @@ export default function ProjectsList() {
                 </p>
                 <Link href="/dashboard/createProject">
                   <button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
-                    <CirclePlus className="w-5 h-5 inline-block mr-2" />
+                    <Plus className="w-5 h-5 inline-block mr-2" />
                     {content.dashboard.quickActions.createProject}
                   </button>
                 </Link>
@@ -378,33 +328,15 @@ export default function ProjectsList() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredParticipatingProjects.map((project) => (
                     <Link
-                      key={project._id}
+                      key={`part-grid-${project._id}`}
                       href={`/dashboard/projects/${project._id}`}
                       className="group block"
                     >
                       <ProjectCard
-                        project={{
-                          title: project.title,
-                          description: project.description,
-                          createdAt: new Date(project.createdAt),
-                          tasks: project.tasks?.length || 0,
-                          status:
-                            project.status === "finished"
-                              ? "finished"
-                              : project.public
-                                ? "active"
-                                : "pending",
-                          deadline: project.deadline,
-                          leader: project.leaderId?.name,
-                          joinRequestsCount:
-                            project.joinRequests?.filter(
-                              (req) => req.status === "pending",
-                            ).length || 0,
-                        }}
+                        project={project}
                         content={content.dashboard}
                         isRTL={isRTL}
-                        members={project.members?.length || 0}
-                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 group-hover:border-purple-500 dark:group-hover:border-purple-400 hover:-translate-y-2 h-full overflow-hidden"
+                        className="h-full"
                         viewMode={viewMode}
                       />
                     </Link>
@@ -414,33 +346,15 @@ export default function ProjectsList() {
                 <div className="space-y-4">
                   {filteredParticipatingProjects.map((project) => (
                     <Link
-                      key={project._id}
+                      key={`part-list-${project._id}`}
                       href={`/dashboard/projects/${project._id}`}
                       className="group block"
                     >
                       <ProjectCard
-                        project={{
-                          title: project.title,
-                          description: project.description,
-                          createdAt: new Date(project.createdAt),
-                          tasks: project.tasks?.length || 0,
-                          status:
-                            project.status === "finished"
-                              ? "finished"
-                              : project.public
-                                ? "active"
-                                : "pending",
-                          deadline: project.deadline,
-                          leader: project.leaderId?.name,
-                          joinRequestsCount:
-                            project.joinRequests?.filter(
-                              (req) => req.status === "pending",
-                            ).length || 0,
-                        }}
+                        project={project}
                         content={content.dashboard}
                         isRTL={isRTL}
-                        members={project.members?.length || 0}
-                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group-hover:border-purple-500 dark:group-hover:border-purple-400 hover:scale-[1.01]"
+                        className="h-full"
                         viewMode={viewMode}
                       />
                     </Link>

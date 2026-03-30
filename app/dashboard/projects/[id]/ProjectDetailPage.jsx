@@ -213,88 +213,102 @@ const ProjectDetailPage = () => {
   };
 
   return (
-    <div className="min-h-screen bgMain transition-colors p-4 md:p-6 pb-20">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <ProjectHeader
-          data={data}
-          content={content}
-          isRTL={isRTL}
-          isFinished={isFinished}
-          handleRefresh={handleRefresh}
-          isRefetching={isRefetching}
-        />
+    <div className="min-h-screen bgMain p-4 md:p-8 lg:p-12 transition-colors">
+      <div className="max-w-7xl mx-auto">
+        {/* Dynamic Navigation/Breadcrumbs could be here */}
+        
+        <div className="flex flex-col gap-8">
+          <ProjectHeader
+            data={data}
+            content={content}
+            isRTL={isRTL}
+            isFinished={isFinished}
+            handleRefresh={handleRefresh}
+            isRefetching={isRefetching}
+          />
 
-        <ProjectJoinBanner
-          data={data}
-          isRandomUser={isRandomUser}
-          isInvite={isInvite}
-          isFinished={isFinished}
-          isRTL={isRTL}
-          content={content}
-          handleJoinProject={handleJoinProject}
-          hasRequestedJoin={hasRequestedJoin}
-          isJoining={isJoining}
-        />
+          <ProjectJoinBanner
+            data={data}
+            isRandomUser={isRandomUser}
+            isInvite={isInvite}
+            isFinished={isFinished}
+            isRTL={isRTL}
+            content={content}
+            handleJoinProject={handleJoinProject}
+            hasRequestedJoin={hasRequestedJoin}
+            isJoining={isJoining}
+          />
 
-        <ProjectDetailsSection
-          data={data}
-          content={content}
-          isRTL={isRTL}
-          dateLocale={dateLocale}
-        />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Column: Main Projects Content (Tasks) */}
+            <div className="lg:col-span-8 space-y-8">
+              <ProjectTasks
+                data={data}
+                content={content}
+                isRTL={isRTL}
+                isLeader={isLeader}
+                isMember={isMember}
+                isFinished={isFinished}
+                tasks={tasks}
+                filteredTasks={filteredTasks}
+                refetchTasks={refetchTasks}
+                deleteTask={deleteTask}
+                modal={modal}
+                taskStatusContent={taskStatusContent}
+                taskFilter={taskFilter}
+                setTaskFilter={setTaskFilter}
+                dateLocale={dateLocale}
+                getMySubmissionStatus={getMySubmissionStatus}
+              />
+            </div>
 
-        <ProjectTeamSection
-          data={data}
-          content={content}
-          isRTL={isRTL}
-          isLeader={isLeader}
-          updateMemberTitle={updateMemberTitle}
-        />
+            {/* Right Column: Sidebar Metadata (Details, Team, Requests, Actions) */}
+            <aside className="lg:col-span-4 space-y-8">
+              <ProjectDetailsSection
+                data={data}
+                content={content}
+                isRTL={isRTL}
+                dateLocale={dateLocale}
+              />
 
-        <ProjectJoinRequests
-          data={data}
-          content={content}
-          isLeader={isLeader}
-          pendingJoinRequests={pendingJoinRequests}
-          isResponding={isResponding}
-          respondJoin={respondJoin}
-          userId={userId}
-        />
+              <ProjectTeamSection
+                data={data}
+                content={content}
+                isRTL={isRTL}
+                isLeader={isLeader}
+                updateMemberTitle={updateMemberTitle}
+              />
 
-        <ProjectTasks
-          data={data}
-          content={content}
-          isRTL={isRTL}
-          isLeader={isLeader}
-          isMember={isMember}
-          isFinished={isFinished}
-          tasks={tasks}
-          filteredTasks={filteredTasks}
-          refetchTasks={refetchTasks}
-          deleteTask={deleteTask}
-          modal={modal}
-          taskStatusContent={taskStatusContent}
-          taskFilter={taskFilter}
-          setTaskFilter={setTaskFilter}
-          dateLocale={dateLocale}
-          getMySubmissionStatus={getMySubmissionStatus}
-        />
+              {isLeader && pendingJoinRequests.length > 0 && (
+                <ProjectJoinRequests
+                  data={data}
+                  content={content}
+                  isLeader={isLeader}
+                  pendingJoinRequests={pendingJoinRequests}
+                  isResponding={isResponding}
+                  respondJoin={respondJoin}
+                  userId={userId}
+                />
+              )}
 
-        <ProjectActions
-          data={data}
-          content={content}
-          isRTL={isRTL}
-          isLeader={isLeader}
-          isMember={isMember}
-          isFinished={isFinished}
-          modal={modal}
-          toggleStatus={toggleStatus}
-          handleDelete={handleDelete}
-          handleLeave={handleLeave}
-          handleEdit={handleEdit}
-          handleReport={handleReport}
-          router={router}
-        />
+              <ProjectActions
+                data={data}
+                content={content}
+                isRTL={isRTL}
+                isLeader={isLeader}
+                isMember={isMember}
+                isFinished={isFinished}
+                modal={modal}
+                toggleStatus={toggleStatus}
+                handleDelete={handleDelete}
+                handleLeave={handleLeave}
+                handleEdit={handleEdit}
+                handleReport={handleReport}
+                router={router}
+              />
+            </aside>
+          </div>
+        </div>
       </div>
     </div>
   );

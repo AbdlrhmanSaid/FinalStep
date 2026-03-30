@@ -1,10 +1,9 @@
-import { useState } from "react";
 import {
   ClipboardPlus,
-  ChevronDown,
-  Edit,
   Crown,
   Calendar,
+  Info,
+  ExternalLink,
 } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -15,114 +14,92 @@ export default function ProjectDetailsSection({
   isRTL,
   dateLocale,
 }) {
-  const [detailsOpen, setDetailsOpen] = useState(true);
+  const isOverdue = data.deadline && new Date(data.deadline) < new Date() && data.status !== "finished";
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800 shadow-sm">
-      <button
-        type="button"
-        onClick={() => setDetailsOpen((prev) => !prev)}
-        className="w-full flex items-center justify-between px-5 py-4 bg-gray-50 dark:bg-gray-700/60 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <ClipboardPlus className="w-5 h-5 text-blue-500" />
-          <span className="font-semibold text-gray-800 dark:text-white truncate">
-            {isRTL ? "التفاصيل" : "Details"}
-          </span>
+    <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-xl">
+          <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
         </div>
-        <ChevronDown
-          className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${detailsOpen ? "rotate-180" : ""}`}
-        />
-      </button>
-      <div
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          detailsOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-        }`}
-      >
-        <div className="p-4 md:p-6 space-y-6 border-t border-gray-100 dark:border-gray-700">
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-              <Edit className="w-5 h-5 text-gray-500" />
-              {content.description}
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
-              {data.description || content.noDescription}
-            </p>
+        <h3 className="font-black text-gray-900 dark:text-white text-lg">
+          {isRTL ? "معلومات المشروع" : "Project Info"}
+        </h3>
+      </div>
+
+      <div className="space-y-6">
+        {/* Description */}
+        <div>
+          <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold block mb-2">
+            {isRTL ? "عن المشروع" : "Description"}
+          </span>
+          <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-800/50">
+            {data.description || (isRTL ? "لا يوجد وصف لهذا المشروع." : "No description provided.")}
+          </p>
+        </div>
+
+        {/* Metadatas */}
+        <div className="grid grid-cols-1 gap-4">
+          {/* Leader */}
+          <div className="group flex items-center justify-between p-3 rounded-2xl border border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 hover:border-blue-500/30 transition-all">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
+                <Crown className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] uppercase tracking-tighter text-gray-400 font-bold">{content.leaderName}</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white">{data.leaderId?.name || "Unknown"}</span>
+              </div>
+            </div>
+            <Link href={`/dashboard/user/${data.leaderId?._id}`} className="p-1.5 rounded-lg text-gray-300 hover:text-blue-500 hover:bg-white dark:hover:bg-gray-700 transition-all">
+              <ExternalLink className="w-4 h-4" />
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
-              <div className="flex items-center gap-3">
-                <Crown className="w-5 h-5 text-yellow-500" />
-                <span className="text-gray-600 dark:text-gray-300">
-                  {content.leaderName}:{" "}
-                  <Link
-                    href={`/dashboard/user/${data.leaderId?._id}`}
-                    className="font-semibold text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
-                  >
-                    {data.leaderId?.name || "Unknown"}
-                  </Link>
+          {/* Created at */}
+          <div className="flex items-center gap-3 p-3 rounded-2xl border border-gray-50 dark:border-gray-800">
+            <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+              <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[9px] uppercase tracking-tighter text-gray-400 font-bold">{content.created}</span>
+              <span className="text-xs font-bold text-gray-900 dark:text-white">
+                {format(new Date(data.createdAt), "d MMMM yyyy", { locale: dateLocale })}
+              </span>
+            </div>
+          </div>
+
+          {/* Deadline */}
+          {data.deadline && (
+            <div className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${
+              isOverdue 
+                ? "bg-rose-50 dark:bg-rose-900/10 border-rose-100 dark:border-rose-900/50" 
+                : "bg-orange-50 dark:bg-orange-900/10 border-orange-100 dark:border-orange-900/50"
+            }`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                isOverdue ? "bg-rose-100 dark:bg-rose-900/30" : "bg-orange-100 dark:bg-orange-900/30"
+              }`}>
+                <Calendar className={`w-4 h-4 ${isOverdue ? "text-rose-600" : "text-orange-600"}`} />
+              </div>
+              <div className="flex flex-col">
+                <span className={`text-[9px] uppercase tracking-tighter font-bold ${
+                  isOverdue ? "text-rose-400" : "text-orange-400"
+                }`}>
+                  {content.deadline}
+                </span>
+                <span className={`text-xs font-bold ${
+                  isOverdue ? "text-rose-700 dark:text-rose-400" : "text-orange-700 dark:text-orange-400"
+                }`}>
+                  {format(new Date(data.deadline), "d MMMM yyyy", { locale: dateLocale })}
+                  {isOverdue && (
+                    <span className="ml-2 bg-rose-500 text-white text-[8px] px-1.5 py-0.5 rounded-full uppercase tracking-tighter">
+                      {content.deadlinePassed}
+                    </span>
+                  )}
                 </span>
               </div>
             </div>
-
-            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
-              <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-gray-500" />
-                <span className="text-gray-600 dark:text-gray-300">
-                  {content.created}:{" "}
-                  <strong className="text-gray-800 dark:text-white">
-                    {format(new Date(data.createdAt), "PPP", {
-                      locale: dateLocale,
-                    })}
-                  </strong>
-                </span>
-              </div>
-            </div>
-
-            {data.deadline && (
-              <div
-                className={`p-4 rounded-md ${
-                  new Date(data.deadline) < new Date() &&
-                  data.status !== "finished"
-                    ? "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
-                    : "bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Calendar
-                    className={`w-5 h-5 ${
-                      new Date(data.deadline) < new Date() &&
-                      data.status !== "finished"
-                        ? "text-red-500"
-                        : "text-orange-500"
-                    }`}
-                  />
-                  <span
-                    className={
-                      new Date(data.deadline) < new Date() &&
-                      data.status !== "finished"
-                        ? "text-red-700 dark:text-red-300"
-                        : "text-orange-700 dark:text-orange-300"
-                    }
-                  >
-                    {content.deadline}:{" "}
-                    <strong>
-                      {format(new Date(data.deadline), "PPP", {
-                        locale: dateLocale,
-                      })}
-                    </strong>
-                    {new Date(data.deadline) < new Date() &&
-                      data.status !== "finished" && (
-                        <span className="ml-2 text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full">
-                          {content.deadlinePassed}
-                        </span>
-                      )}
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </div>
