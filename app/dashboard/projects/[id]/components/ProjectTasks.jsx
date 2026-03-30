@@ -268,7 +268,7 @@ export default function ProjectTasks({
                         href={`/dashboard/task/${task._id}`}
                         className="flex-1 lg:flex-none"
                       >
-                        <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-50 dark:bg-gray-900 hover:bg-white dark:hover:bg-gray-700 border border-gray-100 dark:border-gray-700 rounded-2xl text-xs font-black transition-all group-hover:border-blue-500/30">
+                        <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-50 dark:bg-gray-900 dark:text-white hover:bg-white dark:hover:bg-gray-700 border border-gray-100 dark:border-gray-700 rounded-2xl text-xs font-black transition-all group-hover:border-blue-500/30">
                           {isRTL ? "استعراض" : "Explore"}
                           <ArrowRight
                             className={`w-3.5 h-3.5 transition-transform group-hover:translate-x-1 ${isRTL ? "rotate-180 group-hover:-translate-x-1" : ""}`}

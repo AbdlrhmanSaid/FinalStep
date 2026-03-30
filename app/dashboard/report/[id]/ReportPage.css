@@ -21,14 +21,12 @@
 .rp-actions {
   max-width: 860px;
   margin: 0 auto 1rem;
-  display: flex;
   justify-content: flex-end;
 }
 
 /* ── Print settings hint card ─────────────────── */
 .rp-print-hint {
   max-width: 860px;
-  margin: 0 auto 1.5rem;
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
@@ -38,9 +36,15 @@
   padding: 0.85rem 1.1rem;
 }
 
-.rp-hint-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+.rp-hint-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
 
-.rp-hint-body { flex: 1; }
+.rp-hint-body {
+  flex: 1;
+}
 
 .rp-hint-title {
   font-size: 0.8rem;
@@ -58,9 +62,14 @@
   gap: 0.3rem 1.25rem;
 }
 
-.rp-hint-list li { font-size: 0.78rem; color: #78350f; }
+.rp-hint-list li {
+  font-size: 0.78rem;
+  color: #78350f;
+}
 
-.rp-hint-key { font-weight: 600; }
+.rp-hint-key {
+  font-weight: 600;
+}
 
 .rp-hint-val {
   font-weight: 700;
@@ -83,11 +92,20 @@
   font-weight: 600;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(79,70,229,0.35);
-  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+  transition:
+    background 0.2s,
+    transform 0.15s;
 }
-.rp-print-btn:hover { background: #4338ca; transform: translateY(-1px); }
-.rp-print-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.rp-print-btn:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+.rp-print-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 
 /* ── Report paper ─────────────────────────────── */
 .rp-page {
@@ -95,7 +113,7 @@
   max-width: 860px;
   margin: 0 auto;
   border-radius: 16px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -109,8 +127,8 @@
 
 .rp-header-badge {
   display: inline-block;
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   padding: 0.25rem 1rem;
   font-size: 0.75rem;
@@ -189,10 +207,17 @@
   gap: 0.2rem;
 }
 
-.rp-stat:last-child { border-right: none; }
+.rp-stat:last-child {
+  border-right: none;
+}
 
-[dir="rtl"] .rp-stat { border-right: none; border-left: 1px solid #f1f1f1; }
-[dir="rtl"] .rp-stat:last-child { border-left: none; }
+[dir="rtl"] .rp-stat {
+  border-right: none;
+  border-left: 1px solid #f1f1f1;
+}
+[dir="rtl"] .rp-stat:last-child {
+  border-left: none;
+}
 
 .rp-stat-num {
   font-size: 2rem;
@@ -208,10 +233,18 @@
   letter-spacing: 0.03em;
 }
 
-.rp-stat-total  .rp-stat-num { color: #4f46e5; }
-.rp-stat-done   .rp-stat-num { color: #059669; }
-.rp-stat-remain .rp-stat-num { color: #d97706; }
-.rp-stat-overdue .rp-stat-num { color: #dc2626; }
+.rp-stat-total .rp-stat-num {
+  color: #4f46e5;
+}
+.rp-stat-done .rp-stat-num {
+  color: #059669;
+}
+.rp-stat-remain .rp-stat-num {
+  color: #d97706;
+}
+.rp-stat-overdue .rp-stat-num {
+  color: #dc2626;
+}
 
 /* ── Progress ─────────────────────────────────── */
 .rp-progress-section {
@@ -296,7 +329,9 @@
   transition: box-shadow 0.2s;
 }
 
-.rp-task-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+.rp-task-card:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+}
 
 .rp-task-card.rp-task-overdue {
   border-color: #fecaca;
@@ -365,23 +400,56 @@
 }
 
 /* Status */
-.rp-status.s-completed { background: #d1fae5; color: #065f46; }
-.rp-status.s-submitted { background: #dbeafe; color: #1e40af; }
-.rp-status.s-open      { background: #f3f4f6; color: #374151; }
-.rp-status.s-rejected  { background: #fee2e2; color: #991b1b; }
-.rp-status.s-ended     { background: #fef3c7; color: #92400e; }
+.rp-status.s-completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+.rp-status.s-submitted {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.rp-status.s-open {
+  background: #f3f4f6;
+  color: #374151;
+}
+.rp-status.s-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.rp-status.s-ended {
+  background: #fef3c7;
+  color: #92400e;
+}
 
 /* Priority */
-.rp-priority.p-high   { background: #fee2e2; color: #991b1b; }
-.rp-priority.p-medium { background: #fef3c7; color: #92400e; }
-.rp-priority.p-low    { background: #f3f4f6; color: #374151; }
+.rp-priority.p-high {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.rp-priority.p-medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+.rp-priority.p-low {
+  background: #f3f4f6;
+  color: #374151;
+}
 
 /* Method */
-.rp-method { background: #ede9fe; color: #5b21b6; }
+.rp-method {
+  background: #ede9fe;
+  color: #5b21b6;
+}
 
 /* Due date */
-.rp-due      { background: #f0fdf4; color: #166534; }
-.rp-due-late { background: #fee2e2; color: #991b1b; }
+.rp-due {
+  background: #f0fdf4;
+  color: #166534;
+}
+.rp-due-late {
+  background: #fee2e2;
+  color: #991b1b;
+}
 
 /* ── Summary ──────────────────────────────────── */
 .rp-summary {
@@ -426,13 +494,19 @@
    🖨️ PRINT STYLES
 ══════════════════════════════════════════════════ */
 @media print {
-  body * { visibility: hidden; }
+  body * {
+    visibility: hidden;
+  }
 
-  #page, #page * { visibility: visible; }
+  #page,
+  #page * {
+    visibility: visible;
+  }
 
   #page {
     position: absolute;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     margin: 0;
     padding: 0;
@@ -445,7 +519,9 @@
     -webkit-print-color-adjust: exact;
   }
 
-  .no-print { display: none !important; }
+  .no-print {
+    display: none !important;
+  }
 
   .rp-header {
     background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
@@ -464,7 +540,9 @@
     -webkit-print-color-adjust: exact;
   }
 
-  .rp-stats-grid { grid-template-columns: repeat(4, 1fr); }
+  .rp-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 
   @page {
     size: A4 portrait;
@@ -474,8 +552,17 @@
 
 /* ── Responsive ───────────────────────────────── */
 @media (max-width: 640px) {
-  .rp-header { padding: 1.5rem 1rem; }
-  .rp-stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .rp-team-strip, .rp-tasks-section, .rp-progress-section,
-  .rp-summary, .rp-footer { padding: 1rem; }
+  .rp-header {
+    padding: 1.5rem 1rem;
+  }
+  .rp-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .rp-team-strip,
+  .rp-tasks-section,
+  .rp-progress-section,
+  .rp-summary,
+  .rp-footer {
+    padding: 1rem;
+  }
 }

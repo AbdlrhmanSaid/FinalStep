@@ -11,13 +11,6 @@ import { useAppContext } from "../../../contexts/AppContext";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import DatePicker from "../../../components/ui/DatePicker";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 
 export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
   const { userId } = useAppContext();
@@ -42,20 +35,14 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
     try {
       await toast.promise(onSubmit(formData), {
         loading: isRTL ? "جاري إنشاء المشروع..." : "Creating project...",
-        success: isRTL
-          ? "تم إنشاء المشروع بنجاح!"
-          : "Project created successfully!",
-        error: (err) =>
-          err.message ||
-          (isRTL ? "فشل إنشاء المشروع" : "Failed to create project"),
+        success: isRTL ? "تم إنشاء المشروع بنجاح!" : "Project created successfully!",
+        error: (err) => err.message || (isRTL ? "فشل إنشاء المشروع" : "Failed to create project"),
       });
 
-      // Reset form after successful submission
       setTitle("");
       setDescription("");
       setPublicProject(false);
       setDeadline("");
-
       router.push("/dashboard/projects");
     } catch (err) {
       console.error("Error creating project:", err);
@@ -63,37 +50,33 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
   };
 
   return (
-    <Card
-      className="max-w-2xl mx-auto border-gray-200 dark:border-gray-800 dark:bg-gray-900 shadow-md transition-colors"
+    <div 
+      className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
       dir={isRTL ? "rtl" : "ltr"}
     >
-      <CardHeader className="bg-gray-50/50 dark:bg-gray-800/20 border-b border-gray-100 dark:border-gray-800 mb-6 pb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl">
-            <FolderPlus className="w-6 h-6" />
+      <div className="bg-gray-50/50 dark:bg-gray-800/50 p-6 md:p-8 border-b border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-800/50 shadow-sm">
+            <FolderPlus className="w-7 h-7" />
           </div>
           <div>
-            <CardTitle className="text-xl md:text-2xl font-bold dark:text-white">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               {content.title}
-            </CardTitle>
-            <CardDescription className="text-sm text-gray-500 mt-1">
+            </h1>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
               {isRTL
-                ? "قم بإنشاء مشروعك الجديد وابدأ بخطواتك الأولى."
+                ? "قم بإنشاء مشروعك الجديد وابدأ بخطواتك الأولى نحو الهدف."
                 : "Create your new project and start your first step."}
-            </CardDescription>
+            </p>
           </div>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6 pb-4">
-          {/* Project Title */}
-          <div className="space-y-1">
-            <Label
-              htmlFor="title"
-              className="text-[15px] font-semibold flex items-center gap-2 mb-2"
-            >
-              {content.titleInput}
+      <div className="p-6 md:p-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-sm font-bold text-gray-900 dark:text-white">
+              {content.titleInput} <span className="text-rose-500">*</span>
             </Label>
             <Input
               id="title"
@@ -101,16 +84,12 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
               onChange={(e) => setTitle(e.target.value)}
               required
               placeholder={content.titlePlaceholder}
-              className="h-12 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm transition-all focus-visible:ring-blue-500"
+              className="h-12 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-xl focus-visible:ring-blue-500 font-medium"
             />
           </div>
 
-          {/* Project Description */}
-          <div className="space-y-1">
-            <Label
-              htmlFor="description"
-              className="text-[15px] font-semibold flex items-center gap-2 mb-2"
-            >
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-sm font-bold text-gray-900 dark:text-white">
               {content.describe}
             </Label>
             <Textarea
@@ -118,66 +97,52 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={content.descriptionPlaceholder}
-              className="resize-none bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm transition-all focus-visible:ring-blue-500"
-              rows={5}
+              className="resize-none min-h-[120px] bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-xl focus-visible:ring-blue-500 font-medium p-4"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-            {/* Project Deadline */}
-            <div className="space-y-1 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
-              <Label
-                htmlFor="deadline"
-                className="text-[15px] font-semibold block mb-3"
-              >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3 bg-gray-50 dark:bg-gray-900/50 p-5 rounded-2xl border border-gray-200 dark:border-gray-800">
+              <Label htmlFor="deadline" className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 {content.deadline}
               </Label>
               <DatePicker
                 value={deadline}
                 onChange={setDeadline}
-                placeholder={
-                  content.deadlinePlaceholder || "Pick a deadline date..."
-                }
+                placeholder={content.deadlinePlaceholder || "Pick a deadline date..."}
                 disablePast={true}
                 locale={isRTL ? "ar" : "en"}
               />
               {deadline && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">
+                <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">
                   {content.deadlineHint}
                 </p>
               )}
             </div>
 
-            {/* Public/Private Switch */}
-            <div className="space-y-1 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-800 flex flex-col justify-center items-center h-full min-h-[120px]">
-              <div className="flex flex-col items-center justify-center space-y-3 w-full">
-                <Globe
-                  className={`w-8 h-8 ${publicProject ? "text-green-500" : "text-gray-400"}`}
+            <div className="flex flex-col items-center justify-center space-y-4 bg-gray-50 dark:bg-gray-900/50 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 h-full min-h-[140px]">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${publicProject ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600" : "bg-gray-200 dark:bg-gray-800 text-gray-500"}`}>
+                <Globe className="w-6 h-6" />
+              </div>
+              <div className="flex items-center gap-3">
+                <Label htmlFor="public" className="text-sm font-bold text-gray-900 dark:text-white cursor-pointer">
+                  {content.isPublic}
+                </Label>
+                <Switch
+                  id="public"
+                  checked={publicProject}
+                  onCheckedChange={setPublicProject}
+                  className={`${isRTL && "flex-row-reverse"}`}
                 />
-                <div className="flex items-center gap-3">
-                  <Label
-                    htmlFor="public"
-                    className="text-[15px] font-semibold cursor-pointer"
-                  >
-                    {content.isPublic}
-                  </Label>
-                  <Switch
-                    id="public"
-                    checked={publicProject}
-                    onCheckedChange={setPublicProject}
-                    className={`${isRTL && "flex-row-reverse"}`}
-                  />
-                </div>
               </div>
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="pt-6 border-t border-gray-100 dark:border-gray-800 mt-8">
+          <div className="pt-8">
             <Button
               type="submit"
-              className="w-full h-12 text-md font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition-all flex items-center gap-2"
               disabled={isPending}
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm text-base"
             >
               {isPending ? (
                 <span className="flex items-center gap-2">
@@ -185,15 +150,15 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
                   {content.pindingProject}
                 </span>
               ) : (
-                <>
+                <span className="flex items-center gap-2">
                   <Plus className="w-5 h-5" />
                   {content.createProject}
-                </>
+                </span>
               )}
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

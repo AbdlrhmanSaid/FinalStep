@@ -213,7 +213,7 @@ const ProjectDetailPage = () => {
   };
 
   return (
-    <div className="min-h-screen bgMain p-4 md:p-8 lg:p-12 transition-colors">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 p-4 md:p-8 lg:p-12 transition-colors">
       <div className="max-w-7xl mx-auto">
         {/* Dynamic Navigation/Breadcrumbs could be here */}
         

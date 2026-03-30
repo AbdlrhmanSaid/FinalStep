@@ -165,21 +165,21 @@ export default function DashboardNav() {
                 href={"/dashboard"}
                 className={getLinkClasses("/dashboard")}
               >
-                <Home className="w-4 h-4 mr-1.5 rtl:ml-1.5 rtl:mr-0 opacity-70" />
+                <Home className="w-4 h-4  mx-1.5  opacity-70" />
                 {content.dashboardNav.home}
               </Link>
               <Link
                 href={"/dashboard/search"}
                 className={getLinkClasses("/dashboard/search")}
               >
-                <Search className="w-4 h-4 mr-1.5 rtl:ml-1.5 rtl:mr-0 opacity-70" />
+                <Search className="w-4 h-4 mx-1.5 opacity-70" />
                 {content.dashboardNav.search}
               </Link>
               <Link
                 href={"/dashboard/projects"}
                 className={getLinkClasses("/dashboard/projects")}
               >
-                <FolderOpen className="w-4 h-4 mr-1.5 rtl:ml-1.5 rtl:mr-0 opacity-70" />
+                <FolderOpen className="w-4 h-4 mx-1.5 opacity-70" />
                 {content.dashboardNav.projects}
               </Link>
 
@@ -188,7 +188,7 @@ export default function DashboardNav() {
                 href={"/dashboard/invitations"}
                 className={getLinkClasses("/dashboard/invitations")}
               >
-                <Mail className="w-4 h-4 mr-1.5 rtl:ml-1.5 rtl:mr-0 opacity-70" />
+                <Mail className="w-4 h-4 mx-1.5 opacity-70" />
                 {content.dashboardNav.invitations}
                 {pendingInvitesCount > 0 && (
                   <span className="absolute -top-1.5 -end-1.5 min-w-[20px] h-[20px] px-1 flex items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] font-bold shadow-sm shadow-red-500/30 animate-pulse border border-white dark:border-gray-900">
@@ -201,7 +201,7 @@ export default function DashboardNav() {
                 href={"/dashboard/tasks"}
                 className={getLinkClasses("/dashboard/tasks")}
               >
-                <ListChecks className="w-4 h-4 mr-1.5 rtl:ml-1.5 rtl:mr-0 opacity-70" />
+                <ListChecks className="w-4 h-4 mx-1.5 opacity-70" />
                 {content.dashboardNav.team}
                 {pendingReviewsCount > 0 && (
                   <span className="absolute -top-1.5 -end-1.5 min-w-[20px] h-[20px] px-1 flex items-center justify-center rounded-full bg-gradient-to-r from-orange-400 to-amber-500 text-white text-[10px] font-bold shadow-sm shadow-orange-500/30 border border-white dark:border-gray-900">

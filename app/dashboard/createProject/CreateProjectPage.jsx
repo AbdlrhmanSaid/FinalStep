@@ -3,11 +3,10 @@ import ProjectForm from "./ProjectForm";
 import { useAddProject } from "@/hooks/projects/useAddProject";
 import { useAppContext } from "@/contexts/AppContext";
 import { translations } from "@/lib/translations";
-import toast from "react-hot-toast";
 
 export default function CreateProjectPage() {
   const { mutate: addProject, isPending } = useAddProject();
-  const { language, isRTL, email: sender } = useAppContext();
+  const { language, isRTL } = useAppContext();
   const content = translations[language].dashboard.addProject;
 
   const onSubmit = (formData) => {
@@ -22,16 +21,15 @@ export default function CreateProjectPage() {
   };
 
   return (
-    <div className="p-6 bgMain min-h-screen h-full">
-      <h1 className="text-2xl font-semibold mb-4 mx-auto text-center dark:text-white">
-        {content.title}
-      </h1>
-      <ProjectForm
-        onSubmit={onSubmit}
-        isPending={isPending}
-        content={content}
-        isRTL={isRTL}
-      />
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 p-4 md:p-6 lg:p-8 transition-colors flex items-start justify-center">
+      <div className="w-full max-w-2xl mt-4 md:mt-10">
+        <ProjectForm
+          onSubmit={onSubmit}
+          isPending={isPending}
+          content={content}
+          isRTL={isRTL}
+        />
+      </div>
     </div>
   );
 }

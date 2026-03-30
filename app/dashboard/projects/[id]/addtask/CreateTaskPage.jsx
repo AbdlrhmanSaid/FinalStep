@@ -110,7 +110,7 @@ export default function CreateTaskPage() {
 
   return (
     <CheckUserRole>
-      <div className="p-4 md:p-8 bgMain min-h-screen transition-colors overflow-hidden">
+      <div className="p-4 md:p-8 bg-gray-50/50 dark:bg-gray-900 min-h-screen transition-colors overflow-hidden">
         <Card
           className="max-w-3xl mx-auto border-gray-200 dark:border-gray-800 shadow-md transition-colors dark:bg-gray-800"
           dir={isRTL ? "rtl" : "ltr"}

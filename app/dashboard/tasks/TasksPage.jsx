@@ -11,19 +11,15 @@ import {
   Calendar,
   Clock,
   AlertCircle,
+  CheckCircle2,
+  XCircle,
+  ListTodo,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { format, isBefore, isToday, differenceInDays } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
 const TasksClient = () => {
@@ -35,11 +31,9 @@ const TasksClient = () => {
   const [activeTab, setActiveTab] = useState("myTasks");
   const content = translations[language].dashboard.tasks;
 
-  // ترتيب وفلترة المهام
   const filteredAndSortedTasks = useMemo(() => {
     if (!tasks || !userId) return [];
 
-    // فلترة المهام الخاصة بالمستخدم أو المهام التي تحتاج مراجعة
     let myTasks = tasks.filter((task) => {
       if (activeTab === "myTasks") {
         return task.assignedTo?.some((u) => (u._id || u).toString() === userId);
@@ -53,7 +47,6 @@ const TasksClient = () => {
       }
     });
 
-    // البحث
     if (searchQuery.trim()) {
       myTasks = myTasks.filter(
         (task) =>
@@ -62,285 +55,215 @@ const TasksClient = () => {
       );
     }
 
-    // ترتيب من الأحدث للأقدم
     return myTasks.sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
     );
   }, [tasks, userId, searchQuery, activeTab]);
 
-  const handleStatusChange = (taskId, newStatus) => {
-    updateTask(
-      {
-        taskId,
-        data: { status: newStatus },
-      },
-      {
-        onSuccess: () => {
-          toast.success(content.statusUpdated || "تم تحديث الحالة بنجاح");
-          refetch();
-        },
-        onError: () => {
-          toast.error("فشل في تحديث الحالة");
-        },
-      },
-    );
-  };
-
-  if (isLoading) {
-    return <Loading />;
-  }
+  if (isLoading) return <Loading />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br bgMain h-screen ">
-      <div className="max-w-4xl mx-auto h-screen">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold bg-clip-text  dark:text-white text-gray-800">
-            {content.pageTitle}
-          </h1>
-          <div className="flex items-center gap-2">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 p-4 md:p-6 lg:p-8 transition-colors">
+      <div className="max-w-5xl mx-auto space-y-6">
+        
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2 border-b border-gray-200 dark:border-gray-800 pb-6">
+          <div className="flex items-center gap-3">
+             <div className="w-12 h-12 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl flex items-center justify-center shadow-sm">
+                <ListTodo className="w-6 h-6 text-blue-600 dark:text-blue-500" />
+             </div>
+             <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {content.pageTitle}
+                </h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                  {isRTL ? "قم بإدارة وتتبع جميع مهامك اليومية بسهولة" : "Manage and track all your daily tasks easily"}
+                </p>
+             </div>
+          </div>
+          <div className="flex items-center gap-3">
             {filteredAndSortedTasks.length > 0 && (
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                {filteredAndSortedTasks.length}{" "}
-                {filteredAndSortedTasks.length === 1
-                  ? content.task
-                  : content.tasks}
+              <span className="h-10 px-4 rounded-xl flex items-center text-sm font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 shadow-sm">
+                {filteredAndSortedTasks.length} {isRTL ? "مهام" : "Tasks"}
               </span>
             )}
             <Button
               onClick={() => refetch()}
               disabled={isFetching}
               variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
+              className="h-10 px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 shadow-sm"
             >
-              <RefreshCw
-                className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`w-4 h-4 mr-2 rtl:ml-2 rtl:mr-0 ${isFetching ? "animate-spin" : ""}`} />
+              {isRTL ? "تحديث" : "Refresh"}
             </Button>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex flex-col md:flex-row bg-white dark:bg-gray-800 rounded-lg p-1 mb-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <button
-            onClick={() => setActiveTab("myTasks")}
-            className={`flex-1 flex justify-center py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "myTasks"
-                ? "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 shadow-sm"
-                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-            }`}
-          >
-            {content.tabMyTasks || "My Tasks"}
-          </button>
-          <button
-            onClick={() => setActiveTab("review")}
-            className={`flex-1 flex justify-center items-center gap-2 py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "review"
-                ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 shadow-sm"
-                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-            }`}
-          >
-            {content.tabReviewTasks || "Pending Reviews"}
-            {(() => {
-              if (!tasks) return null;
-              const pendingCount = tasks.filter((task) => {
-                const isLeader =
-                  task.projectId?.leaderId?.toString() === userId ||
-                  task.projectId?.coLeaders?.some(
-                    (id) => id.toString() === userId,
-                  );
-                return isLeader && task.status === "submitted";
-              }).length;
-              if (pendingCount > 0) {
-                return (
-                  <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-orange-500 text-white text-[10px] font-bold">
-                    {pendingCount}
-                  </span>
-                );
-              }
-              return null;
-            })()}
-          </button>
+        {/* Filters and Tabs */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+           <div className="md:col-span-7 lg:col-span-8 flex bg-white dark:bg-gray-800 rounded-xl p-1 shadow-sm border border-gray-200 dark:border-gray-700 h-12">
+             <button
+               onClick={() => setActiveTab("myTasks")}
+               className={`flex-1 flex justify-center items-center rounded-lg text-sm font-bold transition-all ${
+                 activeTab === "myTasks"
+                   ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                   : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+               }`}
+             >
+               {content.tabMyTasks || "My Tasks"}
+             </button>
+             <button
+               onClick={() => setActiveTab("review")}
+               className={`flex-1 flex justify-center items-center gap-2 rounded-lg text-sm font-bold transition-all ${
+                 activeTab === "review"
+                   ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                   : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+               }`}
+             >
+               {content.tabReviewTasks || "Pending Reviews"}
+               {(() => {
+                 if (!tasks) return null;
+                 const pendingCount = tasks.filter((task) => {
+                   const isLeader =
+                     task.projectId?.leaderId?.toString() === userId ||
+                     task.projectId?.coLeaders?.some(id => id.toString() === userId);
+                   return isLeader && task.status === "submitted";
+                 }).length;
+                 if (pendingCount > 0) {
+                   return (
+                     <span className="min-w-[20px] h-[20px] px-1.5 flex items-center justify-center rounded-full bg-amber-500 text-white text-[10px] font-black">
+                       {pendingCount}
+                     </span>
+                   );
+                 }
+                 return null;
+               })()}
+             </button>
+           </div>
+           
+           <div className="md:col-span-5 lg:col-span-4 relative h-12">
+             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+             <input
+               type="text"
+               placeholder={content.searchPlaceholder}
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               className="w-full h-full pl-11 pr-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all shadow-sm"
+             />
+           </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-6 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder={content.searchPlaceholder}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          />
-        </div>
-
+        {/* Content */}
         {filteredAndSortedTasks.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="mx-auto w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-12 w-12 text-gray-400 dark:text-gray-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                />
-              </svg>
+          <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm p-16 text-center mt-6">
+            <div className="mx-auto w-20 h-20 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-6 border border-gray-100 dark:border-gray-700">
+              <CheckCircle2 className="h-8 w-8 text-emerald-500 opacity-80" />
             </div>
-            <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-2">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               {searchQuery
                 ? content.noResults
                 : activeTab === "review"
-                  ? isRTL
-                    ? "لا توجد مراجعات"
-                    : "No Reviews Pending"
+                  ? (isRTL ? "لا توجد مراجعات" : "No Pending Reviews")
                   : content.emptyTitle}
             </h3>
-            <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+            <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm mx-auto font-medium">
               {searchQuery
                 ? content.tryDifferentSearch
                 : activeTab === "review"
-                  ? isRTL
-                    ? "لا توجد مهام تنتظر مراجعتك حالياً."
-                    : "There are no tasks pending your review right now."
+                  ? (isRTL ? "أنت في السليم! لا توجد مهام تنتظر مراجعتك حالياً." : "You're all caught up! No tasks need your review.")
                   : content.emptyDescription}
             </p>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-4 mt-6">
             {filteredAndSortedTasks.map((task) => (
-              <div
+              <Link
+                href={`/dashboard/task/${task._id}`}
                 key={task._id}
-                className="group relative overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-800/50"
+                className="group flex flex-col sm:flex-row sm:items-center justify-between gap-5 p-5 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all cursor-pointer"
               >
-                <div className="p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h2 className="text-lg font-semibold text-gray-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          {task.title}
-                        </h2>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-1.5">
+                    <h2 className="text-base font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                      {task.title}
+                    </h2>
+                    <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
+                    <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 truncate">
+                      {task.projectId?.title || "Unknown Project"}
+                    </span>
+                  </div>
+                  
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400 line-clamp-1 mb-3">
+                    {task.description}
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    {/* Deadline Badge */}
+                    {task.dueDate && (() => {
+                      const due = new Date(task.dueDate);
+                      const isOverdue = isBefore(due, new Date()) && !isToday(due) && task.status !== "completed";
+                      const daysLeft = differenceInDays(due, new Date());
+                      const isUrgent = !isOverdue && daysLeft >= 0 && daysLeft <= 3 && task.status !== "completed";
+                      const fmtDate = format(due, "d MMM yyyy", { locale: dateLocale });
+
+                      let border, text, Icon, label;
+                      if (task.status === "completed" || task.status === "finished") {
+                        border = "border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-500/10";
+                        text = "text-emerald-700 dark:text-emerald-400";
+                        Icon = CheckCircle2;
+                        label = isRTL ? `مكتملة • ${fmtDate}` : `Completed • ${fmtDate}`;
+                      } else if (task.status === "ended" || isOverdue) {
+                        border = "border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-500/10";
+                        text = "text-rose-700 dark:text-rose-400";
+                        Icon = XCircle;
+                        label = isRTL ? `منتهية/متأخرة • ${fmtDate}` : `Overdue • ${fmtDate}`;
+                      } else if (isUrgent) {
+                        border = "border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-500/10";
+                        text = "text-orange-700 dark:text-orange-400";
+                        Icon = Clock;
+                        label = isRTL ? `${daysLeft === 0 ? "اليوم" : `${daysLeft} أيام`} • ${fmtDate}` : `${daysLeft === 0 ? "Today" : `${daysLeft}d left`} • ${fmtDate}`;
+                      } else {
+                        border = "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800";
+                        text = "text-gray-600 dark:text-gray-300";
+                        Icon = Calendar;
+                        label = fmtDate;
+                      }
+
+                      return (
+                        <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-lg border ${border} ${text}`}>
+                          <Icon className="w-3.5 h-3.5" />
+                          {label}
+                        </span>
+                      );
+                    })()}
+
+                    {/* Assigned Teammates */}
+                    {task.assignedTo?.length > 1 && (
+                      <div className="flex items-center gap-1.5 ml-2 rtl:ml-0 rtl:mr-2">
+                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{isRTL ? "الفريق" : "Team"}</span>
+                         <div className="flex -space-x-1.5 rtl:space-x-reverse">
+                           {task.assignedTo.map((user, idx) => {
+                             if ((user._id || user) === userId) return null;
+                             const name = user.name && user.name !== "null null" ? user.name : user.email?.split("@")[0] || "?";
+                             return (
+                               <div key={user._id || idx} className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 border-2 border-white dark:border-gray-800 flex items-center justify-center text-[9px] font-black text-blue-600 dark:text-blue-400" title={name}>
+                                 {name.charAt(0).toUpperCase()}
+                               </div>
+                             );
+                           })}
+                         </div>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-300 line-clamp-3 mb-3 whitespace-pre-wrap break-words">
-                        {task.description}
-                      </p>
-
-                      {/* Assigned members (for shared tasks) */}
-                      {task.assignedTo?.length > 1 && (
-                        <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                          <span className="text-[10px] text-gray-500 dark:text-gray-400 font-bold tracking-wide">
-                            {isRTL ? "مع:" : "With:"}
-                          </span>
-                          <div className="flex flex-wrap gap-1">
-                            {task.assignedTo.map((user, idx) => {
-                              // Only show others
-                              if ((user._id || user) === userId) return null;
-
-                              const displayName =
-                                user.name && user.name !== "null null"
-                                  ? user.name
-                                  : user.email
-                                      ?.split("@")[0]
-                                      .replace(/[0-9]/g, "") || "?";
-                              return (
-                                <span
-                                  key={user._id || idx}
-                                  className="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
-                                >
-                                  {displayName}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Deadline badge */}
-                      {task.dueDate &&
-                        (() => {
-                          const due = new Date(task.dueDate);
-                          const isOverdue =
-                            isBefore(due, new Date()) &&
-                            !isToday(due) &&
-                            task.status !== "completed";
-                          const daysLeft = differenceInDays(due, new Date());
-                          const isUrgent =
-                            !isOverdue &&
-                            daysLeft >= 0 &&
-                            daysLeft <= 3 &&
-                            task.status !== "completed";
-                          const fmtDate = format(due, "d MMM yyyy", {
-                            locale: dateLocale,
-                          });
-
-                          let bg, text, icon, label;
-                          if (
-                            task.status === "completed" ||
-                            task.status === "finished"
-                          ) {
-                            bg = "bg-green-100 dark:bg-green-900/40";
-                            text = "text-green-700 dark:text-green-300";
-                            icon = (
-                              <CheckCircle className="w-3.5 h-3.5 shrink-0" />
-                            );
-                            label = isRTL
-                              ? `مكتملة • ${fmtDate}`
-                              : `Completed • ${fmtDate}`;
-                          } else if (task.status === "ended" || isOverdue) {
-                            bg = "bg-gray-200 dark:bg-gray-700";
-                            text = "text-gray-700 dark:text-gray-300";
-                            icon = <XCircle className="w-3.5 h-3.5 shrink-0" />;
-                            label = isRTL
-                              ? `منتهية • ${fmtDate}`
-                              : `Ended • ${fmtDate}`;
-                          } else if (isUrgent) {
-                            bg = "bg-orange-100 dark:bg-orange-900/30";
-                            text = "text-orange-700 dark:text-orange-300";
-                            icon = (
-                              <Clock className="w-3.5 h-3.5 shrink-0 animate-pulse" />
-                            );
-                            label = isRTL
-                              ? `${daysLeft === 0 ? "اليوم" : `${daysLeft} أيام`} • ${fmtDate}`
-                              : `${daysLeft === 0 ? "Today" : `${daysLeft}d left`} • ${fmtDate}`;
-                          } else {
-                            bg = "bg-slate-100 dark:bg-slate-700/50";
-                            text = "text-slate-600 dark:text-slate-300";
-                            icon = (
-                              <Calendar className="w-3.5 h-3.5 shrink-0" />
-                            );
-                            label = fmtDate;
-                          }
-
-                          return (
-                            <span
-                              className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${bg} ${text}`}
-                            >
-                              {icon}
-                              {isRTL ? "الموعد النهائي: " : "Due: "}
-                              {label}
-                            </span>
-                          );
-                        })()}
-                    </div>
-
-                    <Link
-                      href={`/dashboard/task/${task._id}`}
-                      className="flex-shrink-0 inline-flex items-center justify-center px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white font-medium transition-all shadow-sm hover:shadow-md"
-                    >
-                      <span>{content.view}</span>
-                      <span>
-                        <ArrowRight />
-                      </span>
-                    </Link>
+                    )}
                   </div>
                 </div>
-              </div>
+
+                <div className="shrink-0 flex sm:items-center">
+                  <Button variant="ghost" className="hidden sm:flex items-center gap-2 text-gray-400 group-hover:text-blue-600 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 rounded-xl transition-all font-bold">
+                    {content.view}
+                    <ArrowRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                  </Button>
+                </div>
+              </Link>
             ))}
           </div>
         )}

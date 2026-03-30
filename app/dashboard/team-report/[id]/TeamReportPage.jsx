@@ -174,11 +174,6 @@ export default function TeamReportPage() {
     const baseScore = onTimeScore * 50 + completionScore * 30 + qualityScore * 20;
     const finalScore = Math.min(100, Math.round(baseScore + priorityBonus));
 
-    const rating =
-      finalScore >= 90 ? 5 : finalScore >= 75 ? 4 :
-      finalScore >= 55 ? 3 : finalScore >= 35 ? 2 :
-      finalScore > 0 ? 1 : 0;
-
     const pct = Math.round((completed.length / total) * 100);
     const breakdownNotes = [];
     breakdownNotes.push(isRTL ? `نسبة الإنجاز: ${pct}%` : `Completion: ${pct}%`);
@@ -194,7 +189,7 @@ export default function TeamReportPage() {
     return {
       total: memberTasks, completed, completedOnTime, completedLate,
       submitted, rejected, active, overdue: overdueList, ended,
-      score: finalScore, rating, pct,
+      score: finalScore, pct,
       onTimePct: Math.round(onTimeScore * 100),
       qualityPct: Math.round(qualityScore * 100),
       breakdownNotes,
@@ -208,10 +203,10 @@ export default function TeamReportPage() {
     allMembers.forEach((member) => {
       const stats = computeDetailedStats(member);
       if (stats.total.length === 0) {
-        next[member._id] = { rating: 0, notes: isRTL ? "ليس لديه مهام" : "No tasks assigned" };
+        next[member._id] = { notes: isRTL ? "ليس لديه مهام لتقييمها" : "No tasks assigned" };
         return;
       }
-      next[member._id] = { rating: stats.rating, notes: stats.breakdownNotes.join(" · ") };
+      next[member._id] = { notes: stats.breakdownNotes.join(" · ") };
     });
     setEvaluations(next);
   };
@@ -303,13 +298,6 @@ export default function TeamReportPage() {
                   <p>{isRTL ? "عالية = +5 · متوسطة = +2 (حد أقصى +10)" : "High = +5 · Medium = +2 (max +10 bonus)"}</p>
                 </div>
               </div>
-              <div className="tr-algo-rating-map">
-                <span>★★★★★ ≥ 90</span>
-                <span>★★★★☆ ≥ 75</span>
-                <span>★★★☆☆ ≥ 55</span>
-                <span>★★☆☆☆ ≥ 35</span>
-                <span>★☆☆☆☆ &gt; 0</span>
-              </div>
             </div>
           </div>
         )}
@@ -383,7 +371,7 @@ export default function TeamReportPage() {
             <div className="tr-members">
               {allMembers.map((member) => {
                 const stats = getMemberStats(member);
-                const evalData = evaluations[member._id] || { rating: 0, notes: "" };
+                const evalData = evaluations[member._id] || { notes: "" };
                 const name = getMemberName(member);
                 const scoreColor = getScoreColor(stats.score);
 
@@ -406,17 +394,6 @@ export default function TeamReportPage() {
                         </div>
                       )}
 
-                      {/* Stars */}
-                      <div className="tr-stars no-print">
-                        {[1, 2, 3, 4, 5].map((s) => (
-                          <button key={s} onClick={() => updateEvaluation(member._id, "rating", s)} className="tr-star-btn">
-                            <Star size={20} color={s <= evalData.rating ? "#f59e0b" : "#d1d5db"} fill={s <= evalData.rating ? "#f59e0b" : "transparent"} />
-                          </button>
-                        ))}
-                      </div>
-                      <div className="tr-stars-print print-only">
-                        {"★".repeat(evalData.rating)}{"☆".repeat(5 - evalData.rating)}
-                      </div>
                     </div>
 
                     {/* ── Score breakdown bars ── */}
@@ -440,16 +417,6 @@ export default function TeamReportPage() {
                       </div>
                     )}
 
-                    {/* ── Member progress bar ── */}
-                    <div className="tr-member-progress">
-                      <div className="tr-mp-row">
-                        <span>{isRTL ? "نسبة الإنجاز" : "Completion"}</span>
-                        <span className="tr-mp-pct">{stats.pct}%</span>
-                      </div>
-                      <div className="tr-mp-track">
-                        <div className="tr-mp-fill" style={{ width: `${stats.pct}%`, background: stats.pct >= 70 ? "#059669" : stats.pct >= 40 ? "#d97706" : "#dc2626" }} />
-                      </div>
-                    </div>
 
                     {/* ── Mini stats ── */}
                     <div className="tr-mini-stats">
@@ -476,48 +443,55 @@ export default function TeamReportPage() {
                     </div>
 
                     {/* ── Tasks breakdown ── */}
-                    <div className="tr-tasks-grid">
-                      {/* On-time */}
-                      <div className="tr-tasks-box tr-tb-active">
-                        <div className="tr-tb-head">
-                          <CheckCircle size={14} className="tr-tb-icon-done" />
-                          <span>{isRTL ? "في الوقت" : "On-Time"}</span>
-                          <span className="tr-tb-count-done">{stats.completedOnTime.length}</span>
-                        </div>
-                        <ul className="tr-tb-list">
-                          {stats.completedOnTime.length > 0 ? stats.completedOnTime.map((t) => <li key={t._id}>{t.title}</li>)
-                            : <li className="tr-empty">{isRTL ? "لا يوجد" : "None"}</li>}
-                        </ul>
+                    {/* ── Tasks breakdown ── */}
+                    {(stats.completedOnTime.length > 0 || stats.completedLate.length > 0 || stats.overdue.length > 0) && (
+                      <div className="tr-tasks-grid">
+                        {/* On-time */}
+                        {stats.completedOnTime.length > 0 && (
+                          <div className="tr-tasks-box tr-tb-active">
+                            <div className="tr-tb-head">
+                              <CheckCircle size={14} className="tr-tb-icon-done" />
+                              <span>{isRTL ? "في الوقت" : "On-Time"}</span>
+                              <span className="tr-tb-count-done">{stats.completedOnTime.length}</span>
+                            </div>
+                            <ul className="tr-tb-list">
+                              {stats.completedOnTime.map((t) => <li key={t._id}>{t.title}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        {/* Late */}
+                        {stats.completedLate.length > 0 && (
+                          <div className="tr-tasks-box tr-tb-late">
+                            <div className="tr-tb-head">
+                              <AlertTriangle size={14} className="tr-tb-icon-late" />
+                              <span>{isRTL ? "سُلِّم متأخراً" : "Late Submit"}</span>
+                              <span className="tr-tb-count-late">{stats.completedLate.length}</span>
+                            </div>
+                            <ul className="tr-tb-list">
+                              {stats.completedLate.map(({ task: t, lateDays }) => (
+                                <li key={t._id} className="tr-late-item">
+                                  {t.title}
+                                  {lateDays > 0 && <span className="tr-late-days"> (+{lateDays}{isRTL ? "ي" : "d"})</span>}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {/* Overdue */}
+                        {stats.overdue.length > 0 && (
+                          <div className="tr-tasks-box tr-tb-over">
+                            <div className="tr-tb-head">
+                              <AlertCircle size={14} className="tr-tb-icon-over" />
+                              <span>{isRTL ? "لم تُسلَّم" : "Overdue"}</span>
+                              <span className="tr-tb-count-over">{stats.overdue.length}</span>
+                            </div>
+                            <ul className="tr-tb-list">
+                              {stats.overdue.map((t) => <li key={t._id} className="tr-over-item">{t.title}</li>)}
+                            </ul>
+                          </div>
+                        )}
                       </div>
-                      {/* Late */}
-                      <div className="tr-tasks-box tr-tb-late">
-                        <div className="tr-tb-head">
-                          <AlertTriangle size={14} className="tr-tb-icon-late" />
-                          <span>{isRTL ? "سُلِّم متأخراً" : "Late Submit"}</span>
-                          <span className="tr-tb-count-late">{stats.completedLate.length}</span>
-                        </div>
-                        <ul className="tr-tb-list">
-                          {stats.completedLate.length > 0 ? stats.completedLate.map(({ task: t, lateDays }) => (
-                            <li key={t._id} className="tr-late-item">
-                              {t.title}
-                              {lateDays > 0 && <span className="tr-late-days"> (+{lateDays}{isRTL ? "ي" : "d"})</span>}
-                            </li>
-                          )) : <li className="tr-empty">{isRTL ? "لا يوجد" : "None"}</li>}
-                        </ul>
-                      </div>
-                      {/* Overdue */}
-                      <div className="tr-tasks-box tr-tb-over">
-                        <div className="tr-tb-head">
-                          <AlertCircle size={14} className="tr-tb-icon-over" />
-                          <span>{isRTL ? "لم تُسلَّم" : "Overdue"}</span>
-                          <span className="tr-tb-count-over">{stats.overdue.length}</span>
-                        </div>
-                        <ul className="tr-tb-list">
-                          {stats.overdue.length > 0 ? stats.overdue.map((t) => <li key={t._id} className="tr-over-item">{t.title}</li>)
-                            : <li className="tr-empty">{isRTL ? "لا يوجد" : "None"}</li>}
-                        </ul>
-                      </div>
-                    </div>
+                    )}
 
                     {/* ── Notes ── */}
                     <div className="tr-notes-wrap">

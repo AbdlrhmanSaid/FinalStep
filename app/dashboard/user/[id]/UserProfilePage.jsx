@@ -645,7 +645,7 @@ const UserProfilePage = ({ isDark }) => {
 
   if (isError || !user) {
     return (
-      <div className="min-h-screen bgMain flex flex-col items-center justify-center gap-6 p-6">
+      <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 flex flex-col items-center justify-center gap-6 p-6">
         <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
           <User className="w-12 h-12 text-gray-400" />
         </div>
@@ -669,7 +669,7 @@ const UserProfilePage = ({ isDark }) => {
   }
 
   return (
-    <div className="min-h-screen bgMain p-4 md:p-6" dir={isRTL ? "rtl" : "ltr"}>
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 p-4 md:p-6" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Back and Refresh */}
         <div className="flex justify-between items-center">

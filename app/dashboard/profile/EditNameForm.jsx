@@ -50,7 +50,7 @@ const UserForm = ({ name, userId, email, title: initialTitle }) => {
 
   return (
     <div
-      className="mx-auto p-6 bgMain min-h-screen"
+      className="mx-auto p-6 bg-gray-50/50 dark:bg-gray-900 min-h-screen"
       dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="max-w-2xl mx-auto space-y-6">

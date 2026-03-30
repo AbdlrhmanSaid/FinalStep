@@ -132,7 +132,7 @@ const ReportPage = () => {
     <CheckUserRole projectId={id}>
       <div className="rp-container" dir={isRTL ? "rtl" : "ltr"}>
         {/* ── Top action bar ── */}
-        <div className="rp-actions no-print">
+        <div className="rp-actions no-print md:flex">
           <Button
             onClick={handlePrint}
             disabled={isPrinting}
@@ -147,7 +147,7 @@ const ReportPage = () => {
           </Button>
 
           {/* ── Print settings hint ── */}
-          <div className="rp-print-hint">
+          <div className="rp-print-hint mt-3 md:mt-0">
             <div className="rp-hint-body">
               <p className="rp-hint-title">
                 {isRTL

@@ -31,7 +31,9 @@ export default function ProjectsList() {
     sort: "newest",
   });
 
-  const uniqueProjects = data ? Array.from(new Map(data.map(p => [p._id, p])).values()) : [];
+  const uniqueProjects = data
+    ? Array.from(new Map(data.map((p) => [p._id, p])).values())
+    : [];
 
   const leadingProjects = uniqueProjects.filter(
     (proj) =>
@@ -41,8 +43,9 @@ export default function ProjectsList() {
 
   const participatingProjects = uniqueProjects.filter(
     (proj) =>
-      proj.members?.some((member) => member._id?.toString() === userId?.toString()) &&
-      !leadingProjects?.some((leadProj) => leadProj._id === proj._id),
+      proj.members?.some(
+        (member) => member._id?.toString() === userId?.toString(),
+      ) && !leadingProjects?.some((leadProj) => leadProj._id === proj._id),
   );
 
   const filterProjects = (projects) => {
@@ -132,9 +135,9 @@ export default function ProjectsList() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+              <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight ">
                 {isRTL ? "مشاريعك" : "Your Projects"}
-                <span className="ml-3 text-sm font-medium text-gray-400 bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 rounded-full align-middle">
+                <span className="ml-3 text-sm font-medium text-gray-400 bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 rounded-full align-middle mx-2">
                   {data?.length || 0}
                 </span>
               </h1>
@@ -168,7 +171,8 @@ export default function ProjectsList() {
                 <span className="text-xl font-black text-green-600 dark:text-green-400 leading-none">
                   {uniqueProjects.length > 0
                     ? Math.round(
-                        (uniqueProjects.filter((p) => p.status === "finished").length /
+                        (uniqueProjects.filter((p) => p.status === "finished")
+                          .length /
                           uniqueProjects.length) *
                           100,
                       )
@@ -217,7 +221,7 @@ export default function ProjectsList() {
                   placeholder={isRTL ? "البحث..." : "Search..."}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
+                  className="dark:placeholder:text-white w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
                 />
               </div>
 

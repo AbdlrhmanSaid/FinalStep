@@ -118,13 +118,13 @@ export default function Footer({ t, isRTL }) {
                 className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 title={
                   isRTL
-                    ? "تطوير بواسطة Abdlrhman Said"
-                    : "Developed by Abdlrhman Said"
+                    ? "تطوير بواسطة Abdelrhman Saeid"
+                    : "Developed by Abdelrhman Saeid"
                 }
               >
                 <span>{isRTL ? "تطوير بواسطة" : "Developed by"}</span>
                 <span className="font-bold text-gray-800 dark:text-gray-200">
-                  Abdlrhman Said
+                  Abdelrhman Saeid
                 </span>
               </Link>
             </div>
