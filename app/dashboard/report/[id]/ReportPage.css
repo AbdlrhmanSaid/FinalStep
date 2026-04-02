@@ -523,84 +523,77 @@
     display: none !important;
   }
 
+  /* ── Header compact ── */
   .rp-header {
     background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
     color: white !important;
-    padding: 0.75rem !important;
+    padding: 0.75rem 1rem !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
-  .rp-project-title {
-    font-size: 1.3rem !important;
-    margin-bottom: 0.1rem !important;
-  }
-  .rp-date {
-    font-size: 0.75rem !important;
-  }
+  .rp-project-title { font-size: 1.2rem !important; margin-bottom: 0.1rem !important; }
+  .rp-date { font-size: 0.7rem !important; }
+  .rp-header-badge { font-size: 0.6rem !important; padding: 0.1rem 0.6rem !important; margin-bottom: 0.3rem !important; }
 
+  /* ── Compact padding for all sections ── */
   .rp-team-strip,
   .rp-progress-section,
   .rp-tasks-section,
   .rp-summary,
   .rp-footer {
-    padding: 0.5rem 0.75rem !important;
+    padding: 0.4rem 0.75rem !important;
   }
 
-  .rp-stat {
-    padding: 0.5rem !important;
-  }
-  .rp-stat-num {
-    font-size: 1.3rem !important;
-  }
+  /* ── Stats ── */
+  .rp-stat { padding: 0.5rem !important; }
+  .rp-stat-num { font-size: 1.2rem !important; }
+  .rp-stat-lbl { font-size: 0.62rem !important; }
+  .rp-stats-grid { grid-template-columns: repeat(4, 1fr) !important; }
 
-  /* Make tasks list 2 columns to fit double the tasks per page */
+  /* ── Section titles ── */
+  .rp-section-title { font-size: 0.85rem !important; margin-bottom: 0.4rem !important; }
+
+  /* ──────────────────────────────────────────────
+     CRITICAL FIX:
+     .rp-tasks-list  → sections wrapper → stays VERTICAL (flex column)
+     .rp-tasks-items → cards inside a section → goes 2-COLUMN (grid)
+  ─────────────────────────────────────────────── */
   .rp-tasks-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.6rem !important;
+  }
+
+  .rp-tasks-items {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 0.4rem !important;
+    gap: 0.35rem !important;
+    /* Override any Tailwind flex classes */
+    flex-direction: unset !important;
   }
 
+  /* ── Task cards ── */
   .rp-task-card {
-    padding: 0.4rem 0.5rem !important;
-    margin-bottom: 0 !important;
+    padding: 0.4rem 0.55rem !important;
+    border-radius: 5px !important;
     border: 1px solid #e5e7eb !important;
-    border-radius: 6px !important;
-    page-break-inside: avoid;
     break-inside: avoid;
+    page-break-inside: avoid;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
-  .rp-task-top {
-    margin-bottom: 0.2rem !important;
-  }
-  .rp-task-title {
-    font-size: 0.8rem !important;
-  }
-  .rp-badge {
-    padding: 0.1rem 0.3rem !important;
-    font-size: 0.6rem !important;
-    border-radius: 4px !important;
-  }
-  .rp-task-assigned {
-    font-size: 0.7rem !important;
-  }
-  .rp-task-index {
-    width: 16px !important;
-    height: 16px !important;
-    font-size: 0.6rem !important;
-  }
+  .rp-task-top { gap: 0.4rem !important; margin-bottom: 0.2rem !important; }
+  .rp-task-title { font-size: 0.76rem !important; }
+  .rp-task-meta { gap: 0.2rem !important; margin-bottom: 0.2rem !important; }
+  .rp-badge { padding: 0.08rem 0.3rem !important; font-size: 0.58rem !important; border-radius: 3px !important; }
+  .rp-task-assigned { font-size: 0.65rem !important; }
+  .rp-task-index { width: 16px !important; height: 16px !important; font-size: 0.58rem !important; }
 
+  /* ── Avoid bad page breaks ── */
   .rp-summary,
-  .rp-progress-section,
-  .rp-stat {
+  .rp-progress-section {
     page-break-inside: avoid;
     break-inside: avoid;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-  }
-
-  .rp-stats-grid {
-    grid-template-columns: repeat(4, 1fr);
   }
 
   @page {
