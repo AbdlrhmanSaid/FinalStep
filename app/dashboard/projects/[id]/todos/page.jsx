@@ -367,7 +367,7 @@ export default function TodosPage() {
   if (loadingProject || loadingTodos) return <Loading />;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950" dir={isRTL ? "rtl" : "ltr"}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={isRTL ? "rtl" : "ltr"}>
 
       <ProjectPageHeader
         projectId={projectId}
