@@ -102,6 +102,7 @@ export default function DatePicker({
           focus:outline-none focus:ring-2 focus:ring-blue-500/40
           ${open ? "border-blue-500 ring-2 ring-blue-500/30" : ""}
           ${selected ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-gray-500"}
+          min-h-fit
         `}
       >
         <span className="flex items-center gap-2 flex-1 text-start">

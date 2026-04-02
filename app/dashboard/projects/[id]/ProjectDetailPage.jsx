@@ -26,6 +26,7 @@ import {
   useRespondJoinProject,
 } from "@/hooks/projects/useJoinProject";
 import { useUpdateMemberTitle } from "@/hooks/projects/useUpdateMemberTitle";
+import { useGetSections } from "@/hooks/sections/useGetSections";
 
 import { ar, enUS } from "date-fns/locale";
 
@@ -63,6 +64,11 @@ const ProjectDetailPage = () => {
     isFetching: isRefetchingTasks,
   } = useGetTasks();
 
+  const {
+    data: sectionsData,
+    isLoading: isLoadingSections,
+  } = useGetSections(id);
+
   const { mutate: deleteTask } = useDeleteTask();
   const { mutate: deleteProject } = useDeleteProject();
   const { mutate: leaveProject } = useLeaveProject();
@@ -77,7 +83,7 @@ const ProjectDetailPage = () => {
   const [isRandomUser, setIsRandomUser] = useState(false);
   const [taskFilter, setTaskFilter] = useState("all");
 
-  const isRefetching = isRefetchingProject || isRefetchingTasks;
+  const isRefetching = isRefetchingProject || isRefetchingTasks || isLoadingSections;
 
   const handleRefresh = useCallback(() => {
     refetchProject();
@@ -249,6 +255,8 @@ const ProjectDetailPage = () => {
                 isLeader={isLeader}
                 isMember={isMember}
                 isFinished={isFinished}
+                userId={userId?.toString()}
+                sectionsData={sectionsData}
                 tasks={tasks}
                 filteredTasks={filteredTasks}
                 refetchTasks={refetchTasks}

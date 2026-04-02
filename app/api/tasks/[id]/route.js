@@ -268,8 +268,22 @@ export async function PUT(request, { params }) {
     // ╚══════════════════════════════════════════════════════════════════════╝
 
     // If assignedTo is being updated, sync memberSubmissions
-    if (body.assignedTo) {
-      const newAssigned = body.assignedTo;
+    if (body.sectionAssignments || body.assignedTo) {
+      let newAssigned = [];
+      if (body.sectionAssignments && body.sectionAssignments.length > 0) {
+        for (const assignment of body.sectionAssignments) {
+          for (const uid of assignment.members || []) {
+            if (!newAssigned.includes(uid.toString())) {
+              newAssigned.push(uid.toString());
+            }
+          }
+        }
+        task.sectionAssignments = body.sectionAssignments;
+        task.sectionId = body.sectionAssignments[0].sectionId;
+      } else {
+        newAssigned = body.assignedTo || [];
+      }
+
       const existing = task.memberSubmissions || [];
 
       // Keep existing submissions for users who are still assigned
@@ -287,6 +301,8 @@ export async function PUT(request, { params }) {
       task.assignedTo = newAssigned;
       task.markModified("memberSubmissions");
       task.markModified("assignedTo");
+      task.markModified("sectionAssignments");
+      task.markModified("sectionId");
 
       // Update other allowed fields
       const allowedFields = [
@@ -338,6 +354,12 @@ export async function PUT(request, { params }) {
     allowedFields.forEach((f) => {
       if (body[f] !== undefined) task[f] = body[f];
     });
+
+    if (body.sectionAssignments) {
+        task.sectionAssignments = body.sectionAssignments;
+        task.sectionId = body.sectionAssignments[0]?.sectionId;
+        task.markModified("sectionAssignments");
+    }
 
     const updated = await task.save();
     return NextResponse.json(updated);

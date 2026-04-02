@@ -287,73 +287,95 @@ const ReportPage = () => {
             </h2>
 
             <div className="rp-tasks-list">
-              {data.tasks?.map((task, i) => {
-                const sm = getStatusMeta(task.status);
-                const pm = getPriorityMeta(task.priority);
-                return (
-                  <div
-                    key={i}
-                    className={`rp-task-card ${task.isOverdue ? "rp-task-overdue" : ""}`}
-                  >
-                    {/* row top */}
-                    <div className="rp-task-top">
-                      <span className="rp-task-index">{i + 1}</span>
-                      <h3 className="rp-task-title">{safeValue(task.title)}</h3>
-                      <span className={`rp-badge rp-status ${sm.cls}`}>
-                        {sm.icon} {sm.label}
+              {data.sections?.map(section => (
+                <div key={section.id || section.title} className="mb-6">
+                  {data.hasSections && (
+                    <h3 className="font-bold text-lg mb-4 text-gray-800 pb-2 border-b border-gray-100 flex items-center gap-2">
+                      <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-xl text-sm border border-blue-100">
+                        {section.title}
                       </span>
-                    </div>
-
-                    {/* row meta */}
-                    <div className="rp-task-meta">
-                      <span className={`rp-badge rp-priority ${pm.cls}`}>
-                        <Tag size={11} />
-                        {isRTL ? "الأولوية:" : "Priority:"} {pm.label}
+                      <span className="text-sm font-normal text-gray-500 bg-gray-50 px-2 py-1 rounded-lg">
+                        {section.completedTasks} / {section.totalTasks} {isRTL ? 'مكتملة' : 'Completed'}
                       </span>
-
-                      <span className="rp-badge rp-method">
-                        {task.submissionMethod === "text"
-                          ? isRTL
-                            ? " نص"
-                            : " Text"
-                          : task.submissionMethod === "link"
-                            ? isRTL
-                              ? " رابط"
-                              : " Link"
-                            : isRTL
-                              ? " نص + رابط"
-                              : " Text + Link"}
-                      </span>
-
-                      {task.dueDate && (
-                        <span
-                          className={`rp-badge rp-due ${task.isOverdue ? "rp-due-late" : ""}`}
-                        >
-                          <CalendarDays size={11} />
-                          {isRTL ? "الموعد:" : "Due:"}{" "}
-                          {formatDate(task.dueDate)}
-                          {task.isOverdue &&
-                            (isRTL ? " ⚠ متأخر" : " ⚠ Overdue")}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* assigned members */}
-                    {task.assignedTo?.filter((n) => n && n !== "null null")
-                      .length > 0 && (
-                      <div className="rp-task-assigned">
-                        <Users size={11} />
-                        <span>{isRTL ? "المكلفون:" : "Assigned to:"}</span>
-                        <span className="rp-assigned-names">
-                          {task.assignedTo
-                            .filter((n) => n && n !== "null null")
-                            .join(" · ")}
-                        </span>
+                    </h3>
+                  )}
+                  <div className="rp-tasks-items flex flex-col gap-3">
+                    {section.tasks?.length === 0 ? (
+                      <div className="text-sm text-gray-400 py-2">
+                        {isRTL ? "لا توجد مهام في هذا القسم" : "No tasks in this section"}
                       </div>
+                    ) : (
+                      section.tasks?.map((task, i) => {
+                        const sm = getStatusMeta(task.status);
+                        const pm = getPriorityMeta(task.priority);
+                        return (
+                          <div
+                            key={i}
+                            className={`rp-task-card ${task.isOverdue ? "rp-task-overdue" : ""}`}
+                          >
+                            {/* row top */}
+                            <div className="rp-task-top">
+                              <span className="rp-task-index">{i + 1}</span>
+                              <h3 className="rp-task-title">{safeValue(task.title)}</h3>
+                              <span className={`rp-badge rp-status ${sm.cls}`}>
+                                {sm.icon} {sm.label}
+                              </span>
+                            </div>
+
+                            {/* row meta */}
+                            <div className="rp-task-meta">
+                              <span className={`rp-badge rp-priority ${pm.cls}`}>
+                                <Tag size={11} />
+                                {isRTL ? "الأولوية:" : "Priority:"} {pm.label}
+                              </span>
+
+                              <span className="rp-badge rp-method">
+                                {task.submissionMethod === "text"
+                                  ? isRTL
+                                    ? " نص"
+                                    : " Text"
+                                  : task.submissionMethod === "link"
+                                    ? isRTL
+                                      ? " رابط"
+                                      : " Link"
+                                    : isRTL
+                                      ? " نص + رابط"
+                                      : " Text + Link"}
+                              </span>
+
+                              {task.dueDate && (
+                                <span
+                                  className={`rp-badge rp-due ${task.isOverdue ? "rp-due-late" : ""}`}
+                                >
+                                  <CalendarDays size={11} />
+                                  {isRTL ? "الموعد:" : "Due:"}{" "}
+                                  {formatDate(task.dueDate)}
+                                  {task.isOverdue &&
+                                    (isRTL ? " ⚠ متأخر" : " ⚠ Overdue")}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* assigned members */}
+                            {task.assignedTo?.filter((n) => n && n !== "null null")
+                              .length > 0 && (
+                              <div className="rp-task-assigned">
+                                <Users size={11} />
+                                <span>{isRTL ? "المكلفون:" : "Assigned to:"}</span>
+                                <span className="rp-assigned-names">
+                                  {task.assignedTo
+                                    .filter((n) => n && n !== "null null")
+                                    .join(" · ")}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
                     )}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
 

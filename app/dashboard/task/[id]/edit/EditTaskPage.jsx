@@ -22,6 +22,7 @@ import {
 import { translations } from "../../../../../lib/translations";
 import DatePicker from "../../../../../components/ui/DatePicker";
 import { useGetProject } from "../../../../../hooks/projects/useGetProjects";
+import { useGetSections } from "../../../../../hooks/sections/useGetSections";
 
 import {
   Card,
@@ -30,7 +31,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { Edit, RefreshCw } from "lucide-react";
+import { Edit, RefreshCw, Plus, Trash } from "lucide-react";
 
 export default function EditTaskPage() {
   const { id } = useParams();
@@ -49,13 +50,15 @@ export default function EditTaskPage() {
     submissionMethod: "both",
     submissionDescription: "",
     allowLateSubmission: true,
+    sectionAssignments: [{ sectionId: "", members: [] }],
   });
 
   const content = translations[language].dashboard.editTask;
   const addTaskContent = translations[language].dashboard.addTask;
 
   const projectId = task?.projectId?._id || task?.projectId;
-  const { data: project } = useGetProject(projectId);
+  const { data: project, isLoading: isLoadingProject } = useGetProject(projectId);
+  const { data: sectionsData, isLoading: isLoadingSections } = useGetSections(projectId);
 
   useEffect(() => {
     if (task) {
@@ -73,6 +76,12 @@ export default function EditTaskPage() {
         submissionMethod: task.submissionMethod || "both",
         submissionDescription: task.submissionDescription || "",
         allowLateSubmission: task.allowLateSubmission !== false, // default true
+        sectionAssignments: (task.sectionAssignments && task.sectionAssignments.length > 0)
+          ? task.sectionAssignments.map(sa => ({
+              sectionId: sa.sectionId?._id || sa.sectionId,
+              members: sa.members?.map(m => (typeof m === "object" ? m._id : m)) || []
+            }))
+          : [{ sectionId: task.sectionId?._id || task.sectionId || "", members: (task.assignedTo || []).map((u) => (typeof u === "object" ? u._id : u)) }],
       });
     }
   }, [task]);
@@ -90,29 +99,61 @@ export default function EditTaskPage() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAssign = (uid) => {
-    if (!form.assignedTo.includes(uid)) {
-      setForm((prev) => ({ ...prev, assignedTo: [...prev.assignedTo, uid] }));
+  const handleAssign = (uid, sectionIndex = null) => {
+    if (sectionIndex !== null) {
+      setForm(prev => {
+         const newArr = [...prev.sectionAssignments];
+         if (!newArr[sectionIndex].members.includes(uid)) {
+            newArr[sectionIndex].members.push(uid);
+         }
+         return { ...prev, sectionAssignments: newArr };
+      });
+    } else {
+      if (!form.assignedTo.includes(uid)) {
+        setForm((prev) => ({ ...prev, assignedTo: [...prev.assignedTo, uid] }));
+      }
     }
   };
 
-  const handleRemoveAssigned = (uid) => {
-    setForm((prev) => ({
-      ...prev,
-      assignedTo: prev.assignedTo.filter((id) => id !== uid),
-    }));
+  const handleRemoveAssigned = (uid, sectionIndex = null) => {
+    if (sectionIndex !== null) {
+      setForm(prev => {
+         const newArr = [...prev.sectionAssignments];
+         newArr[sectionIndex].members = newArr[sectionIndex].members.filter(id => id !== uid);
+         return { ...prev, sectionAssignments: newArr };
+      });
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        assignedTo: prev.assignedTo.filter((id) => id !== uid),
+      }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (form.assignedTo.length === 0) {
-      toast.error(
-        isRTL
-          ? "يجب تعيين المهمة لعضو واحد على الأقل"
-          : "At least one member must be assigned",
-      );
-      return;
+    let finalAssignments = [];
+    if (project?.hasSections) {
+      finalAssignments = form.sectionAssignments.filter(sa => sa.sectionId);
+      if (finalAssignments.length === 0) {
+        toast.error(isRTL ? "يرجى اختيار قسم واحد على الأقل" : "Please select at least one section");
+        return;
+      }
+      for (const sa of finalAssignments) {
+        if (!sa.members || sa.members.length === 0) {
+          toast.error(isRTL ? "يرجى تعيين عضو واحد على الأقل لكل قسم مختار" : "Please assign at least one member for each selected section");
+          return;
+        }
+      }
+    } else {
+      if (form.assignedTo.length === 0) {
+        toast.error(isRTL ? "يرجى تعيين المهمة لعضو واحد على الأقل" : "At least one member must be assigned");
+        return;
+      }
+      if (availableSections.length > 0) {
+        finalAssignments = [{ sectionId: availableSections[0]._id, members: form.assignedTo }];
+      }
     }
 
     updateTask(
@@ -126,6 +167,7 @@ export default function EditTaskPage() {
           priority: form.priority,
           dueDate: form.dueDate || null,
           assignedTo: form.assignedTo,
+          sectionAssignments: finalAssignments,
           submissionMethod: form.submissionMethod,
           submissionDescription: form.submissionDescription,
           allowLateSubmission: form.allowLateSubmission,
@@ -152,13 +194,21 @@ export default function EditTaskPage() {
     );
   };
 
-  if (isLoading) return <Loading />;
+  if (isLoading || isLoadingProject || isLoadingSections) return <Loading />;
   if (isError || !task)
     return (
       <div className="p-8 text-center text-red-500 font-bold">
         Task not found.
       </div>
     );
+
+  let availableSections = sectionsData || [];
+  if (availableSections.length > 0) {
+    const isLeader = project?.leaderId?._id === userId || project?.coLeaders?.some(u => u._id === userId);
+    if (!isLeader) {
+      availableSections = availableSections.filter(s => s.members?.length === 0 || s.members?.some(m => m._id === userId));
+    }
+  }
 
   return (
     <CheckUserRole projectId={task.projectId._id || task.projectId}>
@@ -217,6 +267,8 @@ export default function EditTaskPage() {
                   className="resize-none bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm focus-visible:ring-blue-500"
                 />
               </div>
+
+
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -339,103 +391,232 @@ export default function EditTaskPage() {
 
               {/* Assign Members */}
               {teamMembers.length > 0 && (
-                <div className="space-y-2 pt-2">
-                  <Label className="text-[15px] font-semibold">
-                    {addTaskContent.assignTo}
-                  </Label>
-                  <Command className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm dark:bg-gray-900 mt-1" dir={isRTL ? "rtl" : "ltr"}>
-                    <div className="relative">
-                      <CommandInput
-                        placeholder={addTaskContent.searchMember}
-                        className={`h-12 outline-none border-none ring-0 shadow-none focus-visible:ring-0 focus:outline-none ${isRTL ? "pr-10" : "pl-10"}`}
-                      />
-                    </div>
-                    <CommandList className="max-h-48 overflow-auto">
-                      {teamMembers.map((user) => (
-                        <CommandItem
-                          key={user._id}
-                          value={
-                            user.name !== "null null" && user.name
-                              ? user.name
-                              : user.email?.split("@")[0].replace(/[0-9]/g, "")
-                          }
-                          onSelect={() => handleAssign(user._id)}
-                          className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer flex items-center justify-between gap-3 transition-colors min-w-0"
-                        >
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 flex items-center justify-center text-sm font-bold shadow-sm shrink-0">
-                              {user?.email?.charAt(0).toUpperCase()}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-semibold text-gray-800 dark:text-white truncate">
-                                {user.name !== "null null" && user.name
-                                  ? user.name
-                                  : user.email
-                                      ?.split("@")[0]
-                                      .replace(/[0-9]/g, "")}
-                              </p>
-                              {user.name && user.name !== "null null" && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium truncate">
-                                  {user.email}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          {form.assignedTo.includes(user._id) && (
-                            <span className="shrink-0 text-green-600 dark:text-green-400 text-xs font-bold flex items-center gap-1">
-                              ✓ {isRTL ? "مضاف" : "Added"}
-                            </span>
-                          )}
-                        </CommandItem>
-                      ))}
-                    </CommandList>
-                  </Command>
-
-                  {/* Selected members */}
-                  {form.assignedTo.length > 0 && (
-                    <div className="space-y-2 mt-4 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
-                      <Label className="text-[14px] text-gray-600 dark:text-gray-300 font-medium">
-                        {addTaskContent.selectedMembers}
-                      </Label>
-                      <div className="flex flex-wrap gap-2">
-                        {form.assignedTo.map((uid) => {
-                          const user = teamMembers.find((u) => u._id === uid);
-                          const fallback = (task.assignedTo || []).find(
-                            (u) => (u._id || u) === uid,
-                          );
-                          const displayUser = user || fallback;
-                          const displayName = displayUser
-                            ? typeof displayUser === "object"
-                              ? displayUser.name &&
-                                displayUser.name !== "null null"
-                                ? displayUser.name
-                                : displayUser.email?.split("@")[0] || uid
-                              : uid
-                            : uid;
-                          return (
-                            <Badge
-                              key={uid}
-                              onClick={() => handleRemoveAssigned(uid)}
-                              variant="secondary"
-                              className="cursor-pointer bg-white dark:bg-gray-700 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 border border-gray-200 dark:border-gray-600 px-3 py-1.5 rounded-xl flex items-center gap-2 transition-all shadow-sm group"
-                            >
-                              <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 flex items-center justify-center text-[10px] font-bold">
-                                {(typeof displayName === "string"
-                                  ? displayName
-                                  : String(displayName)
-                                )
-                                  .charAt(0)
-                                  .toUpperCase()}
-                              </div>
-                              <span className="font-medium">{displayName}</span>
-                              <span className="text-gray-400 group-hover:text-red-500 font-bold ml-1">
-                                ×
-                              </span>
-                            </Badge>
-                          );
-                        })}
+                <div className="space-y-4 pt-2">
+                  {project?.hasSections ? (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
+                        <Label className="text-[16px] font-bold block">{isRTL ? "أقسام المهمة والأعضاء" : "Task Sections & Members"}</Label>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const existingSectionIds = (form.sectionAssignments||[]).map(a => a.sectionId);
+                              const sectionsToAdd = availableSections.filter(s => !existingSectionIds.includes(s._id));
+                              if (sectionsToAdd.length > 0) {
+                                setForm(prev => ({
+                                  ...prev, 
+                                  sectionAssignments: [
+                                    ...(prev.sectionAssignments||[]).filter(a => a.sectionId !== ""), 
+                                    ...sectionsToAdd.map(sec => ({ sectionId: sec._id, members: [] }))
+                                  ]
+                                }));
+                              }
+                            }}
+                            className="rounded-xl font-bold bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                          >
+                            <Plus className="w-4 h-4 mr-1 ml-1" />
+                            {isRTL ? "إضافة كل الأقسام" : "Add All"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setForm(prev => ({...prev, sectionAssignments: [...(prev.sectionAssignments||[]), {sectionId: "", members: []}]}))}
+                            className="rounded-xl font-bold"
+                          >
+                            <Plus className="w-4 h-4 mr-1 ml-1" />
+                            {isRTL ? "إضافة قسم" : "Add Section"}
+                          </Button>
+                        </div>
                       </div>
+
+                      {(form.sectionAssignments || []).map((assignment, index) => {
+                         const getFilteredOptions = () => {
+                           if (!assignment.sectionId) return teamMembers;
+                           const sec = availableSections.find(s => s._id === assignment.sectionId);
+                           if (!sec || !sec.members || sec.members.length === 0) return [];
+                           const allowedIds = sec.members.map(m => String(typeof m === "object" ? m._id : m));
+                           return teamMembers.filter(tm => allowedIds.includes(String(tm._id)));
+                         };
+                         const sectionOptions = getFilteredOptions();
+
+                         return (
+                           <div key={index} className="p-4 bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 shadow-sm rounded-[24px] space-y-4 transition-all">
+                             <div className="flex items-center justify-between">
+                               <Label className="font-black text-gray-700 dark:text-gray-300">
+                                 {isRTL ? `القسم ${index + 1}` : `Section ${index + 1}`}
+                               </Label>
+                               {index > 0 && (
+                                 <button type="button" onClick={() => {
+                                   const newArr = [...form.sectionAssignments];
+                                   newArr.splice(index, 1);
+                                   setForm(prev => ({...prev, sectionAssignments: newArr}));
+                                 }} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40 p-2 rounded-xl transition-colors">
+                                   <Trash className="w-4 h-4" />
+                                 </button>
+                               )}
+                             </div>
+
+                             <select
+                               value={assignment.sectionId}
+                               onChange={(e) => {
+                                 const newArr = [...form.sectionAssignments];
+                                 newArr[index].sectionId = e.target.value;
+                                 setForm(prev => ({...prev, sectionAssignments: newArr}));
+                               }}
+                               className="w-full h-12 px-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             >
+                               <option value="" disabled>{isRTL ? "اختر القسم..." : "Select a section..."}</option>
+                               {availableSections.map(sec => <option key={sec._id} value={sec._id}>{sec.title}</option>)}
+                             </select>
+
+                             {assignment.sectionId && (
+                               <div className="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800">
+                                  <div className="flex items-center justify-between">
+                                    <Label className="text-sm font-bold text-gray-600 dark:text-gray-400">{isRTL ? "أعضاء هذا القسم" : "Members for this section"}</Label>
+                                    <button type="button" onClick={() => {
+                                      if (sectionOptions.length > 0) {
+                                        setForm(prev => {
+                                          const newArr = [...prev.sectionAssignments];
+                                          newArr[index].members = sectionOptions.map(u => u._id);
+                                          return {...prev, sectionAssignments: newArr};
+                                        });
+                                      }
+                                    }} className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
+                                      {isRTL ? "اختيار الكل" : "Select All"}
+                                    </button>
+                                  </div>
+                                  <Command className="border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-sm dark:bg-gray-800" dir={isRTL ? "rtl" : "ltr"}>
+                                    <div className="relative">
+                                      <CommandInput placeholder={addTaskContent.searchMember} className={`h-12 border-none ring-0 focus:ring-0 ${isRTL ? "pr-10" : "pl-10"}`} />
+                                    </div>
+                                    <CommandList className="max-h-40 overflow-auto">
+                                      {sectionOptions.length === 0 && (
+                                        <div className="p-4 text-center text-sm text-gray-500 font-medium bg-gray-50/50 dark:bg-gray-800/50">
+                                          {isRTL ? "يجب إضافة أعضاء لهذا القسم من خلال خيارات القسم في لوحة المهام أولاً" : "Add members to this section via Section options in Project Tasks first"}
+                                        </div>
+                                      )}
+                                      {sectionOptions.map((user) => (
+                                        <CommandItem
+                                          key={user._id}
+                                          value={user.name !== "null null" && user.name ? user.name : user.email?.split("@")[0].replace(/[0-9]/g, "")}
+                                          onSelect={() => handleAssign(user._id, index)}
+                                          className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center justify-between gap-3 min-w-0"
+                                        >
+                                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                                            <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 flex items-center justify-center text-xs font-bold shrink-0">
+                                              {user?.email?.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div className="min-w-0">
+                                              <p className="font-semibold text-gray-800 dark:text-white truncate">
+                                                {user.name !== "null null" && user.name ? user.name : user.email?.split("@")[0].replace(/[0-9]/g, "")}
+                                              </p>
+                                            </div>
+                                          </div>
+                                          {assignment.members.includes(user._id) && (
+                                            <span className="shrink-0 text-green-600 dark:text-green-400 text-[10px] font-black uppercase tracking-wider flex items-center">
+                                              ✓ {isRTL ? "مضاف" : "ADDED"}
+                                            </span>
+                                          )}
+                                        </CommandItem>
+                                      ))}
+                                    </CommandList>
+                                  </Command>
+
+                                  {assignment.members.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 pt-2">
+                                      {assignment.members.map((uid) => {
+                                        const user = teamMembers.find((u) => u._id === uid);
+                                        const fallback = (task.assignedTo || []).find((u) => (u._id || u) === uid);
+                                        const displayUser = user || fallback;
+                                        const displayName = displayUser ? typeof displayUser === "object" ? displayUser.name && displayUser.name !== "null null" ? displayUser.name : displayUser.email?.split("@")[0] || uid : uid : uid;
+                                        return (
+                                          <Badge key={uid} onClick={() => handleRemoveAssigned(uid, index)} variant="secondary" className="cursor-pointer px-3 py-1.5 rounded-xl hover:bg-red-50 hover:text-red-600 border border-gray-200">
+                                            <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 flex items-center justify-center text-[10px] font-bold mr-2 ml-2">
+                                              {(typeof displayName === "string" ? displayName : String(displayName)).charAt(0).toUpperCase()}
+                                            </div>
+                                            <span className="font-bold mr-1 ml-1">{displayName}</span>
+                                            <span className="text-gray-400 font-bold">×</span>
+                                          </Badge>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                               </div>
+                             )}
+                           </div>
+                         );
+                      })}
                     </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-[15px] font-semibold">{addTaskContent.assignTo}</Label>
+                        <button type="button" onClick={() => {
+                           setForm(prev => ({...prev, assignedTo: teamMembers.map(u => u._id)}));
+                        }} className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
+                          {isRTL ? "اختيار الكل" : "Select All"}
+                        </button>
+                      </div>
+                      <Command className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm dark:bg-gray-900 mt-1" dir={isRTL ? "rtl" : "ltr"}>
+                        <div className="relative">
+                          <CommandInput
+                            placeholder={addTaskContent.searchMember}
+                            className={`h-12 outline-none border-none ring-0 shadow-none focus-visible:ring-0 focus:outline-none ${isRTL ? "pr-10" : "pl-10"}`}
+                          />
+                        </div>
+                        <CommandList className="max-h-48 overflow-auto">
+                          {teamMembers.map((user) => (
+                            <CommandItem
+                              key={user._id}
+                              value={user.name !== "null null" && user.name ? user.name : user.email?.split("@")[0]}
+                              onSelect={() => handleAssign(user._id)}
+                              className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer flex items-center justify-between gap-3 min-w-0"
+                            >
+                              <div className="flex items-center gap-3 min-w-0 flex-1">
+                                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700">
+                                  {user?.email?.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-semibold text-gray-800 dark:text-white truncate">
+                                    {user.name !== "null null" && user.name ? user.name : user.email?.split("@")[0]}
+                                  </p>
+                                </div>
+                              </div>
+                              {form.assignedTo.includes(user._id) && (
+                                <span className="text-green-600 dark:text-green-400 text-xs font-bold">✓ {isRTL ? "مضاف" : "Added"}</span>
+                              )}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+
+                      {form.assignedTo.length > 0 && (
+                        <div className="space-y-2 mt-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                          <Label className="text-[14px] text-gray-600 font-medium">{addTaskContent.selectedMembers}</Label>
+                          <div className="flex flex-wrap gap-2">
+                            {form.assignedTo.map((uid) => {
+                              const user = teamMembers.find((u) => u._id === uid);
+                              const fallback = (task.assignedTo || []).find((u) => (u._id || u) === uid);
+                              const displayUser = user || fallback;
+                              const displayName = displayUser ? typeof displayUser === "object" ? displayUser.name && displayUser.name !== "null null" ? displayUser.name : displayUser.email?.split("@")[0] || uid : uid : uid;
+                              
+                              return (
+                                <Badge key={uid} onClick={() => handleRemoveAssigned(uid)} variant="secondary" className="cursor-pointer border border-gray-200 px-3 py-1.5 rounded-xl">
+                                  <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 flex items-center justify-center text-[10px] font-bold mr-2 ml-2">
+                                    {(typeof displayName === "string" ? displayName : String(displayName)).charAt(0).toUpperCase()}
+                                  </div>
+                                  <span className="font-medium mr-1 ml-1">{displayName}</span>
+                                  <span className="text-gray-400 font-bold">×</span>
+                                </Badge>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}

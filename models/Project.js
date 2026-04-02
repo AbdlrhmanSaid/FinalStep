@@ -67,6 +67,10 @@ const ProjectSchema = new Schema(
       enum: ["open", "finished"],
       default: "open",
     },
+    hasSections: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     timestamps: true,
@@ -77,8 +81,9 @@ ProjectSchema.post("findOneAndDelete", async function (doc) {
   if (doc?._id) {
     try {
       await Task.deleteMany({ projectId: doc._id });
-
       await InviteRequest.deleteMany({ projectId: doc._id });
+      const Section = mongoose.models.Section || mongoose.model("Section");
+      await Section.deleteMany({ projectId: doc._id });
     } catch (error) {
       console.error("Error in post-delete hook:", error);
     }

@@ -1,6 +1,7 @@
 import dbConnect from "../../../../lib/db";
 import Project from "../../../../models/Project";
 import InviteRequest from "../../../../models/InviteRequest";
+import Section from "../../../../models/Section";
 
 export async function POST(request) {
   try {
@@ -22,6 +23,15 @@ export async function POST(request) {
       ...rest,
       inviteRequests: inviteRequests.map((i) => ({ email: i.email })),
     });
+
+    if (newProject.hasSections === false) {
+      await Section.create({
+        title: "General",
+        projectId: newProject._id,
+        isDefault: true,
+        members: [],
+      });
+    }
 
     if (inviteRequests.length > 0) {
       const invites = [];

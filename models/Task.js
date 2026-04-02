@@ -79,6 +79,25 @@ const TaskSchema = new Schema(
       ref: "Project",
       required: true,
     },
+    sectionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Section",
+    },
+    sectionAssignments: [
+      {
+        sectionId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Section",
+          required: true,
+        },
+        members: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+          }, // Members assigned to this specific section for this task
+        ],
+      },
+    ],
     assignedTo: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -232,6 +251,13 @@ TaskSchema.virtual("assignedUsers", {
 TaskSchema.virtual("project", {
   ref: "Project",
   localField: "projectId",
+  foreignField: "_id",
+  justOne: true,
+});
+
+TaskSchema.virtual("section", {
+  ref: "Section",
+  localField: "sectionId",
   foreignField: "_id",
   justOne: true,
 });

@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Globe, FolderPlus } from "lucide-react";
+import { Plus, Globe, FolderPlus, Layers } from "lucide-react";
 import { useAppContext } from "../../../contexts/AppContext";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,7 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [publicProject, setPublicProject] = useState(false);
+  const [hasSections, setHasSections] = useState(true);
   const [deadline, setDeadline] = useState("");
 
   const handleSubmit = async (e) => {
@@ -28,6 +29,7 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
       title,
       description,
       public: publicProject,
+      hasSections,
       deadline: deadline || null,
       leaderId: userId,
     };
@@ -35,8 +37,12 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
     try {
       await toast.promise(onSubmit(formData), {
         loading: isRTL ? "جاري إنشاء المشروع..." : "Creating project...",
-        success: isRTL ? "تم إنشاء المشروع بنجاح!" : "Project created successfully!",
-        error: (err) => err.message || (isRTL ? "فشل إنشاء المشروع" : "Failed to create project"),
+        success: isRTL
+          ? "تم إنشاء المشروع بنجاح!"
+          : "Project created successfully!",
+        error: (err) =>
+          err.message ||
+          (isRTL ? "فشل إنشاء المشروع" : "Failed to create project"),
       });
 
       setTitle("");
@@ -50,7 +56,7 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
   };
 
   return (
-    <div 
+    <div
       className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden"
       dir={isRTL ? "rtl" : "ltr"}
     >
@@ -75,7 +81,10 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
       <div className="p-6 md:p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-sm font-bold text-gray-900 dark:text-white">
+            <Label
+              htmlFor="title"
+              className="text-sm font-bold text-gray-900 dark:text-white"
+            >
               {content.titleInput} <span className="text-rose-500">*</span>
             </Label>
             <Input
@@ -84,12 +93,15 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
               onChange={(e) => setTitle(e.target.value)}
               required
               placeholder={content.titlePlaceholder}
-              className="h-12 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-xl focus-visible:ring-blue-500 font-medium"
+              className="h-12 bg-white dark:bg-gray-900 dark:text-white border-gray-200 dark:border-gray-700 rounded-xl focus-visible:ring-blue-500 font-medium"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-bold text-gray-900 dark:text-white">
+            <Label
+              htmlFor="description"
+              className="text-sm font-bold text-gray-900 dark:text-white"
+            >
               {content.describe}
             </Label>
             <Textarea
@@ -97,19 +109,24 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={content.descriptionPlaceholder}
-              className="resize-none min-h-[120px] bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-xl focus-visible:ring-blue-500 font-medium p-4"
+              className="resize-none min-h-[120px] bg-white dark:text-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-xl focus-visible:ring-blue-500 font-medium p-4"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-3 bg-gray-50 dark:bg-gray-900/50 p-5 rounded-2xl border border-gray-200 dark:border-gray-800">
-              <Label htmlFor="deadline" className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <Label
+                htmlFor="deadline"
+                className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2"
+              >
                 {content.deadline}
               </Label>
               <DatePicker
                 value={deadline}
                 onChange={setDeadline}
-                placeholder={content.deadlinePlaceholder || "Pick a deadline date..."}
+                placeholder={
+                  content.deadlinePlaceholder || "Pick a deadline date..."
+                }
                 disablePast={true}
                 locale={isRTL ? "ar" : "en"}
               />
@@ -121,17 +138,44 @@ export default function ProjectForm({ onSubmit, isPending, content, isRTL }) {
             </div>
 
             <div className="flex flex-col items-center justify-center space-y-4 bg-gray-50 dark:bg-gray-900/50 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 h-full min-h-[140px]">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${publicProject ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600" : "bg-gray-200 dark:bg-gray-800 text-gray-500"}`}>
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${publicProject ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600" : "bg-gray-200 dark:bg-gray-800 text-gray-500"}`}
+              >
                 <Globe className="w-6 h-6" />
               </div>
               <div className="flex items-center gap-3">
-                <Label htmlFor="public" className="text-sm font-bold text-gray-900 dark:text-white cursor-pointer">
+                <Label
+                  htmlFor="public"
+                  className="text-sm font-bold text-gray-900 dark:text-white cursor-pointer"
+                >
                   {content.isPublic}
                 </Label>
                 <Switch
                   id="public"
                   checked={publicProject}
                   onCheckedChange={setPublicProject}
+                  className={`${isRTL && "flex-row-reverse"}`}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center justify-center space-y-4 bg-gray-50 dark:bg-gray-900/50 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 h-full min-h-[140px]">
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${hasSections ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600" : "bg-gray-200 dark:bg-gray-800 text-gray-500"}`}
+              >
+                <Layers className="w-6 h-6" />
+              </div>
+              <div className="flex items-center gap-3">
+                <Label
+                  htmlFor="hasSections"
+                  className="text-sm font-bold text-gray-900 dark:text-white cursor-pointer"
+                >
+                  {isRTL ? "تفعيل نظام الأقسام (Sections)" : "Enable Sections"}
+                </Label>
+                <Switch
+                  id="hasSections"
+                  checked={hasSections}
+                  onCheckedChange={setHasSections}
                   className={`${isRTL && "flex-row-reverse"}`}
                 />
               </div>

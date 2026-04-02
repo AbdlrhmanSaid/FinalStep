@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Edit,
   Plus,
@@ -10,6 +11,8 @@ import {
   ListTodo,
   ArrowRight,
   Filter,
+  Users,
+  Settings,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +36,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import EditSectionMembersDialog from "./EditSectionMembersDialog";
 
 export default function ProjectTasks({
   data,
@@ -50,7 +65,61 @@ export default function ProjectTasks({
   setTaskFilter,
   dateLocale,
   getMySubmissionStatus,
+  userId,
+  sectionsData,
 }) {
+  const [activeSectionId, setActiveSectionId] = useState("all");
+  const [availableSections, setAvailableSections] = useState([]);
+
+  const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
+  const [newSectionTitle, setNewSectionTitle] = useState("");
+  const [isCreatingSection, setIsCreatingSection] = useState(false);
+  const [isEditMembersModalOpen, setIsEditMembersModalOpen] = useState(false);
+
+  useEffect(() => {
+    let secs = sectionsData || [];
+    if (!isLeader) {
+      secs = secs.filter(
+        (s) =>
+          s.members?.length === 0 || s.members?.some((m) => m._id === userId),
+      );
+    }
+    setAvailableSections(secs);
+    if (secs.length > 0 && activeSectionId === "all" && data?.hasSections) {
+      setActiveSectionId(secs[0]._id);
+    }
+  }, [sectionsData, isLeader, userId, data?.hasSections]);
+
+  let tasksToDisplay = filteredTasks || [];
+  if (data?.hasSections && activeSectionId !== "all") {
+    tasksToDisplay = tasksToDisplay.filter((t) => {
+      const inAssignments = t.sectionAssignments?.some(
+        (sa) => sa.sectionId === activeSectionId || sa.sectionId?._id === activeSectionId
+      );
+      const inLegacy = t.sectionId?._id === activeSectionId || t.sectionId === activeSectionId;
+      return inAssignments || (!t.sectionAssignments?.length && inLegacy);
+    });
+  }
+
+  const handleCreateSection = async () => {
+    if (!newSectionTitle.trim()) return;
+    setIsCreatingSection(true);
+    try {
+      await axios.post("/api/sections", {
+        title: newSectionTitle,
+        projectId: data._id,
+      });
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      alert(isRTL ? "فشل إنشاء القسم" : "Failed to create section");
+    } finally {
+      setIsCreatingSection(false);
+      setIsSectionModalOpen(false);
+      setNewSectionTitle("");
+    }
+  };
+
   if (!isLeader && !isMember) return null;
 
   const priorityConfig = {
@@ -125,7 +194,7 @@ export default function ProjectTasks({
               {content.tasks}
             </h2>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
-              {filteredTasks?.length || 0}{" "}
+              {tasksToDisplay?.length || 0}{" "}
               {isRTL ? "مهام مرتبطة" : "Linked Tasks"}
             </p>
           </div>
@@ -174,15 +243,124 @@ export default function ProjectTasks({
         </div>
       </div>
 
-      {/* Tasks List Content */}
+      {data?.hasSections && (isLeader || availableSections.length > 0) && (
+        <div className="flex bg-white dark:bg-gray-800 p-2 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-x-auto gap-2 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <button
+            onClick={() => setActiveSectionId("all")}
+            className={`px-5 py-2.5 text-sm font-bold rounded-xl transition-all whitespace-nowrap ${
+              activeSectionId === "all"
+                ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shadow-sm"
+                : "text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-900"
+            }`}
+          >
+            {isRTL ? "الكل" : "All Sections"}
+          </button>
+          {availableSections.map((sec) => (
+            <button
+              key={sec._id}
+              onClick={() => setActiveSectionId(sec._id)}
+              className={`px-5 py-2.5 text-sm font-bold rounded-xl transition-all whitespace-nowrap ${
+                activeSectionId === sec._id
+                  ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shadow-sm"
+                  : "text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-900"
+              }`}
+            >
+              {sec.title}
+            </button>
+          ))}
+          {isLeader && activeSectionId && activeSectionId !== "all" && availableSections.length > 0 && (
+              <button 
+                onClick={() => setIsEditMembersModalOpen(true)}
+                className="px-4 py-2.5 text-sm font-bold rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 border border-dashed border-emerald-200 dark:border-emerald-900 transition-all flex items-center gap-1 whitespace-nowrap ml-1 mr-1"
+                title={isRTL ? "خيارات القسم" : "Section Options"}
+              >
+                  <Settings className="w-4 h-4" />
+                  {isRTL ? "خيارات القسم" : "Options"}
+              </button>
+          )}
+          {isLeader && (
+            <Dialog
+              open={isSectionModalOpen}
+              onOpenChange={setIsSectionModalOpen}
+            >
+              <DialogTrigger asChild>
+                <button className="px-4 py-2.5 text-sm font-bold rounded-xl text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 border border-dashed border-blue-200 dark:border-blue-900 transition-all flex items-center gap-1 whitespace-nowrap">
+                  <Plus className="w-4 h-4" />
+                  {isRTL ? "قسم" : "Section"}
+                </button>
+              </DialogTrigger>
+              <DialogContent
+                className="max-w-md bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl"
+                dir={isRTL ? "rtl" : "ltr"}
+              >
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold dark:text-white">
+                    {isRTL ? "إنشاء قسم جديد" : "Create New Section"}
+                  </DialogTitle>
+                  <DialogDescription className="text-gray-500">
+                    {isRTL
+                      ? "اكتب اسماً للقسم الجديد لتنظيم مهام المشروع."
+                      : "Enter a name for the new section to organize your project tasks."}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="sectionName"
+                      className="font-semibold text-gray-900 dark:text-white"
+                    >
+                      {isRTL ? "اسم القسم" : "Section Name"}
+                    </Label>
+                    <Input
+                      id="sectionName"
+                      placeholder={
+                        isRTL
+                          ? "مثال: تطوير الواجهات..."
+                          : "e.g., Frontend Development..."
+                      }
+                      value={newSectionTitle}
+                      onChange={(e) => setNewSectionTitle(e.target.value)}
+                      className="h-12 bg-gray-50 dark:bg-gray-800 dark:text-white border-gray-200 dark:border-gray-700 focus-visible:ring-blue-500 rounded-xl"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+                <DialogFooter className="gap-1">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsSectionModalOpen(false)}
+                    className="rounded-xl h-11 border-gray-200 dark:border-gray-700 dark:text-white"
+                  >
+                    {isRTL ? "إلغاء" : "Cancel"}
+                  </Button>
+                  <Button
+                    disabled={!newSectionTitle.trim() || isCreatingSection}
+                    onClick={handleCreateSection}
+                    className="rounded-xl h-11 bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {isCreatingSection ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : isRTL ? (
+                      "إنشاء"
+                    ) : (
+                      "Create"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+      )}
+
       <div className="space-y-4">
-        {!tasks ? (
+        {!tasks || !sectionsData ? (
           <div className="flex justify-center py-20">
             <Loading />
           </div>
-        ) : filteredTasks?.length > 0 ? (
+        ) : tasksToDisplay?.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
-            {filteredTasks.map((task) => {
+            {tasksToDisplay.map((task) => {
               const displayStatus = isLeader
                 ? task.status
                 : getMySubmissionStatus(task);
@@ -343,17 +521,37 @@ export default function ProjectTasks({
             </div>
             <div>
               <h3 className="text-xl font-black text-gray-900 dark:text-white">
-                {isRTL ? "لا يوجد مهام حالية" : "No Tasks Found"}
+                {availableSections.length === 0 && isLeader && data?.hasSections
+                  ? isRTL
+                    ? "قم بإنشاء قسمك الأول للبدء"
+                    : "Create your first section to start"
+                  : isRTL
+                    ? "لا يوجد مهام حالية"
+                    : "No Tasks Found"}
               </h3>
               <p className="text-sm text-gray-500 mt-1 max-w-xs mx-auto">
-                {isRTL
-                  ? "هذا المشروع لا يحتوي على مهام تتبع هذا التصنيف حالياً."
-                  : "This project doesn't have any tasks matching this filter right now."}
+                {availableSections.length === 0 && isLeader && data?.hasSections
+                  ? isRTL
+                    ? "انقر على زر '+ قسم' لبناء هيكل المشروع الخاص بك."
+                    : "Click the '+ Section' button to start building your project structure."
+                  : isRTL
+                    ? "هذا المشروع لا يحتوي على مهام تتبع هذا التصنيف حالياً."
+                    : "This project doesn't have any tasks matching this filter right now."}
               </p>
             </div>
           </div>
         )}
       </div>
+
+      {isLeader && (
+        <EditSectionMembersDialog
+          isOpen={isEditMembersModalOpen}
+          onOpenChange={setIsEditMembersModalOpen}
+          section={availableSections.find((s) => s._id === activeSectionId)}
+          project={data}
+          isRTL={isRTL}
+        />
+      )}
     </div>
   );
 }

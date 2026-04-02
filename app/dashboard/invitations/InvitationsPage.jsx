@@ -4,7 +4,14 @@ import { useGetUserInvites } from "../../../hooks/invitations/useGetUserInvites"
 import Loading from "../../../components/Loading";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
-import { Mail, CheckCircle2, XCircle, Folder, RefreshCw, Briefcase } from "lucide-react";
+import {
+  Mail,
+  CheckCircle2,
+  XCircle,
+  Folder,
+  RefreshCw,
+  Briefcase,
+} from "lucide-react";
 import { translations } from "../../../lib/translations";
 import toast from "react-hot-toast";
 import { useMemo } from "react";
@@ -49,26 +56,27 @@ export default function InvitationsPage() {
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 p-4 md:p-6 lg:p-8 transition-colors">
       <div className="max-w-4xl mx-auto space-y-6">
-        
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2 border-b border-gray-200 dark:border-gray-800 pb-6">
           <div className="flex items-center gap-3">
-             <div className="w-12 h-12 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl flex items-center justify-center shadow-sm">
-                <Mail className="w-6 h-6 text-amber-500 dark:text-amber-400" />
-             </div>
-             <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  {content.UrTitle}
-                  {sortedInvites?.length > 0 && (
-                    <span className="bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 text-sm font-bold px-2.5 py-0.5 rounded-full">
-                      {sortedInvites.length}
-                    </span>
-                  )}
-                </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                  {isRTL ? "قم بمراجعة دعوات الانضمام للمشاريع الموجهة إليك" : "Review project invitations addressed to you"}
-                </p>
-             </div>
+            <div className="w-12 h-12 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-800/50 rounded-2xl flex items-center justify-center shadow-sm">
+              <Mail className="w-6 h-6 text-amber-500 dark:text-amber-400" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                {content.UrTitle}
+                {sortedInvites?.length > 0 && (
+                  <span className="bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 text-sm font-bold px-2.5 py-0.5 rounded-full">
+                    {sortedInvites.length}
+                  </span>
+                )}
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                {isRTL
+                  ? "قم بمراجعة دعوات الانضمام للمشاريع الموجهة إليك"
+                  : "Review project invitations addressed to you"}
+              </p>
+            </div>
           </div>
           <Button
             onClick={() => refetch()}
@@ -76,7 +84,9 @@ export default function InvitationsPage() {
             variant="outline"
             className="w-full sm:w-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 shadow-sm h-10 px-4"
           >
-            <RefreshCw className={`w-4 h-4 mr-2 rtl:ml-2 rtl:mr-0 ${isFetching ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`w-4 h-4 mr-2 rtl:ml-2 rtl:mr-0 ${isFetching ? "animate-spin" : ""}`}
+            />
             {isRTL ? "تحديث الداتا" : "Refresh Data"}
           </Button>
         </div>
@@ -114,7 +124,7 @@ export default function InvitationsPage() {
                   <Button
                     variant="outline"
                     onClick={() => handleRespond(invite._id, "rejected")}
-                    className="flex-1 md:flex-none h-11 px-6 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 dark:hover:border-rose-800/50 font-bold rounded-xl transition-colors flex items-center gap-2"
+                    className="flex-1 md:flex-none h-11 px-6 bg-white dark:bg-gray-800 dark:text-red-300 border-gray-200 dark:border-gray-700 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 dark:hover:border-rose-800/50 font-bold rounded-xl transition-colors flex items-center gap-2"
                   >
                     <XCircle className="w-5 h-5 flex-shrink-0" />
                     {content.Reject}

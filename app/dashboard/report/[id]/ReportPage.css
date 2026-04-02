@@ -513,7 +513,7 @@
     box-shadow: none;
     border-radius: 0;
     background: white;
-    font-size: 10pt;
+    font-size: 8pt;
     color: #000;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
@@ -526,11 +526,70 @@
   .rp-header {
     background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
     color: white !important;
+    padding: 0.75rem !important;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
+  .rp-project-title {
+    font-size: 1.3rem !important;
+    margin-bottom: 0.1rem !important;
+  }
+  .rp-date {
+    font-size: 0.75rem !important;
+  }
 
-  .rp-task-card,
+  .rp-team-strip,
+  .rp-progress-section,
+  .rp-tasks-section,
+  .rp-summary,
+  .rp-footer {
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  .rp-stat {
+    padding: 0.5rem !important;
+  }
+  .rp-stat-num {
+    font-size: 1.3rem !important;
+  }
+
+  /* Make tasks list 2 columns to fit double the tasks per page */
+  .rp-tasks-list {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.4rem !important;
+  }
+
+  .rp-task-card {
+    padding: 0.4rem 0.5rem !important;
+    margin-bottom: 0 !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .rp-task-top {
+    margin-bottom: 0.2rem !important;
+  }
+  .rp-task-title {
+    font-size: 0.8rem !important;
+  }
+  .rp-badge {
+    padding: 0.1rem 0.3rem !important;
+    font-size: 0.6rem !important;
+    border-radius: 4px !important;
+  }
+  .rp-task-assigned {
+    font-size: 0.7rem !important;
+  }
+  .rp-task-index {
+    width: 16px !important;
+    height: 16px !important;
+    font-size: 0.6rem !important;
+  }
+
   .rp-summary,
   .rp-progress-section,
   .rp-stat {
@@ -546,7 +605,7 @@
 
   @page {
     size: A4 portrait;
-    margin: 1.2cm;
+    margin: 0.5cm;
   }
 }
 

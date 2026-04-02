@@ -39,7 +39,7 @@ export default function UpdateProjectPage() {
 
   return (
     <CheckUserRole>
-      <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 dark:text-white p-6 transition-colors duration-200">
+      <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 p-4 md:p-6 lg:p-8 transition-colors flex items-start justify-center">
         <ProjectEditForm
           project={project}
           onSubmit={onSubmit}
