@@ -27,8 +27,7 @@ export default function ProjectPageHeader({
 }) {
   return (
     <div className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-20">
-      <div className="max-w-5xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between gap-4">
-
+      <div className="max-w-5xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between gap-4 mt-2">
         {/* Left: back + icon + breadcrumb */}
         <div className="flex items-center gap-3 min-w-0">
           <Link
@@ -36,14 +35,20 @@ export default function ProjectPageHeader({
             className="shrink-0 p-2 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
             aria-label={isRTL ? "رجوع" : "Back"}
           >
-            {isRTL ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
+            {isRTL ? (
+              <ArrowRight className="w-5 h-5" />
+            ) : (
+              <ArrowLeft className="w-5 h-5" />
+            )}
           </Link>
 
           <div className="h-5 w-px bg-gray-200 dark:bg-gray-700 shrink-0" />
 
           <div className="flex items-center gap-2.5 min-w-0">
             {Icon && (
-              <div className={`shrink-0 w-8 h-8 rounded-xl flex items-center justify-center shadow-sm ${iconBg}`}>
+              <div
+                className={`shrink-0 w-8 h-8 rounded-xl flex items-center justify-center shadow-sm ${iconBg}`}
+              >
                 <Icon className="w-4 h-4 text-white" />
               </div>
             )}
