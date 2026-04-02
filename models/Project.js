@@ -20,6 +20,17 @@ const JoinSchema = new Schema({
   },
 });
 
+const TodoSchema = new Schema({
+  text: { type: String, required: true },
+  status: {
+    type: String,
+    enum: ["todo", "doing", "done"],
+    default: "todo",
+  },
+  order: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
+});
+
 const ProjectSchema = new Schema(
   {
     title: {
@@ -52,6 +63,7 @@ const ProjectSchema = new Schema(
         ref: "Task",
       },
     ],
+    todos: [TodoSchema],
     customRoles: {
       type: Map,
       of: String,

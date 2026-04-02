@@ -379,6 +379,40 @@ const ReportPage = () => {
             </div>
           </div>
 
+          {/* ── Roadmap / Todos ── */}
+          {(data.todos?.length ?? 0) > 0 && (
+            <div className="rp-summary">
+              <h2 className="rp-section-title">
+                {isRTL ? "خطة العمل" : "Project Roadmap"}
+              </h2>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "0.5rem", marginTop: "0.5rem" }}>
+                {["todo", "doing", "done"].map((st) => {
+                  const items = (data.todos ?? []).filter((t) => t.status === st);
+                  const labels = { todo: isRTL ? "قادم" : "To Do", doing: isRTL ? "جاري" : "In Progress", done: isRTL ? "تم" : "Done" };
+                  const colors = { todo: "#6b7280", doing: "#d97706", done: "#059669" };
+                  return (
+                    <div key={st} style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: "0.5rem", breakInside: "avoid" }}>
+                      <p style={{ fontSize: "0.65rem", fontWeight: 900, textTransform: "uppercase", color: colors[st], marginBottom: "0.35rem", letterSpacing: "0.05em" }}>
+                        {labels[st]} ({items.length})
+                      </p>
+                      {items.map((t) => (
+                        <div key={t._id} style={{ display: "flex", alignItems: "flex-start", gap: "0.3rem", marginBottom: "0.2rem" }}>
+                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: colors[st], flexShrink: 0, marginTop: 4 }} />
+                          <span style={{ fontSize: "0.68rem", color: t.status === "done" ? "#9ca3af" : "#111827", textDecoration: t.status === "done" ? "line-through" : "none" }}>
+                            {t.text}
+                          </span>
+                        </div>
+                      ))}
+                      {items.length === 0 && (
+                        <p style={{ fontSize: "0.6rem", color: "#d1d5db" }}>{isRTL ? "لا يوجد" : "None"}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* ── Summary ── */}
           <div className="rp-summary">
             <h2 className="rp-section-title">

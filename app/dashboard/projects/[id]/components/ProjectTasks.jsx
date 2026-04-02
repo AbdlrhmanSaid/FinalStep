@@ -61,14 +61,12 @@ export default function ProjectTasks({
 
   useEffect(() => {
     let secs = sectionsData || [];
-    // Members only see sections they belong to (or open sections)
     if (!isLeader) {
-      secs = secs.filter(
-        (s) =>
-          s.members?.length === 0 ||
-          s.members?.some(
-            (m) => (typeof m === "object" ? m._id : m) === userId,
-          ),
+      // Members see ONLY sections they are explicitly assigned to
+      secs = secs.filter((s) =>
+        s.members?.some(
+          (m) => (typeof m === "object" ? m._id : m) === userId,
+        ),
       );
     }
     setAvailableSections(secs);
@@ -315,28 +313,41 @@ export default function ProjectTasks({
                           status={displayStatus}
                         />
 
-                        {task.assignedTo?.length > 0 && (
-                          <div className="flex -space-x-1.5 rtl:space-x-reverse">
-                            {task.assignedTo.map((u, i) => (
-                              <div
-                                key={u._id || i}
-                                className="w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-900 border-2 border-white dark:border-gray-800 flex items-center justify-center overflow-hidden"
-                                title={u.name}
-                              >
-                                {u.image ? (
-                                  <img
-                                    src={u.image}
-                                    alt=""
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <span className="text-[8px] font-black text-gray-400">
-                                    {u.name?.charAt(0)}
-                                  </span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
+                        {/* Assigned members — leaders see all, members just see themselves */}
+                        {isLeader ? (
+                          task.assignedTo?.length > 0 && (
+                            <div className="flex -space-x-1.5 rtl:space-x-reverse">
+                              {task.assignedTo.map((u, i) => (
+                                <div
+                                  key={u._id || i}
+                                  className="w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-900 border-2 border-white dark:border-gray-800 flex items-center justify-center overflow-hidden"
+                                  title={u.name}
+                                >
+                                  {u.image ? (
+                                    <img
+                                      src={u.image}
+                                      alt=""
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <span className="text-[8px] font-black text-gray-400">
+                                      {u.name?.charAt(0)}
+                                    </span>
+                                  )}
+                                </div>
+                              ))}
+                              {task.assignedTo.length > 1 && (
+                                <span className="text-[9px] font-black text-gray-400 ms-2 self-center">
+                                  {task.assignedTo.length} {isRTL ? "أعضاء" : "Members"}
+                                </span>
+                              )}
+                            </div>
+                          )
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full">
+                            <Users className="w-2.5 h-2.5" />
+                            {isRTL ? "مكلف إليك" : "Assigned to you"}
+                          </span>
                         )}
                       </div>
                     </div>

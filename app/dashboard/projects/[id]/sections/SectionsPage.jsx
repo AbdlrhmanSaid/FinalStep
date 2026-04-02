@@ -30,6 +30,7 @@ import {
 } from "@/hooks/sections/useGetSections";
 import Loading from "@/components/Loading";
 import toast from "react-hot-toast";
+import ProjectPageHeader from "../components/ProjectPageHeader";
 
 export default function SectionsPage() {
   const { id } = useParams();
@@ -184,54 +185,26 @@ export default function SectionsPage() {
 
   return (
     <div
-      className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors"
+      className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors"
       dir={isRTL ? "rtl" : "ltr"}
     >
-      {/* ── Top bar ── */}
-      <div className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800  z-20">
-        <div className="max-w-5xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between gap-4 mt-4">
-          <div className="flex items-center gap-3">
-            <Link
-              href={`/dashboard/projects/${id}`}
-              className="p-2 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
-            >
-              {isRTL ? (
-                <ArrowRight className="w-5 h-5" />
-              ) : (
-                <ArrowLeft className="w-5 h-5" />
-              )}
-            </Link>
-            <div className="h-5 w-px bg-gray-200 dark:bg-gray-700" />
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-linear-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-sm">
-                <Layers className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest leading-none">
-                  {isRTL ? "إدارة الأقسام" : "Sections"}
-                </p>
-                <p className="text-sm font-black text-gray-900 dark:text-white leading-tight truncate max-w-[160px] md:max-w-xs">
-                  {project.title}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Create button */}
+      <ProjectPageHeader
+        projectId={id}
+        projectTitle={project.title}
+        icon={Layers}
+        iconBg="bg-linear-to-br from-violet-500 to-indigo-600"
+        label={isRTL ? "إدارة الأقسام" : "Sections"}
+        isRTL={isRTL}
+        action={
           <button
-            onClick={() => {
-              setShowCreateInput(true);
-              setActiveSectionForMembers(null);
-            }}
+            onClick={() => { setShowCreateInput(true); setActiveSectionForMembers(null); }}
             className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-bold transition-all shadow-md shadow-violet-500/20 active:scale-95"
           >
             <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">
-              {isRTL ? "قسم جديد" : "New Section"}
-            </span>
+            <span className="hidden sm:inline">{isRTL ? "قسم جديد" : "New Section"}</span>
           </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* ── Body ── */}
       <div className="max-w-5xl mx-auto px-4 md:px-8 py-8">

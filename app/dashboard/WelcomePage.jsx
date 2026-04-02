@@ -148,7 +148,7 @@ export default function WelcomePage() {
                   ? "قمنا بتجميع أهم تحديثات مشاريعك ومهامك المطلوبة منك اليوم لتسهيل عملك."
                   : "We've compiled your most important project updates and tasks for today."}
               </p>
-              <Link href="/dashboard/projects">
+              <Link href="/dashboard/how-it-works">
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm px-6 h-11">
                   {content.welcome.subtitle}
                   <ChevronRight className="w-4 h-4 ml-1.5 rtl:mr-1.5 rtl:ml-0 rtl:rotate-180" />

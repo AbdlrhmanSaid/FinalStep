@@ -121,6 +121,7 @@ export async function GET(req, { params }) {
       remainingTasks,
       overdueTasks,
       sections: sectionReports,
+      todos: [...(project.todos ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
     });
   } catch (error) {
     console.error("GET Project/Tasks Error:", error);

@@ -11,7 +11,7 @@ import CheckUserRole from "@/lib/actions/checkUserRole";
 import Loading from "@/components/Loading";
 import DatePicker from "@/components/ui/DatePicker";
 import toast from "react-hot-toast";
-import Link from "next/link";
+import ProjectPageHeader from "../components/ProjectPageHeader";
 
 import {
   ArrowLeft,
@@ -32,7 +32,7 @@ import {
 
 /* ─── tiny helpers ────────────────────────────── */
 const displayName = (u) =>
-  u?.name && u.name !== "null null" ? u.name : u?.email?.split("@")[0] ?? "?";
+  u?.name && u.name !== "null null" ? u.name : (u?.email?.split("@")[0] ?? "?");
 const initials = (u) => displayName(u).charAt(0).toUpperCase();
 
 /* ─── Field wrapper ───────────────────────────── */
@@ -44,7 +44,9 @@ function Field({ label, hint, icon: Icon, children }) {
         <label className="text-sm font-bold text-gray-700 dark:text-gray-200">
           {label}
         </label>
-        {hint && <span className="text-xs text-gray-400 font-medium">({hint})</span>}
+        {hint && (
+          <span className="text-xs text-gray-400 font-medium">({hint})</span>
+        )}
       </div>
       {children}
     </div>
@@ -74,7 +76,11 @@ function MemberChip({ user, onRemove }) {
         {initials(user)}
       </span>
       {displayName(user)}
-      <button type="button" onClick={onRemove} className="hover:text-red-500 transition-colors ml-0.5">
+      <button
+        type="button"
+        onClick={onRemove}
+        className="hover:text-red-500 transition-colors ml-0.5"
+      >
         <X className="w-3 h-3" />
       </button>
     </span>
@@ -85,7 +91,7 @@ function MemberChip({ user, onRemove }) {
 function MemberPicker({ members, selected, onToggle, onSelectAll, isRTL }) {
   const [search, setSearch] = useState("");
   const filtered = members.filter((u) =>
-    displayName(u).toLowerCase().includes(search.toLowerCase())
+    displayName(u).toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -131,20 +137,30 @@ function MemberPicker({ members, selected, onToggle, onSelectAll, isRTL }) {
                     : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
                 }`}
               >
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
-                  isSelected
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
-                }`}>
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
+                    isSelected
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                  }`}
+                >
                   {user.image ? (
-                    <img src={user.image} alt="" className="w-full h-full rounded-full object-cover" />
+                    <img
+                      src={user.image}
+                      alt=""
+                      className="w-full h-full rounded-full object-cover"
+                    />
                   ) : (
                     initials(user)
                   )}
                 </div>
-                <span className={`flex-1 text-sm font-semibold truncate ${
-                  isSelected ? "text-blue-700 dark:text-blue-300" : "text-gray-800 dark:text-white"
-                }`}>
+                <span
+                  className={`flex-1 text-sm font-semibold truncate ${
+                    isSelected
+                      ? "text-blue-700 dark:text-blue-300"
+                      : "text-gray-800 dark:text-white"
+                  }`}
+                >
                   {displayName(user)}
                 </span>
                 {isSelected && (
@@ -165,7 +181,8 @@ function MemberPicker({ members, selected, onToggle, onSelectAll, isRTL }) {
 export default function CreateTaskPage() {
   const { id: projectId } = useParams();
   const { data: project, isLoading } = useGetProject(projectId);
-  const { data: sectionsData, isLoading: isLoadingSections } = useGetSections(projectId);
+  const { data: sectionsData, isLoading: isLoadingSections } =
+    useGetSections(projectId);
   const { mutate: createTask, isPending } = useCreateTask();
   const { language, isRTL, userId } = useAppContext();
   const router = useRouter();
@@ -193,13 +210,16 @@ export default function CreateTaskPage() {
 
   let availableSections = sectionsData || [];
   if (!isLeader) {
-    availableSections = availableSections.filter(
-      (s) => s.members?.length === 0 || s.members?.some((m) => m._id === userId)
+    // Members only see sections they are explicitly assigned to
+    availableSections = availableSections.filter((s) =>
+      s.members?.some((m) => (typeof m === "object" ? m._id : m) === userId),
     );
   }
 
   const allUsers = [...(project.coLeaders ?? []), ...(project.members ?? [])];
-  const teamMembers = Array.from(new Map(allUsers.map((u) => [u._id, u])).values());
+  const teamMembers = Array.from(
+    new Map(allUsers.map((u) => [u._id, u])).values(),
+  );
 
   /* ─── Mutations ─── */
   const setField = (key, val) => setForm((p) => ({ ...p, [key]: val }));
@@ -221,7 +241,7 @@ export default function CreateTaskPage() {
         "assignedTo",
         form.assignedTo.includes(uid)
           ? form.assignedTo.filter((id) => id !== uid)
-          : [...form.assignedTo, uid]
+          : [...form.assignedTo, uid],
       );
     }
   };
@@ -256,15 +276,16 @@ export default function CreateTaskPage() {
 
   const setSectionAllMembers = (i) => {
     const sec = availableSections.find(
-      (s) => s._id === form.sectionAssignments[i].sectionId
+      (s) => s._id === form.sectionAssignments[i].sectionId,
     );
     const eligible =
       !sec || !sec.members?.length
         ? teamMembers
         : teamMembers.filter((tm) =>
-            sec.members.some((m) =>
-              String(typeof m === "object" ? m._id : m) === String(tm._id)
-            )
+            sec.members.some(
+              (m) =>
+                String(typeof m === "object" ? m._id : m) === String(tm._id),
+            ),
           );
     const arr = [...form.sectionAssignments];
     arr[i] = { ...arr[i], members: eligible.map((u) => u._id) };
@@ -279,74 +300,83 @@ export default function CreateTaskPage() {
     if (project?.hasSections) {
       finalAssignments = form.sectionAssignments.filter((sa) => sa.sectionId);
       if (!finalAssignments.length) {
-        toast.error(isRTL ? "اختر قسماً واحداً على الأقل" : "Select at least one section");
+        toast.error(
+          isRTL ? "اختر قسماً واحداً على الأقل" : "Select at least one section",
+        );
         return;
       }
       for (const sa of finalAssignments) {
         if (!sa.members?.length) {
-          toast.error(isRTL ? "عيّن عضواً لكل قسم" : "Assign at least one member per section");
+          toast.error(
+            isRTL
+              ? "عيّن عضواً لكل قسم"
+              : "Assign at least one member per section",
+          );
           return;
         }
       }
     } else {
       if (!form.assignedTo.length) {
-        toast.error(isRTL ? "عيّن عضواً واحداً على الأقل" : "Assign at least one member");
+        toast.error(
+          isRTL ? "عيّن عضواً واحداً على الأقل" : "Assign at least one member",
+        );
         return;
       }
       if (availableSections.length > 0) {
-        finalAssignments = [{ sectionId: availableSections[0]._id, members: form.assignedTo }];
+        finalAssignments = [
+          { sectionId: availableSections[0]._id, members: form.assignedTo },
+        ];
       }
     }
 
     createTask(
-      { ...form, sectionAssignments: finalAssignments, dueDate: form.dueDate || null, projectId, createdBy: userId },
+      {
+        ...form,
+        sectionAssignments: finalAssignments,
+        dueDate: form.dueDate || null,
+        projectId,
+        createdBy: userId,
+      },
       {
         onSuccess: () => {
           toast.success(content.successMessage);
           router.push(`/dashboard/projects/${projectId}`);
         },
         onError: (err) =>
-          toast.error(err?.response?.data?.message || (isRTL ? "حدث خطأ" : "An error occurred")),
-      }
+          toast.error(
+            err?.response?.data?.message ||
+              (isRTL ? "حدث خطأ" : "An error occurred"),
+          ),
+      },
     );
   };
 
   /* ─── Priority options ─── */
   const priorityOpts = [
-    { value: "low",    label: content.priorityLow,    color: "text-blue-600"  },
+    { value: "low", label: content.priorityLow, color: "text-blue-600" },
     { value: "medium", label: content.priorityMedium, color: "text-amber-500" },
-    { value: "high",   label: content.priorityHigh,   color: "text-rose-600"  },
+    { value: "high", label: content.priorityHigh, color: "text-rose-600" },
   ];
 
   /* ══════════════════════════════════ RENDER ══════════════════════════════════ */
   return (
     <CheckUserRole>
       <div
-        className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8 px-4"
+        className="min-h-screen bg-gray-50 dark:bg-gray-900"
         dir={isRTL ? "rtl" : "ltr"}
       >
-        <div className="max-w-2xl mx-auto space-y-6">
+        <ProjectPageHeader
+          projectId={projectId}
+          projectTitle={project.title}
+          icon={ListTodo}
+          iconBg="bg-linear-to-br from-blue-500 to-indigo-600"
+          label={isRTL ? "إضافة مهمة" : "Add Task"}
+          isRTL={isRTL}
+        />
 
-          {/* ── Back header ── */}
-          <div className="flex items-center gap-3">
-            <Link href={`/dashboard/projects/${projectId}`}>
-              <button className="p-2.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-white transition-all hover:shadow-sm">
-                {isRTL ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-              </button>
-            </Link>
-            <div>
-              <h1 className="text-xl font-black text-gray-900 dark:text-white">
-                {content.title}
-              </h1>
-              <p className="text-xs text-gray-400 font-medium mt-0.5">
-                {project.title}
-              </p>
-            </div>
-          </div>
-
+        <div className="max-w-2xl mx-auto px-4 py-8 space-y-5">
           {/* ── Form card ── */}
           <form onSubmit={handleSubmit} className="space-y-5">
-
             {/* Title */}
             <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-6 space-y-5 shadow-sm">
               <Field label={content.taskTitle} icon={ListTodo}>
@@ -361,7 +391,11 @@ export default function CreateTaskPage() {
               </Field>
 
               {/* Description */}
-              <Field label={content.taskDescription} hint={isRTL ? "اختياري" : "Optional"} icon={AlignLeft}>
+              <Field
+                label={content.taskDescription}
+                hint={isRTL ? "اختياري" : "Optional"}
+                icon={AlignLeft}
+              >
                 <textarea
                   name="description"
                   value={form.description}
@@ -378,7 +412,9 @@ export default function CreateTaskPage() {
               <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
                 <div className="flex items-center gap-2">
                   <Tag className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{content.taskPriority}</span>
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                    {content.taskPriority}
+                  </span>
                 </div>
                 {/* Segmented priority picker */}
                 <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
@@ -402,7 +438,9 @@ export default function CreateTaskPage() {
               <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
                 <div className="flex items-center gap-2">
                   <AlignLeft className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{content.submissionMethod}</span>
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                    {content.submissionMethod}
+                  </span>
                 </div>
                 <StyledSelect
                   value={form.submissionMethod}
@@ -420,13 +458,20 @@ export default function CreateTaskPage() {
               <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{content.dueDate}</span>
-                  <span className="text-xs text-gray-400 font-medium">({isRTL ? "اختياري" : "Optional"})</span>
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                    {content.dueDate}
+                  </span>
+                  <span className="text-xs text-gray-400 font-medium">
+                    ({isRTL ? "اختياري" : "Optional"})
+                  </span>
                 </div>
                 <DatePicker
                   value={form.dueDate}
                   onChange={(val) => setField("dueDate", val)}
-                  placeholder={content.dueDatePlaceholder || (isRTL ? "اختر تاريخاً..." : "Pick a date...")}
+                  placeholder={
+                    content.dueDatePlaceholder ||
+                    (isRTL ? "اختر تاريخاً..." : "Pick a date...")
+                  }
                   disablePast
                   locale={isRTL ? "ar" : "en"}
                 />
@@ -438,7 +483,9 @@ export default function CreateTaskPage() {
                   <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
                     {isRTL ? "رابط مرجعي" : "Reference Link"}
                   </span>
-                  <span className="text-xs text-gray-400 font-medium">({isRTL ? "اختياري" : "Optional"})</span>
+                  <span className="text-xs text-gray-400 font-medium">
+                    ({isRTL ? "اختياري" : "Optional"})
+                  </span>
                 </div>
                 <input
                   name="referenceLink"
@@ -453,11 +500,21 @@ export default function CreateTaskPage() {
 
             {/* Submission description */}
             <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-3">
-              <Field label={content.submissionDescriptionLabel} hint={isRTL ? "ما المطلوب من الأعضاء تسليمه؟" : "What should members submit?"} icon={AlignLeft}>
+              <Field
+                label={content.submissionDescriptionLabel}
+                hint={
+                  isRTL
+                    ? "ما المطلوب من الأعضاء تسليمه؟"
+                    : "What should members submit?"
+                }
+                icon={AlignLeft}
+              >
                 <textarea
                   name="submissionDescription"
                   value={form.submissionDescription}
-                  onChange={(e) => setField("submissionDescription", e.target.value)}
+                  onChange={(e) =>
+                    setField("submissionDescription", e.target.value)
+                  }
                   rows={2}
                   placeholder={content.submissionDescriptionPlaceholder}
                   className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm font-medium resize-none placeholder:text-gray-300 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
@@ -499,14 +556,19 @@ export default function CreateTaskPage() {
 
                     <div className="space-y-4">
                       {form.sectionAssignments.map((assignment, idx) => {
-                        const sec = availableSections.find((s) => s._id === assignment.sectionId);
+                        const sec = availableSections.find(
+                          (s) => s._id === assignment.sectionId,
+                        );
                         const secMembers =
                           !sec || !sec.members?.length
                             ? teamMembers
                             : teamMembers.filter((tm) =>
                                 sec.members.some(
-                                  (m) => String(typeof m === "object" ? m._id : m) === String(tm._id)
-                                )
+                                  (m) =>
+                                    String(
+                                      typeof m === "object" ? m._id : m,
+                                    ) === String(tm._id),
+                                ),
                               );
 
                         return (
@@ -519,10 +581,14 @@ export default function CreateTaskPage() {
                               <div className="flex-1">
                                 <StyledSelect
                                   value={assignment.sectionId}
-                                  onChange={(e) => updateSectionId(idx, e.target.value)}
+                                  onChange={(e) =>
+                                    updateSectionId(idx, e.target.value)
+                                  }
                                 >
                                   <option value="" disabled>
-                                    {isRTL ? "اختر القسم..." : "Select section..."}
+                                    {isRTL
+                                      ? "اختر القسم..."
+                                      : "Select section..."}
                                   </option>
                                   {availableSections.map((s) => (
                                     <option key={s._id} value={s._id}>
@@ -556,7 +622,9 @@ export default function CreateTaskPage() {
                                     members={secMembers}
                                     selected={assignment.members}
                                     onToggle={(uid) => toggleMember(uid, idx)}
-                                    onSelectAll={() => setSectionAllMembers(idx)}
+                                    onSelectAll={() =>
+                                      setSectionAllMembers(idx)
+                                    }
                                     isRTL={isRTL}
                                   />
                                 )}
@@ -565,12 +633,16 @@ export default function CreateTaskPage() {
                                 {assignment.members.length > 0 && (
                                   <div className="flex flex-wrap gap-1.5 pt-1">
                                     {assignment.members.map((uid) => {
-                                      const u = teamMembers.find((u) => u._id === uid);
+                                      const u = teamMembers.find(
+                                        (u) => u._id === uid,
+                                      );
                                       return (
                                         <MemberChip
                                           key={uid}
                                           user={u}
-                                          onRemove={() => toggleMember(uid, idx)}
+                                          onRemove={() =>
+                                            toggleMember(uid, idx)
+                                          }
                                         />
                                       );
                                     })}
@@ -595,7 +667,12 @@ export default function CreateTaskPage() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => setField("assignedTo", teamMembers.map((u) => u._id))}
+                        onClick={() =>
+                          setField(
+                            "assignedTo",
+                            teamMembers.map((u) => u._id),
+                          )
+                        }
                         className="text-xs font-black text-blue-600 dark:text-blue-400 hover:underline"
                       >
                         {isRTL ? "اختيار الكل" : "Select All"}
@@ -615,7 +692,11 @@ export default function CreateTaskPage() {
                         {form.assignedTo.map((uid) => {
                           const u = teamMembers.find((u) => u._id === uid);
                           return (
-                            <MemberChip key={uid} user={u} onRemove={() => toggleMember(uid)} />
+                            <MemberChip
+                              key={uid}
+                              user={u}
+                              onRemove={() => toggleMember(uid)}
+                            />
                           );
                         })}
                       </div>
@@ -631,27 +712,41 @@ export default function CreateTaskPage() {
                 <Clock className="w-4 h-4 text-gray-400 shrink-0" />
                 <div>
                   <p className="text-sm font-bold text-gray-800 dark:text-white">
-                    {isRTL ? "السماح بالتسليم المتأخر" : "Allow Late Submission"}
+                    {isRTL
+                      ? "السماح بالتسليم المتأخر"
+                      : "Allow Late Submission"}
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">
                     {form.allowLateSubmission
-                      ? isRTL ? "يُسمح بالتسليم بعد الـ deadline" : "Submissions allowed after deadline"
-                      : isRTL ? "لا يُسمح بالتسليم بعد الـ deadline" : "Submissions blocked after deadline"}
+                      ? isRTL
+                        ? "يُسمح بالتسليم بعد الـ deadline"
+                        : "Submissions allowed after deadline"
+                      : isRTL
+                        ? "لا يُسمح بالتسليم بعد الـ deadline"
+                        : "Submissions blocked after deadline"}
                   </p>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => setField("allowLateSubmission", !form.allowLateSubmission)}
+                onClick={() =>
+                  setField("allowLateSubmission", !form.allowLateSubmission)
+                }
                 className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none ${
-                  form.allowLateSubmission ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-600"
+                  form.allowLateSubmission
+                    ? "bg-blue-600"
+                    : "bg-gray-200 dark:bg-gray-600"
                 }`}
               >
                 <span
                   className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
                     form.allowLateSubmission
-                      ? isRTL ? "-translate-x-6" : "translate-x-6"
-                      : isRTL ? "-translate-x-1" : "translate-x-1"
+                      ? isRTL
+                        ? "-translate-x-6"
+                        : "translate-x-6"
+                      : isRTL
+                        ? "-translate-x-1"
+                        : "translate-x-1"
                   }`}
                 />
               </button>
