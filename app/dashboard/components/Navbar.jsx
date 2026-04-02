@@ -50,6 +50,23 @@ export default function DashboardNav() {
   const pendingInvitesCount = invites?.length ?? 0;
 
   const { data: tasks } = useGetTasks();
+
+  // Tasks assigned to the current user that need action (open or submitted)
+  const myPendingTasksCount =
+    tasks?.filter((task) => {
+      const isAssignedToMe = task.assignedTo?.some(
+        (u) => (u._id || u).toString() === userId
+      );
+      if (!isAssignedToMe) return false;
+      // Check my personal submission status
+      const mySub = task.memberSubmissions?.find(
+        (s) => (s.userId?._id || s.userId)?.toString() === userId
+      );
+      const myStatus = mySub ? mySub.status : task.status;
+      return myStatus === "open" || myStatus === "rejected";
+    })?.length ?? 0;
+
+  // Tasks submitted waiting for leader review
   const pendingReviewsCount =
     tasks?.filter((task) => {
       const isLeader =
@@ -59,6 +76,9 @@ export default function DashboardNav() {
         );
       return isLeader && task.status === "submitted";
     })?.length ?? 0;
+
+  // Total badge = my pending tasks + reviews I need to do
+  const tasksNotificationCount = myPendingTasksCount + pendingReviewsCount;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -203,9 +223,9 @@ export default function DashboardNav() {
               >
                 <ListChecks className="w-4 h-4 mx-1.5 opacity-70" />
                 {content.dashboardNav.team}
-                {pendingReviewsCount > 0 && (
-                  <span className="absolute -top-1.5 -end-1.5 min-w-[20px] h-[20px] px-1 flex items-center justify-center rounded-full bg-gradient-to-r from-orange-400 to-amber-500 text-white text-[10px] font-bold shadow-sm shadow-orange-500/30 border border-white dark:border-gray-900">
-                    {pendingReviewsCount > 99 ? "99+" : pendingReviewsCount}
+                {tasksNotificationCount > 0 && (
+                  <span className="absolute -top-1.5 -end-1.5 min-w-[20px] h-[20px] px-1 flex items-center justify-center rounded-full bg-linear-to-r from-orange-400 to-amber-500 text-white text-[10px] font-bold shadow-sm shadow-orange-500/30 border border-white dark:border-gray-900">
+                    {tasksNotificationCount > 99 ? "99+" : tasksNotificationCount}
                   </span>
                 )}
               </Link>
@@ -357,9 +377,9 @@ export default function DashboardNav() {
                   <ListChecks className="w-5 h-5 relative" />
                 </div>
                 <span className="flex-1">{content.dashboardNav.team}</span>
-                {pendingReviewsCount > 0 && (
+                {tasksNotificationCount > 0 && (
                   <span className="min-w-[24px] h-[24px] px-2 flex items-center justify-center rounded-full bg-orange-500 text-white text-xs font-bold shadow-sm shadow-orange-500/20">
-                    {pendingReviewsCount > 99 ? "99+" : pendingReviewsCount}
+                    {tasksNotificationCount > 99 ? "99+" : tasksNotificationCount}
                   </span>
                 )}
               </Link>

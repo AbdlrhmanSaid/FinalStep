@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Settings,
   Edit,
@@ -11,7 +10,9 @@ import {
   FileText,
   PieChart,
   ShieldAlert,
+  Layers,
 } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -63,6 +64,13 @@ export default function ProjectActions({
                <Edit className="w-5 h-5 text-blue-500 mb-2 group-hover:scale-110 transition-transform" />
                <span className="text-[10px] font-black uppercase text-gray-600 dark:text-gray-300 tracking-tight">{content.edit}</span>
              </button>
+
+             <Link href={`/dashboard/projects/${data._id}/sections`}>
+               <button className="w-full flex flex-col items-center justify-center p-4 rounded-2xl border border-gray-50 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/40 hover:bg-white dark:hover:bg-gray-700 hover:border-violet-500/30 transition-all group">
+                 <Layers className="w-5 h-5 text-violet-500 mb-2 group-hover:scale-110 transition-transform" />
+                 <span className="text-[10px] font-black uppercase text-gray-600 dark:text-gray-300 tracking-tight">{isRTL ? "الأقسام" : "Sections"}</span>
+               </button>
+             </Link>
 
              <button
                onClick={handleReport}

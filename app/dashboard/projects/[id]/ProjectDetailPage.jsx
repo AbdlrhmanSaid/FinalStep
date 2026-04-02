@@ -247,7 +247,7 @@ const ProjectDetailPage = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column: Main Projects Content (Tasks) */}
-            <div className="lg:col-span-8 space-y-8">
+            <div className={`${isLeader ? "lg:col-span-8" : "lg:col-span-9"} space-y-8`}>
               <ProjectTasks
                 data={data}
                 content={content}
@@ -270,8 +270,8 @@ const ProjectDetailPage = () => {
               />
             </div>
 
-            {/* Right Column: Sidebar Metadata (Details, Team, Requests, Actions) */}
-            <aside className="lg:col-span-4 space-y-8">
+            {/* Right Column: Sidebar — leaders see full sidebar, members see minimal */}
+            <aside className={`${isLeader ? "lg:col-span-4" : "lg:col-span-3"} space-y-8`}>
               <ProjectDetailsSection
                 data={data}
                 content={content}
@@ -279,14 +279,18 @@ const ProjectDetailPage = () => {
                 dateLocale={dateLocale}
               />
 
-              <ProjectTeamSection
-                data={data}
-                content={content}
-                isRTL={isRTL}
-                isLeader={isLeader}
-                updateMemberTitle={updateMemberTitle}
-              />
+              {/* Team section — leaders only */}
+              {isLeader && (
+                <ProjectTeamSection
+                  data={data}
+                  content={content}
+                  isRTL={isRTL}
+                  isLeader={isLeader}
+                  updateMemberTitle={updateMemberTitle}
+                />
+              )}
 
+              {/* Join requests — leaders only */}
               {isLeader && pendingJoinRequests.length > 0 && (
                 <ProjectJoinRequests
                   data={data}
