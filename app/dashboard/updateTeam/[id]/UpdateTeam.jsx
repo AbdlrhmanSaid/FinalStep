@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "../../../../components/ui/button";
-import { Plus, Trash, ArrowDown, ArrowUp, Send, Users } from "lucide-react";
+import { Plus, Trash, ArrowDown, ArrowUp, Send, Users, ArrowLeft, Mail, Shield, UserPlus, UserMinus, Crown } from "lucide-react";
 
 import { useGetProject } from "../../../../hooks/projects/useGetProjects";
 import { useDeleteMember } from "../../../../hooks/projects/useDeleteMember";
@@ -138,193 +138,255 @@ export default function UpdateTeam() {
   };
 
   if (isLoading) return <Loading />;
+  if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
   if (!project) return null;
 
   return (
-    <CheckUserRole>
+    <CheckUserRole projectId={id}>
       <div
-        className="min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-white p-6 transition-colors duration-200"
+        className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 dark:text-white p-4 md:p-8 transition-all duration-300"
         dir={isRTL ? "rtl" : "ltr"}
       >
-        <div className="max-w-2xl mx-auto space-y-8">
-          <div className="flex items-center gap-3">
-            <Users className="w-8 h-8 text-blue-500" />
-            <h1 className="text-2xl font-bold">
-              {isRTL ? "إدارة فريق العمل" : "Manage Team"} - {project.title}
-            </h1>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">
-              {content.inviteRequests}
-            </h2>
-            <div className="space-y-4">
-              {invites.map((email, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <Input
-                      type="email"
-                      placeholder="email@example.com"
-                      value={email}
-                      onChange={(e) => updateArrayValue(index, e.target.value)}
-                      className="dark:bg-gray-900 border-gray-300 dark:border-gray-600"
-                    />
-                    {errors.invites[index] && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.invites[index]}
-                      </p>
-                    )}
-                  </div>
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="destructive"
-                    onClick={() => removeField(index)}
-                    className="shrink-0"
-                  >
-                    <Trash size={16} />
-                  </Button>
-                </div>
-              ))}
-              <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addField}
-                  className="flex items-center gap-2"
-                >
-                  <Plus size={16} /> {content.addinvite}
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleSendInvites}
-                  disabled={isSending || invites.filter(Boolean).length === 0}
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white sm:ml-auto"
-                >
-                  <Send size={16} />{" "}
-                  {isSending
-                    ? isRTL
-                      ? "جاري الإرسال..."
-                      : "Sending..."
-                    : isRTL
-                      ? "إرسال الدعوات"
-                      : "Send Invites"}
-                </Button>
+        <div className="max-w-3xl mx-auto space-y-6">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => router.back()}
+                className="p-2.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm group"
+              >
+                {isRTL ? (
+                  <ArrowUp className="w-5 h-5 -rotate-90 group-hover:translate-x-1 transition-transform" />
+                ) : (
+                  <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                )}
+              </button>
+              <div>
+                <h1 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
+                  <Users className="w-6 h-6 text-blue-600" />
+                  {isRTL ? "إدارة فريق العمل" : "Manage Team"}
+                </h1>
+                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-wider">
+                  {project.title}
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-            <h2 className="text-xl font-semibold mb-6">{content.teamwork}</h2>
+          {/* Invitation Section */}
+          <section className="bg-white dark:bg-gray-800/50 p-5 md:p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-blue-500/5 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 blur-2xl" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 bg-blue-50 dark:bg-blue-900/40 rounded-xl">
+                  <UserPlus className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h2 className="text-lg font-black text-gray-900 dark:text-white">
+                  {content.inviteRequests}
+                </h2>
+              </div>
 
-            {/* Co-Leaders */}
-            <div className="mb-8">
-              <h3 className="mb-3 font-semibold text-yellow-500 flex items-center gap-2">
-                {content.admins}
-              </h3>
-              {project.coLeaders?.length > 0 ? (
-                <div className="space-y-3">
-                  {project.coLeaders.map((user) => (
-                    <div
-                      key={user._id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-100 dark:border-gray-600"
-                    >
-                      <span className="font-medium text-gray-800 dark:text-white">
-                        {user.name !== "null null"
-                          ? user.name
-                          : user.email.split("@")[0].replace(/[0-9]/g, "")}
-                      </span>
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => handleDemote(user._id)}
-                          className="flex items-center gap-2"
-                        >
-                          <ArrowDown size={14} /> {content.demotion}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDelete(user._id)}
-                          className="flex items-center gap-2"
-                        >
-                          <Trash size={14} />
-                        </Button>
+              <div className="space-y-3">
+                {invites.map((email, index) => (
+                  <div key={index} className="flex items-start gap-2 group/field">
+                    <div className="flex-1 relative">
+                      <div className={`absolute inset-y-0 ${isRTL ? 'right-3' : 'left-3'} flex items-center pointer-events-none`}>
+                        <Mail className="w-4 h-4 text-gray-400" />
                       </div>
+                      <Input
+                        type="email"
+                        placeholder="name@email.com"
+                        value={email}
+                        onChange={(e) => updateArrayValue(index, e.target.value)}
+                        className={`rounded-2xl ${isRTL ? 'pr-10' : 'pl-10'} border-gray-100 dark:border-gray-700 dark:bg-gray-900 font-bold transition-all h-11 focus:ring-2 focus:ring-blue-500/20 ${
+                          errors.invites[index] ? 'border-red-500 ring-2 ring-red-500/10' : ''
+                        }`}
+                      />
+                      {errors.invites[index] && (
+                        <p className="text-red-500 text-[10px] font-black mt-1 ml-1 uppercase tracking-tighter">
+                          {errors.invites[index]}
+                        </p>
+                      )}
                     </div>
-                  ))}
+                    {invites.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeField(index)}
+                        className="p-3 rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors shrink-0 h-11 flex items-center justify-center"
+                      >
+                        <Trash size={16} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+
+                <div className="flex flex-col sm:flex-row gap-3 pt-4 mt-2 border-t border-gray-100 dark:border-gray-700/50">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={addField}
+                    className="flex-1 rounded-2xl h-12 font-black uppercase tracking-widest text-[10px] gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-blue-600 border-2 border-dashed border-blue-100 dark:border-blue-800/50 transition-all"
+                  >
+                    <Plus size={16} /> {content.addinvite}
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleSendInvites}
+                    disabled={isSending || invites.filter(Boolean).length === 0}
+                    className="flex-1 rounded-2xl h-12 font-black uppercase tracking-widest text-[10px] gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/25 transition-all active:scale-95 disabled:grayscale"
+                  >
+                    {isSending ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <Send size={16} />
+                    )}
+                    {isSending
+                      ? (isRTL ? "جارٍ الإرسال..." : "Sending...")
+                      : (isRTL ? "إرسال الدعوات" : "Send Invites")}
+                  </Button>
                 </div>
-              ) : (
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg text-yellow-500/70 italic border border-dashed border-gray-300 dark:border-gray-700">
-                  {content.noAdmins}
-                </div>
-              )}
+              </div>
+            </div>
+          </section>
+
+          {/* Current Team Section */}
+          <section className="bg-white dark:bg-gray-800/50 p-5 md:p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-blue-500/5">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-2.5 bg-amber-50 dark:bg-amber-900/30 rounded-xl">
+                <Users className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <h2 className="text-lg font-black text-gray-900 dark:text-white">
+                {content.teamwork}
+              </h2>
             </div>
 
-            {/* Members */}
-            <div>
-              <h3 className="mb-3 font-semibold text-blue-500 flex items-center gap-2">
-                {content.members}
-              </h3>
-              {project.members?.length > 0 &&
-              project.members.some(
-                (member) =>
-                  !project.coLeaders?.some(
-                    (coLeader) => coLeader._id === member._id,
-                  ),
-              ) ? (
-                <div className="space-y-3">
-                  {project.members
-                    .filter(
-                      (member) =>
-                        !project.coLeaders?.some(
-                          (coLeader) => coLeader._id === member._id,
-                        ),
-                    )
-                    .map((user) => (
+            <div className="space-y-10">
+              {/* Co-Leaders */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Crown className="w-4 h-4 text-amber-500" />
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-600 dark:text-amber-500">
+                    {content.admins}
+                  </h3>
+                </div>
+
+                {project.coLeaders?.length > 0 ? (
+                  <div className="grid gap-3">
+                    {project.coLeaders.map((user) => (
                       <div
                         key={user._id}
-                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-100 dark:border-gray-600"
+                        className="group flex items-center justify-between gap-3 bg-gray-50 dark:bg-gray-800/40 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700/50 hover:border-amber-400/50 transition-all hover:bg-white dark:hover:bg-gray-800"
                       >
-                        <span className="font-medium text-gray-800 dark:text-white">
-                          {user.name !== "null null"
-                            ? user.name
-                            : user.email.split("@")[0].replace(/[0-9]/g, "")}
-                        </span>
-                        <div className="flex gap-2">
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => handlePromote(user._id)}
-                            className="flex items-center gap-2"
+                        <div className={`flex items-center gap-3 min-w-0 ${isRTL ? 'flex-row' : 'flex-row'}`}>
+                          <div className="w-10 h-10 rounded-full bg-linear-to-br from-amber-400 to-amber-600 p-0.5 shadow-sm shrink-0">
+                            <div className="w-full h-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden font-black text-amber-600 uppercase text-xs">
+                              {user.image ? <img src={user.image} className="w-full h-full object-cover" /> : user.name.charAt(0)}
+                            </div>
+                          </div>
+                          <div className={`min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
+                            <span className="block text-sm font-black text-gray-900 dark:text-white truncate">
+                              {user.name !== "null null" ? user.name : user.email.split("@")[0]}
+                            </span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter truncate block">
+                              {user.email}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-1.5 shrink-0">
+                          <button
+                            onClick={() => handleDemote(user._id)}
+                            className="p-2 mr-1 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-white transition-all shadow-xs"
+                            title={content.demotion}
                           >
-                            <ArrowUp size={14} /> {content.promotion}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
+                            <ArrowDown size={14} />
+                          </button>
+                          <button
                             onClick={() => handleDelete(user._id)}
-                            className="flex items-center gap-2"
+                            className="p-2 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xs"
                           >
-                            <Trash size={14} />
-                          </Button>
+                            <UserMinus size={14} />
+                          </button>
                         </div>
                       </div>
                     ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 rounded-2xl border-2 border-dashed border-gray-100 dark:border-gray-700/50">
+                    <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
+                      {content.noAdmins}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Regular Members */}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Shield className="w-4 h-4 text-blue-500" />
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-500">
+                    {content.members}
+                  </h3>
                 </div>
-              ) : (
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg text-blue-500/70 italic border border-dashed border-gray-300 dark:border-gray-700">
-                  {content.noAMembers}
-                </div>
-              )}
+
+                {project.members?.length > 0 &&
+                project.members.some(
+                  (member) => !project.coLeaders?.some((co) => co._id === member._id)
+                ) ? (
+                  <div className="grid gap-3">
+                    {project.members
+                      .filter((m) => !project.coLeaders?.some((co) => co._id === m._id))
+                      .map((user) => (
+                        <div
+                          key={user._id}
+                          className="group flex items-center justify-between gap-3 bg-gray-50 dark:bg-gray-800/40 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700/50 hover:border-blue-400/50 transition-all hover:bg-white dark:hover:bg-gray-800"
+                        >
+                          <div className={`flex items-center gap-3 min-w-0 ${isRTL ? 'flex-row' : 'flex-row'}`}>
+                            <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-400 to-blue-600 p-0.5 shadow-sm shrink-0">
+                              <div className="w-full h-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden font-black text-blue-600 uppercase text-xs">
+                                {user.image ? <img src={user.image} className="w-full h-full object-cover" /> : user.name.charAt(0)}
+                              </div>
+                            </div>
+                            <div className={`min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
+                              <span className="block text-sm font-black text-gray-900 dark:text-white truncate">
+                                {user.name !== "null null" ? user.name : user.email.split("@")[0]}
+                              </span>
+                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter truncate block">
+                                {user.email}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex gap-1.5 shrink-0">
+                            <button
+                              onClick={() => handlePromote(user._id)}
+                              className="p-2 mr-1 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white transition-all shadow-xs"
+                              title={content.promotion}
+                            >
+                              <ArrowUp size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(user._id)}
+                              className="p-2 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xs"
+                            >
+                              <UserMinus size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 rounded-2xl border-2 border-dashed border-gray-100 dark:border-gray-700/50">
+                    <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
+                      {content.noAMembers}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </CheckUserRole>
