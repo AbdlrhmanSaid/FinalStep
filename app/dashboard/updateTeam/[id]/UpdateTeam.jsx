@@ -5,7 +5,20 @@ import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "../../../../components/ui/button";
-import { Plus, Trash, ArrowDown, ArrowUp, Send, Users, ArrowLeft, Mail, Shield, UserPlus, UserMinus, Crown } from "lucide-react";
+import {
+  Plus,
+  Trash,
+  ArrowDown,
+  ArrowUp,
+  Send,
+  Users,
+  ArrowLeft,
+  Mail,
+  Shield,
+  UserPlus,
+  UserMinus,
+  Crown,
+} from "lucide-react";
 
 import { useGetProject } from "../../../../hooks/projects/useGetProjects";
 import { useDeleteMember } from "../../../../hooks/projects/useDeleteMember";
@@ -145,14 +158,14 @@ export default function UpdateTeam() {
   return (
     <CheckUserRole projectId={id}>
       <div
-        className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 dark:text-white p-4 md:p-8 transition-all duration-300"
+        className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 dark:text-white p-3.5 sm:p-4 md:p-8 transition-all duration-300"
         dir={isRTL ? "rtl" : "ltr"}
       >
-        <div className="max-w-3xl mx-auto space-y-6">
+        <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
             <div className="flex items-center gap-4">
-              <button 
+              <button
                 onClick={() => router.back()}
                 className="p-2.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm group"
               >
@@ -163,11 +176,13 @@ export default function UpdateTeam() {
                 )}
               </button>
               <div>
-                <h1 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                  <Users className="w-6 h-6 text-blue-600" />
-                  {isRTL ? "إدارة فريق العمل" : "Manage Team"}
+                <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
+                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 shrink-0" />
+                  <span className="truncate">
+                    {isRTL ? "إدارة فريق العمل" : "Manage Team"}
+                  </span>
                 </h1>
-                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-wider">
+                <p className="text-[10px] sm:text-sm font-bold text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-wider truncate max-w-[200px] sm:max-w-none">
                   {project.title}
                 </p>
               </div>
@@ -175,9 +190,9 @@ export default function UpdateTeam() {
           </div>
 
           {/* Invitation Section */}
-          <section className="bg-white dark:bg-gray-800/50 p-5 md:p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-blue-500/5 relative overflow-hidden group">
+          <section className="bg-white dark:bg-gray-800/50 p-4 sm:p-5 md:p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-blue-500/5 relative overflow-hidden group w-full">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-            
+
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2.5 bg-blue-50 dark:bg-blue-900/40 rounded-xl">
@@ -190,18 +205,27 @@ export default function UpdateTeam() {
 
               <div className="space-y-3">
                 {invites.map((email, index) => (
-                  <div key={index} className="flex items-start gap-2 group/field">
-                    <div className="flex-1 relative">
-                      <div className={`absolute inset-y-0 ${isRTL ? 'right-3' : 'left-3'} flex items-center pointer-events-none`}>
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 group/field"
+                  >
+                    <div className="flex-1 min-w-0 relative">
+                      <div
+                        className={`absolute inset-y-0 ${isRTL ? "right-3" : "left-3"} flex items-center pointer-events-none`}
+                      >
                         <Mail className="w-4 h-4 text-gray-400" />
                       </div>
                       <Input
                         type="email"
                         placeholder="name@email.com"
                         value={email}
-                        onChange={(e) => updateArrayValue(index, e.target.value)}
-                        className={`rounded-2xl ${isRTL ? 'pr-10' : 'pl-10'} border-gray-100 dark:border-gray-700 dark:bg-gray-900 font-bold transition-all h-11 focus:ring-2 focus:ring-blue-500/20 ${
-                          errors.invites[index] ? 'border-red-500 ring-2 ring-red-500/10' : ''
+                        onChange={(e) =>
+                          updateArrayValue(index, e.target.value)
+                        }
+                        className={`rounded-2xl ${isRTL ? "pr-10" : "pl-10"} border-gray-100 dark:border-gray-700 dark:bg-gray-900 font-bold transition-all h-11 focus:ring-2 focus:ring-blue-500/20 ${
+                          errors.invites[index]
+                            ? "border-red-500 ring-2 ring-red-500/10"
+                            : ""
                         }`}
                       />
                       {errors.invites[index] && (
@@ -214,7 +238,7 @@ export default function UpdateTeam() {
                       <button
                         type="button"
                         onClick={() => removeField(index)}
-                        className="p-3 rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors shrink-0 h-11 flex items-center justify-center"
+                        className="p-3 rounded-2xl bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors shrink-0 h-11 w-11 flex items-center justify-center"
                       >
                         <Trash size={16} />
                       </button>
@@ -243,8 +267,12 @@ export default function UpdateTeam() {
                       <Send size={16} />
                     )}
                     {isSending
-                      ? (isRTL ? "جارٍ الإرسال..." : "Sending...")
-                      : (isRTL ? "إرسال الدعوات" : "Send Invites")}
+                      ? isRTL
+                        ? "جارٍ الإرسال..."
+                        : "Sending..."
+                      : isRTL
+                        ? "إرسال الدعوات"
+                        : "Send Invites"}
                   </Button>
                 </div>
               </div>
@@ -252,7 +280,7 @@ export default function UpdateTeam() {
           </section>
 
           {/* Current Team Section */}
-          <section className="bg-white dark:bg-gray-800/50 p-5 md:p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-blue-500/5">
+          <section className="bg-white dark:bg-gray-800/50 p-4 sm:p-5 md:p-8 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-xl shadow-blue-500/5 overflow-hidden w-full">
             <div className="flex items-center gap-3 mb-8">
               <div className="p-2.5 bg-amber-50 dark:bg-amber-900/30 rounded-xl">
                 <Users className="w-5 h-5 text-amber-600 dark:text-amber-400" />
@@ -262,7 +290,7 @@ export default function UpdateTeam() {
               </h2>
             </div>
 
-            <div className="space-y-10">
+            <div className="space-y-10 overflow-auto">
               {/* Co-Leaders */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
@@ -277,37 +305,54 @@ export default function UpdateTeam() {
                     {project.coLeaders.map((user) => (
                       <div
                         key={user._id}
-                        className="group flex items-center justify-between gap-3 bg-gray-50 dark:bg-gray-800/40 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700/50 hover:border-amber-400/50 transition-all hover:bg-white dark:hover:bg-gray-800"
+                        className="group flex items-center justify-between gap-2.5 sm:gap-3 bg-gray-50 dark:bg-gray-800/40 p-3 sm:p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700/50 hover:border-amber-400/50 transition-all hover:bg-white dark:hover:bg-gray-800 w-full min-w-0"
                       >
-                        <div className={`flex items-center gap-3 min-w-0 ${isRTL ? 'flex-row' : 'flex-row'}`}>
-                          <div className="w-10 h-10 rounded-full bg-linear-to-br from-amber-400 to-amber-600 p-0.5 shadow-sm shrink-0">
-                            <div className="w-full h-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden font-black text-amber-600 uppercase text-xs">
-                              {user.image ? <img src={user.image} className="w-full h-full object-cover" /> : user.name.charAt(0)}
+                        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-linear-to-br from-amber-400 to-amber-600 p-0.5 shadow-sm shrink-0">
+                            <div className="w-full h-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden font-black text-amber-600 uppercase text-[10px] sm:text-xs">
+                              {user.image ? (
+                                <img
+                                  src={user.image}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                user.name.charAt(0)
+                              )}
                             </div>
                           </div>
-                          <div className={`min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
-                            <span className="block text-sm font-black text-gray-900 dark:text-white truncate">
-                              {user.name !== "null null" ? user.name : user.email.split("@")[0]}
+                          <div
+                            className={`min-w-0 flex-1 ${isRTL ? "text-right" : "text-left"}`}
+                          >
+                            <span className="block text-xs sm:text-sm font-black text-gray-900 dark:text-white truncate">
+                              {user.name !== "null null"
+                                ? user.name
+                                : user.email.split("@")[0]}
                             </span>
-                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter truncate block">
+                            <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-tighter truncate block">
                               {user.email}
                             </span>
                           </div>
                         </div>
 
-                        <div className="flex gap-1.5 shrink-0">
+                        <div className="flex gap-1 sm:gap-1.5 shrink-0 ml-auto">
                           <button
                             onClick={() => handleDemote(user._id)}
-                            className="p-2 mr-1 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-white transition-all shadow-xs"
+                            className="p-1.5 sm:p-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-white transition-all shadow-xs shrink-0"
                             title={content.demotion}
                           >
-                            <ArrowDown size={14} />
+                            <ArrowDown
+                              size={14}
+                              className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                            />
                           </button>
                           <button
                             onClick={() => handleDelete(user._id)}
-                            className="p-2 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xs"
+                            className="p-1.5 sm:p-2 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xs shrink-0"
                           >
-                            <UserMinus size={14} />
+                            <UserMinus
+                              size={14}
+                              className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                            />
                           </button>
                         </div>
                       </div>
@@ -333,45 +378,66 @@ export default function UpdateTeam() {
 
                 {project.members?.length > 0 &&
                 project.members.some(
-                  (member) => !project.coLeaders?.some((co) => co._id === member._id)
+                  (member) =>
+                    !project.coLeaders?.some((co) => co._id === member._id),
                 ) ? (
                   <div className="grid gap-3">
                     {project.members
-                      .filter((m) => !project.coLeaders?.some((co) => co._id === m._id))
+                      .filter(
+                        (m) =>
+                          !project.coLeaders?.some((co) => co._id === m._id),
+                      )
                       .map((user) => (
                         <div
                           key={user._id}
-                          className="group flex items-center justify-between gap-3 bg-gray-50 dark:bg-gray-800/40 p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700/50 hover:border-blue-400/50 transition-all hover:bg-white dark:hover:bg-gray-800"
+                          className="group flex items-center justify-between gap-2.5 sm:gap-3 bg-gray-50 dark:bg-gray-800/40 p-3 sm:p-3.5 rounded-2xl border border-gray-100 dark:border-gray-700/50 hover:border-blue-400/50 transition-all hover:bg-white dark:hover:bg-gray-800 w-full min-w-0"
                         >
-                          <div className={`flex items-center gap-3 min-w-0 ${isRTL ? 'flex-row' : 'flex-row'}`}>
-                            <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-400 to-blue-600 p-0.5 shadow-sm shrink-0">
-                              <div className="w-full h-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden font-black text-blue-600 uppercase text-xs">
-                                {user.image ? <img src={user.image} className="w-full h-full object-cover" /> : user.name.charAt(0)}
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-linear-to-br from-blue-400 to-blue-600 p-0.5 shadow-sm shrink-0">
+                              <div className="w-full h-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden font-black text-blue-600 uppercase text-[10px] sm:text-xs">
+                                {user.image ? (
+                                  <img
+                                    src={user.image}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  user.name.charAt(0)
+                                )}
                               </div>
                             </div>
-                            <div className={`min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
-                              <span className="block text-sm font-black text-gray-900 dark:text-white truncate">
-                                {user.name !== "null null" ? user.name : user.email.split("@")[0]}
+                            <div
+                              className={`min-w-0 flex-1 ${isRTL ? "text-right" : "text-left"}`}
+                            >
+                              <span className="block text-xs sm:text-sm font-black text-gray-900 dark:text-white truncate">
+                                {user.name !== "null null"
+                                  ? user.name
+                                  : user.email.split("@")[0]}
                               </span>
-                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter truncate block">
+                              <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-tighter truncate block">
                                 {user.email}
                               </span>
                             </div>
                           </div>
 
-                          <div className="flex gap-1.5 shrink-0">
+                          <div className="flex gap-1 sm:gap-1.5 shrink-0 ml-auto">
                             <button
                               onClick={() => handlePromote(user._id)}
-                              className="p-2 mr-1 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white transition-all shadow-xs"
+                              className="p-1.5 sm:p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white transition-all shadow-xs shrink-0"
                               title={content.promotion}
                             >
-                              <ArrowUp size={14} />
+                              <ArrowUp
+                                size={14}
+                                className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                              />
                             </button>
                             <button
                               onClick={() => handleDelete(user._id)}
-                              className="p-2 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xs"
+                              className="p-1.5 sm:p-2 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xs shrink-0"
                             >
-                              <UserMinus size={14} />
+                              <UserMinus
+                                size={14}
+                                className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                              />
                             </button>
                           </div>
                         </div>
