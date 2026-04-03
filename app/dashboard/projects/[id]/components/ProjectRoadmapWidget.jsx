@@ -1,8 +1,9 @@
 "use client";
 
 import { useProjectTodos } from "@/hooks/projects/useProjectTodos";
+import { useGetSections } from "@/hooks/sections/useGetSections";
 import Link from "next/link";
-import { ClipboardList, CheckCircle2, Clock, Zap, ArrowRight, ArrowLeft } from "lucide-react";
+import { ClipboardList, CheckCircle2, Clock, Zap, ArrowRight, ArrowLeft, LayoutGrid } from "lucide-react";
 
 const STATUS_CFG = {
   todo:  { label: { ar: "مستقبلي", en: "To Do" },  dot: "bg-slate-400",   bar: "bg-slate-300 dark:bg-slate-700" },
@@ -11,9 +12,10 @@ const STATUS_CFG = {
 };
 
 export default function ProjectRoadmapWidget({ projectId, isRTL, isWrapped = false }) {
-  const { data: todos = [], isLoading } = useProjectTodos(projectId);
+  const { data: todos = [], isLoading: loadingTodos } = useProjectTodos(projectId);
+  const { data: sections = [], isLoading: loadingSections } = useGetSections(projectId);
 
-  if (isLoading || todos.length === 0) return null;
+  if (loadingTodos || loadingSections || (todos.length === 0)) return null;
 
   const total     = todos.length;
   const doneCount = todos.filter(t => t.status === "done").length;
@@ -51,13 +53,23 @@ export default function ProjectRoadmapWidget({ projectId, isRTL, isWrapped = fal
           return (
             <div key={todo._id} className={`flex items-center gap-3 py-2.5 ${isWrapped ? '' : 'px-5'}`}>
               <span className={`w-2 h-2 rounded-full shrink-0 ${cfg.dot}`} />
-              <span className={`flex-1 text-xs font-semibold truncate ${
-                todo.status === "done"
-                  ? "line-through text-gray-300 dark:text-gray-600"
-                  : "text-gray-700 dark:text-gray-200"
-              }`}>
-                {todo.text}
-              </span>
+              <div className="flex-1 min-w-0">
+                <p className={`text-xs font-semibold truncate ${
+                  todo.status === "done"
+                    ? "line-through text-gray-300 dark:text-gray-600"
+                    : "text-gray-700 dark:text-gray-200"
+                }`}>
+                  {todo.text}
+                </p>
+                {todo.sectionId && (
+                  <div className="flex items-center gap-1 mt-0.5 opacity-60">
+                    <LayoutGrid className="w-2.5 h-2.5 text-violet-500" />
+                    <span className="text-[9px] font-bold text-violet-600 dark:text-violet-400 truncate">
+                      {sections.find(s => (s._id || s) === todo.sectionId)?.title || "..."}
+                    </span>
+                  </div>
+                )}
+              </div>
               <span className={`shrink-0 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
                 todo.status === "done"  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" :
                 todo.status === "doing" ? "bg-amber-50  text-amber-600  dark:bg-amber-900/30  dark:text-amber-400"  :

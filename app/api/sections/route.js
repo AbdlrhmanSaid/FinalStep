@@ -1,6 +1,7 @@
 import dbConnect from "@/lib/db";
 import Section from "@/models/Section";
 import Project from "@/models/Project";
+import User from "@/models/User"; // Required for population
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
@@ -13,7 +14,9 @@ export async function GET(req) {
       return NextResponse.json({ error: "projectId is required" }, { status: 400 });
     }
 
-    const sections = await Section.find({ projectId }).populate("members", "name email");
+    const sections = await Section.find({ projectId })
+      .populate("members", "name email image")
+      .populate("joinRequests", "name email image");
     return NextResponse.json(sections, { status: 200 });
   } catch (error) {
     console.error("API Error in GET /api/sections:", error);

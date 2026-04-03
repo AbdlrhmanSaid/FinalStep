@@ -39,7 +39,18 @@ import ProjectTasks from "./components/ProjectTasks";
 import ProjectActions from "./components/ProjectActions";
 import ProjectRoadmapWidget from "./components/ProjectRoadmapWidget";
 import CollapsibleSidebarSection from "./components/CollapsibleSidebarSection";
-import { Info, Users, GitPullRequest, ClipboardList } from "lucide-react";
+import ProjectSectionsTab from "./components/ProjectSectionsTab";
+import ProjectSectionPlan from "./components/ProjectSectionPlan";
+import {
+  Info,
+  Users,
+  GitPullRequest,
+  ClipboardList,
+  LayoutGrid,
+  ShieldAlert,
+  Zap
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
@@ -67,10 +78,8 @@ const ProjectDetailPage = () => {
     isFetching: isRefetchingTasks,
   } = useGetTasks();
 
-  const {
-    data: sectionsData,
-    isLoading: isLoadingSections,
-  } = useGetSections(id);
+  const { data: sectionsData, isLoading: isLoadingSections } =
+    useGetSections(id);
 
   const { mutate: deleteTask } = useDeleteTask();
   const { mutate: deleteProject } = useDeleteProject();
@@ -86,7 +95,8 @@ const ProjectDetailPage = () => {
   const [isRandomUser, setIsRandomUser] = useState(false);
   const [taskFilter, setTaskFilter] = useState("all");
 
-  const isRefetching = isRefetchingProject || isRefetchingTasks || isLoadingSections;
+  const isRefetching =
+    isRefetchingProject || isRefetchingTasks || isLoadingSections;
 
   const handleRefresh = useCallback(() => {
     refetchProject();
@@ -191,8 +201,16 @@ const ProjectDetailPage = () => {
 
   if (isLoading) return <Loading />;
   if (error) {
-    const isNotFound = error.response?.status === 404 || error.response?.data?.error === "Project not found";
-    return <ErrorState type={isNotFound ? "projectNotFound" : "general"} customMessage={isNotFound ? "" : error.message} refreshAction={refetchProject} />;
+    const isNotFound =
+      error.response?.status === 404 ||
+      error.response?.data?.error === "Project not found";
+    return (
+      <ErrorState
+        type={isNotFound ? "projectNotFound" : "general"}
+        customMessage={isNotFound ? "" : error.message}
+        refreshAction={refetchProject}
+      />
+    );
   }
   if (!data) return <ErrorState type="projectNotFound" />;
 
@@ -225,7 +243,7 @@ const ProjectDetailPage = () => {
     <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 p-4 md:p-8 lg:p-12 transition-colors">
       <div className="max-w-7xl mx-auto">
         {/* Dynamic Navigation/Breadcrumbs could be here */}
-        
+
         <div className="flex flex-col gap-8">
           <ProjectHeader
             data={data}
@@ -249,32 +267,114 @@ const ProjectDetailPage = () => {
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left Column: Main Projects Content (Tasks) */}
-            <div className={`${isLeader ? "lg:col-span-8" : "lg:col-span-9"} space-y-8`}>
-              <ProjectTasks
-                data={data}
-                content={content}
-                isRTL={isRTL}
-                isLeader={isLeader}
-                isMember={isMember}
-                isFinished={isFinished}
-                userId={userId?.toString()}
-                sectionsData={sectionsData}
-                tasks={tasks}
-                filteredTasks={filteredTasks}
-                refetchTasks={refetchTasks}
-                deleteTask={deleteTask}
-                modal={modal}
-                taskStatusContent={taskStatusContent}
-                taskFilter={taskFilter}
-                setTaskFilter={setTaskFilter}
-                dateLocale={dateLocale}
-                getMySubmissionStatus={getMySubmissionStatus}
-              />
+            {/* Left Column: Main Projects Content (Tasks & Sections) */}
+            <div
+              className={`${isLeader ? "lg:col-span-8" : "lg:col-span-9"} space-y-8`}
+            >
+              {!isRandomUser ? (
+                <Tabs
+                  defaultValue="tasks"
+                  className="w-full space-y-6"
+                  dir={isRTL ? "rtl" : "ltr"}
+                >
+                  <div className="flex items-center justify-between">
+                    <TabsList className="bg-white dark:bg-gray-800 p-1 rounded-2xl border border-gray-100 dark:border-gray-800 h-12">
+                      <TabsTrigger
+                        value="tasks"
+                        className="rounded-xl px-6 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/30 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 font-black text-xs uppercase tracking-widest gap-2"
+                      >
+                        <ClipboardList className="w-4 h-4" />
+                        {isRTL ? "المهام" : "Tasks"}
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="sections"
+                        className="rounded-xl px-6 data-[state=active]:bg-violet-50 dark:data-[state=active]:bg-violet-900/30 data-[state=active]:text-violet-600 dark:data-[state=active]:text-violet-400 font-black text-xs uppercase tracking-widest gap-2"
+                      >
+                        <LayoutGrid className="w-4 h-4" />
+                        {isRTL ? "الأقسام" : "Sections"}
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="section_plan"
+                        className="rounded-xl px-6 data-[state=active]:bg-teal-50 dark:data-[state=active]:bg-teal-900/30 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 font-black text-xs uppercase tracking-widest gap-2"
+                      >
+                        <Zap className="w-4 h-4" />
+                        {isRTL ? "خطة القسم" : "Section Plan"}
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+
+                  <TabsContent value="tasks" className="mt-0 outline-none">
+                    <ProjectTasks
+                      data={data}
+                      content={content}
+                      isRTL={isRTL}
+                      isLeader={isLeader}
+                      isMember={isMember}
+                      isFinished={isFinished}
+                      userId={userId?.toString()}
+                      sectionsData={sectionsData}
+                      tasks={tasks}
+                      filteredTasks={filteredTasks}
+                      refetchTasks={refetchTasks}
+                      deleteTask={deleteTask}
+                      modal={modal}
+                      taskStatusContent={taskStatusContent}
+                      taskFilter={taskFilter}
+                      setTaskFilter={setTaskFilter}
+                      dateLocale={dateLocale}
+                      getMySubmissionStatus={getMySubmissionStatus}
+                      isRandomUser={isRandomUser}
+                      isInvite={isInvite}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="sections" className="mt-0 outline-none">
+                    <ProjectSectionsTab
+                      projectId={id}
+                      isLeader={isLeader}
+                      isRTL={isRTL}
+                      userId={userId}
+                      sections={sectionsData}
+                      isLoading={isLoadingSections}
+                      projectMembers={[
+                        ...(data.leaderId ? [data.leaderId] : []),
+                        ...(data.coLeaders || []),
+                        ...(data.members || []),
+                      ]}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="section_plan" className="mt-0 outline-none">
+                    <ProjectSectionPlan
+                      projectId={id}
+                      sections={sectionsData}
+                      userId={userId}
+                      isRTL={isRTL}
+                      isLeader={isLeader}
+                    />
+                  </TabsContent>
+                </Tabs>
+              ) : (
+                <div className="bg-white dark:bg-gray-800 p-8 rounded-[40px] border border-gray-100 dark:border-gray-800 text-center">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-full w-fit mx-auto mb-4">
+                    <ShieldAlert className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h3 className="text-lg font-black text-gray-900 dark:text-white mb-2">
+                    {isRTL ? "محتوى خاص بالأعضاء" : "Members-Only Content"}
+                  </h3>
+                  <p className="text-sm text-gray-500 max-w-sm mx-auto">
+                    {isRTL 
+                      ? "يجب أن تكون عضواً في الفريق لرؤية المهام والأقسام وخارطة الطريق." 
+                      : "You must be a team member to view tasks, sections, and the roadmap."}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Right Column: Sidebar — leaders see full sidebar, members see minimal */}
-            <aside className={`${isLeader ? "lg:col-span-4" : "lg:col-span-3"} space-y-6`}>
+            <aside
+              className={`${isLeader ? "lg:col-span-4" : "lg:col-span-3"} space-y-6`}
+            >
               <CollapsibleSidebarSection
                 title={isRTL ? "معلومات المشروع" : "Project Info"}
                 icon={Info}
@@ -331,14 +431,20 @@ const ProjectDetailPage = () => {
               )}
 
               {/* Roadmap widget — visible to ALL members */}
-              <CollapsibleSidebarSection
-                title={isRTL ? "خطة العمل" : "Roadmap"}
-                icon={ClipboardList}
-                isRTL={isRTL}
-                defaultOpen={true}
-              >
-                <ProjectRoadmapWidget projectId={id} isRTL={isRTL} isWrapped={true} />
-              </CollapsibleSidebarSection>
+              {!isRandomUser && (
+                <CollapsibleSidebarSection
+                  title={isRTL ? "خطة العمل" : "Roadmap"}
+                  icon={ClipboardList}
+                  isRTL={isRTL}
+                  defaultOpen={true}
+                >
+                  <ProjectRoadmapWidget
+                    projectId={id}
+                    isRTL={isRTL}
+                    isWrapped={true}
+                  />
+                </CollapsibleSidebarSection>
+              )}
 
               <ProjectActions
                 data={data}

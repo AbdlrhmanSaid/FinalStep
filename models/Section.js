@@ -7,6 +7,11 @@ const SectionSchema = new Schema(
       required: true,
       trim: true,
     },
+    description: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     projectId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Project",
@@ -22,9 +27,15 @@ const SectionSchema = new Schema(
         ref: "User",
       },
     ],
+    joinRequests: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     sectionRoles: {
       type: Map,
-      of: String, // values should be "lead" or "member"
+      of: String, 
       default: {},
     },
   },

@@ -11,6 +11,7 @@ import {
   useUpdateTodo,
   useDeleteTodo,
 } from "@/hooks/projects/useProjectTodos";
+import { useGetSections } from "@/hooks/sections/useGetSections";
 import Loading from "@/components/Loading";
 import toast from "react-hot-toast";
 import ProjectPageHeader from "../components/ProjectPageHeader";
@@ -28,6 +29,9 @@ import {
   ChevronDown,
   LayoutGrid,
   List,
+  Tag,
+  Flag,
+  Users
 } from "lucide-react";
 
 /* ─── Status config ──────────────────────────── */
@@ -66,6 +70,33 @@ const STATUS = {
     border: "border-emerald-200 dark:border-emerald-800",
     hover: "hover:border-emerald-300 dark:hover:border-emerald-700",
     progressColor: "bg-emerald-500",
+  },
+};
+
+const TYPES = {
+  target: {
+    label: { ar: "هدف", en: "Target" },
+    icon: Zap,
+    color: "text-blue-500",
+    bg: "bg-blue-50 dark:bg-blue-900/40",
+  },
+  task: {
+    label: { ar: "مهمة", en: "Task" },
+    icon: ClipboardList,
+    color: "text-violet-500",
+    bg: "bg-violet-50 dark:bg-violet-900/40",
+  },
+  milestone: {
+    label: { ar: "مرحلة", en: "Milestone" },
+    icon: Flag,
+    color: "text-amber-500",
+    bg: "bg-amber-50 dark:bg-amber-900/40",
+  },
+  meeting: {
+    label: { ar: "اجتماع", en: "Meeting" },
+    icon: Users,
+    color: "text-rose-500",
+    bg: "bg-rose-50 dark:bg-rose-900/40",
   },
 };
 
@@ -130,10 +161,114 @@ function StatusDropdown({ currentStatus, onSelect, isRTL, disabled }) {
   );
 }
 
+/* ─── Type Selector Dropdown ─────────────────── */
+function TypeDropdown({ currentType, onSelect, isRTL, disabled }) {
+  const [open, setOpen] = useState(false);
+  const cfg = TYPES[currentType] || TYPES.target;
+  const Icon = cfg.icon;
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen((p) => !p)}
+        className={`flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider border shadow-xs transition-all ${cfg.bg} ${cfg.color} ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:opacity-80"}`}
+      >
+        <Icon className="w-3 h-3" />
+        {isRTL ? cfg.label.ar : cfg.label.en}
+        <ChevronDown className={`w-2.5 h-2.5 ms-0.5 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      {open && !disabled && (
+        <>
+          <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
+          <div className={`absolute z-30 mt-1.5 w-36 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden ${isRTL ? "right-0" : "left-0"}`}>
+            {Object.entries(TYPES).map(([key, t]) => {
+              const TIcon = t.icon;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => { onSelect(key); setOpen(false); }}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-bold transition-all ${
+                    key === currentType ? `${t.bg} ${t.color}` : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  }`}
+                >
+                  <TIcon className="w-3.5 h-3.5" />
+                  {isRTL ? t.label.ar : t.label.en}
+                  {key === currentType && <Check className="w-3 h-3 ms-auto" />}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ─── Section Selector Dropdown ───────────────── */
+function SectionDropdown({ currentId, sections = [], onSelect, isRTL, disabled }) {
+  const [open, setOpen] = useState(false);
+  const selected = sections.find(s => s._id === currentId);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen((p) => !p)}
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${
+          selected 
+            ? "bg-violet-50 text-violet-600 border-violet-100 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-800" 
+            : "bg-gray-50 text-gray-400 border-gray-100 dark:bg-gray-900 dark:border-gray-700"
+        } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:opacity-90"}`}
+      >
+        <Tag className="w-3 h-3" />
+        {selected ? selected.title : (isRTL ? "بدون قسم" : "No Section")}
+        {!disabled && (
+          <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
+        )}
+      </button>
+
+      {open && !disabled && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className={`absolute z-20 mt-1.5 w-48 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden ${isRTL ? "right-0" : "left-0"}`}>
+            <button
+              onClick={() => { onSelect(null); setOpen(false); }}
+              className="w-full text-start px-3 py-2.5 text-xs font-bold hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-400"
+            >
+              {isRTL ? "بدون قسم (عام)" : "No Section (General)"}
+            </button>
+            <div className="max-h-40 overflow-y-auto">
+              {sections.map(s => (
+                <button
+                  key={s._id}
+                  onClick={() => { onSelect(s._id); setOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 text-xs font-bold ${
+                    s._id === currentId ? "bg-violet-50 text-violet-600 dark:bg-violet-900/30" : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  }`}
+                >
+                  {s.title}
+                  {s._id === currentId && <Check className="w-3 h-3" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ─── Single Todo Item ───────────────────────── */
-function TodoItem({ todo, projectId, userId, isRTL, isLeader, view }) {
+function TodoItem({ todo, projectId, userId, isRTL, isLeader, view, sections = [] }) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(todo.text);
+  const [editSectionId, setEditSectionId] = useState(todo.sectionId);
+  const [editType, setEditType] = useState(todo.type || "target");
   const { mutate: update, isPending: isUpdating } = useUpdateTodo(projectId);
   const { mutate: del, isPending: isDeleting } = useDeleteTodo(projectId);
 
@@ -154,13 +289,15 @@ function TodoItem({ todo, projectId, userId, isRTL, isLeader, view }) {
   const saveEdit = () => {
     if (!editText.trim() || isOptimistic) return;
     update(
-      { _id: todo._id, text: editText.trim(), userId },
+      { _id: todo._id, text: editText.trim(), sectionId: editSectionId, type: editType, userId },
       {
         onSuccess: () => setEditing(false),
         onError: () => toast.error(isRTL ? "فشل الحفظ" : "Failed to save"),
       },
     );
   };
+
+  const section = sections.find(s => (s._id || s) === todo.sectionId);
 
   return (
     <div
@@ -179,54 +316,87 @@ function TodoItem({ todo, projectId, userId, isRTL, isLeader, view }) {
         {/* Text / Edit */}
         <div className="flex-1 min-w-0">
           {editing ? (
-            <div className="flex gap-2">
-              <input
-                value={editText}
-                onChange={(e) => setEditText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") saveEdit();
-                  if (e.key === "Escape") {
-                    setEditText(todo.text);
-                    setEditing(false);
-                  }
-                }}
-                autoFocus
-                className="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-1.5 text-sm font-semibold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                onClick={saveEdit}
-                disabled={isUpdating}
-                className="p-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors"
-              >
-                {isUpdating ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Check className="w-3.5 h-3.5" />
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  setEditText(todo.text);
-                  setEditing(false);
-                }}
-                className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-2">
+                <input
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveEdit();
+                    if (e.key === "Escape") {
+                      setEditText(todo.text);
+                      setEditing(false);
+                    }
+                  }}
+                  autoFocus
+                  className="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-1.5 text-sm font-semibold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={saveEdit}
+                  disabled={isUpdating}
+                  className="p-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors"
+                >
+                  {isUpdating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                </button>
+                <button
+                  onClick={() => { setEditing(false); setEditText(todo.text); }}
+                  className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-black uppercase text-gray-400">{isRTL ? "النوع:" : "Type:"}</span>
+                  <TypeDropdown 
+                    currentType={editType}
+                    onSelect={setEditType}
+                    isRTL={isRTL}
+                    disabled={isUpdating}
+                  />
+                </div>
+                <div className="flex items-center gap-1.5 border-s border-gray-100 dark:border-gray-700 ps-3">
+                  <span className="text-[10px] font-black uppercase text-gray-400">{isRTL ? "القسم:" : "Section:"}</span>
+                  <SectionDropdown 
+                    currentId={editSectionId} 
+                    sections={sections} 
+                    onSelect={setEditSectionId} 
+                    isRTL={isRTL} 
+                    disabled={isUpdating} 
+                  />
+                </div>
+              </div>
             </div>
           ) : (
-            <p
-              className={`text-sm font-semibold leading-snug break-words ${
-                todo.status === "done"
-                  ? "line-through text-gray-400 dark:text-gray-500"
-                  : "text-gray-800 dark:text-gray-100"
-              }`}
-            >
-              {isOptimistic && (
-                <Loader2 className="inline w-3 h-3 animate-spin me-1.5 text-gray-400" />
-              )}
-              {todo.text}
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p
+                className={`text-sm font-semibold leading-snug wrap-break-word ${
+                  todo.status === "done"
+                    ? "line-through text-gray-400 dark:text-gray-500"
+                    : "text-gray-800 dark:text-gray-100"
+                }`}
+              >
+                {isOptimistic && <Loader2 className="inline w-3 h-3 animate-spin me-1.5 text-gray-400" />}
+                {todo.text}
+              </p>
+              
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase border shadow-2xs ${TYPES[todo.type || 'target']?.bg} ${TYPES[todo.type || 'target']?.color} border-current/10`}>
+                  {(() => {
+                    const TIcon = TYPES[todo.type || 'target']?.icon || Zap;
+                    return <TIcon className="w-2.5 h-2.5" />;
+                  })()}
+                  {isRTL ? TYPES[todo.type || 'target']?.label.ar : TYPES[todo.type || 'target']?.label.en}
+                </span>
+
+                {section && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-violet-50 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400 text-[9px] font-black uppercase border border-violet-100 dark:border-violet-900/40">
+                    <LayoutGrid className="w-2.5 h-2.5" />
+                    {section.title}
+                  </span>
+                )}
+              </div>
+            </div>
           )}
         </div>
 
@@ -279,7 +449,7 @@ function TodoItem({ todo, projectId, userId, isRTL, isLeader, view }) {
 }
 
 /* ─── Column ─────────────────────────────────── */
-function Column({ status, todos, projectId, userId, isRTL, isLeader }) {
+function Column({ status, todos, projectId, userId, isRTL, isLeader, sections }) {
   const cfg = STATUS[status];
   const Icon = cfg.icon;
   return (
@@ -315,6 +485,7 @@ function Column({ status, todos, projectId, userId, isRTL, isLeader }) {
               userId={userId}
               isRTL={isRTL}
               isLeader={isLeader}
+              sections={sections}
               view="grid"
             />
           ))
@@ -333,10 +504,13 @@ export default function TodosPage() {
   const { data: project, isLoading: loadingProject } = useGetProject(projectId);
   const { data: todos = [], isLoading: loadingTodos } =
     useProjectTodos(projectId);
+  const { data: sections = [], isLoading: loadingSections } = useGetSections(projectId);
   const { mutate: addTodo, isPending: isAdding } = useAddTodo(projectId);
 
   const [newText, setNewText] = useState("");
   const [newStatus, setNewStatus] = useState("todo");
+  const [newSectionId, setNewSectionId] = useState(null);
+  const [newType, setNewType] = useState("target");
   const [view, setView] = useState("grid"); // "grid" | "list"
 
   const isLeader =
@@ -347,11 +521,13 @@ export default function TodosPage() {
     e.preventDefault();
     if (!newText.trim()) return;
     addTodo(
-      { text: newText.trim(), status: newStatus, userId },
+      { text: newText.trim(), status: newStatus, sectionId: newSectionId, type: newType, userId },
       {
         onSuccess: () => {
           setNewText("");
           setNewStatus("todo");
+          setNewSectionId(null);
+          setNewType("target");
         },
         onError: () => toast.error(isRTL ? "فشل الإضافة" : "Failed to add"),
       },
@@ -449,58 +625,69 @@ export default function TodosPage() {
         {isLeader && (
           <form
             onSubmit={handleAdd}
-            className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-4 shadow-sm"
+            className="flex flex-col gap-4 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm"
           >
             <div className="flex flex-col sm:flex-row gap-3">
               <input
                 value={newText}
                 onChange={(e) => setNewText(e.target.value)}
-                placeholder={
-                  isRTL
-                    ? "أضف عنصراً جديداً للخطة..."
-                    : "Add a new roadmap item..."
-                }
-                className="flex-1 h-11 px-4 min-h-[40px] rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm font-semibold text-gray-800 dark:text-white placeholder:text-gray-300 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                placeholder={isRTL ? "أضف عنصراً جديداً للخطة..." : "Add a new roadmap item..."}
+                className="flex-1 h-12 px-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-sm font-bold text-gray-900 dark:text-white placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500/50 transition-all"
               />
-              <div className="flex gap-2 shrink-0">
-                {/* Status picker */}
-                <div className="flex rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
-                  {Object.entries(STATUS).map(([key, cfg]) => {
-                    const Icon = cfg.icon;
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => setNewStatus(key)}
-                        title={isRTL ? cfg.label.ar : cfg.label.en}
-                        className={`px-3.5 py-2 flex items-center gap-1.5 text-xs font-bold transition-all ${
-                          newStatus === key
-                            ? `${cfg.activeBg} ${cfg.color}`
-                            : "bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-600 hover:text-gray-500"
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span className="hidden sm:inline">
-                          {isRTL ? cfg.label.ar : cfg.label.en}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-
+              <div className="flex gap-2">
                 <button
                   type="submit"
                   disabled={isAdding || !newText.trim()}
-                  className="flex items-center gap-2 px-5 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-black rounded-2xl transition-all shadow-md shadow-teal-500/20"
+                  className="flex items-center gap-2 px-6 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-black rounded-2xl transition-all shadow-md shadow-teal-500/20"
                 >
-                  {isAdding ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Plus className="w-4 h-4" />
-                  )}
+                  {isAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                   {isRTL ? "إضافة" : "Add"}
                 </button>
               </div>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-4 pt-3 border-t border-gray-50 dark:border-gray-700/50">
+               <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">{isRTL ? "الحالة:" : "Status:"}</span>
+                  <div className="flex rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-xs">
+                    {Object.entries(STATUS).map(([key, cfg]) => {
+                      const Icon = cfg.icon;
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setNewStatus(key)}
+                          className={`px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold transition-all ${
+                            newStatus === key ? `${cfg.activeBg} ${cfg.color}` : "bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-600 hover:text-gray-500"
+                          }`}
+                        >
+                          <Icon className="w-3.5 h-3.5" />
+                        </button>
+                      );
+                    })}
+                  </div>
+               </div>
+
+               <div className="flex items-center gap-2 border-s border-gray-100 dark:border-gray-700 ps-4">
+                  <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">{isRTL ? "النوع:" : "Type:"}</span>
+                  <TypeDropdown 
+                    currentType={newType} 
+                    onSelect={setNewType} 
+                    isRTL={isRTL} 
+                    disabled={isAdding} 
+                  />
+               </div>
+
+               <div className="flex items-center gap-2 border-s border-gray-100 dark:border-gray-700 ps-4">
+                  <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">{isRTL ? "القسم:" : "Section:"}</span>
+                  <SectionDropdown 
+                    currentId={newSectionId} 
+                    sections={sections} 
+                    onSelect={setNewSectionId} 
+                    isRTL={isRTL} 
+                    disabled={isAdding} 
+                  />
+               </div>
             </div>
           </form>
         )}
@@ -536,6 +723,7 @@ export default function TodosPage() {
                 userId={userId}
                 isRTL={isRTL}
                 isLeader={isLeader}
+                sections={sections}
               />
             ))}
           </div>
@@ -558,17 +746,18 @@ export default function TodosPage() {
                     </span>
                   </div>
                   <div className="space-y-2">
-                    {items.map((t) => (
-                      <TodoItem
-                        key={t._id}
-                        todo={t}
-                        projectId={projectId}
-                        userId={userId}
-                        isRTL={isRTL}
-                        isLeader={isLeader}
-                        view="list"
-                      />
-                    ))}
+                      {items.map((t) => (
+                        <TodoItem
+                          key={t._id}
+                          todo={t}
+                          projectId={projectId}
+                          userId={userId}
+                          isRTL={isRTL}
+                          isLeader={isLeader}
+                          sections={sections}
+                          view="list"
+                        />
+                      ))}
                   </div>
                 </div>
               );

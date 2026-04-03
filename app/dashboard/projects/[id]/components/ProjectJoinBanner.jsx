@@ -1,5 +1,4 @@
-import { Users, Clock, Plus, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Clock, Plus, Sparkles } from "lucide-react";
 
 export default function ProjectJoinBanner({
   data,

@@ -22,10 +22,20 @@ const JoinSchema = new Schema({
 
 const TodoSchema = new Schema({
   text: { type: String, required: true },
+  type: {
+    type: String,
+    enum: ["target", "task", "milestone", "meeting"],
+    default: "target",
+  },
   status: {
     type: String,
     enum: ["todo", "doing", "done"],
     default: "todo",
+  },
+  sectionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Section",
+    default: null,
   },
   order: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },

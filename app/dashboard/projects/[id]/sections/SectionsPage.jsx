@@ -191,6 +191,7 @@ function SectionCard({
   const [expanded, setExpanded] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [renameVal, setRenameVal] = useState(section.title);
+  const [descVal, setDescVal] = useState(section.description || "");
 
   const resolvedMembers = (section.members ?? [])
     .map((m) =>
@@ -200,7 +201,7 @@ function SectionCard({
 
   const handleRenameSubmit = () => {
     if (!renameVal.trim()) return;
-    onRename(renameVal.trim());
+    onRename(renameVal.trim(), descVal.trim());
     setRenaming(false);
   };
 
@@ -216,35 +217,48 @@ function SectionCard({
         {/* Title / Rename */}
         <div className="flex-1 min-w-0">
           {renaming ? (
-            <div className="flex gap-2">
-              <input
-                autoFocus
-                value={renameVal}
-                onChange={(e) => setRenameVal(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleRenameSubmit();
-                  if (e.key === "Escape") {
+            <div className="space-y-3 p-1">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 px-1">
+                  {isRTL ? "اسم القسم" : "Section Name"}
+                </label>
+                <input
+                  autoFocus
+                  value={renameVal}
+                  onChange={(e) => setRenameVal(e.target.value)}
+                  className="w-full h-10 px-3 rounded-xl border border-violet-100 dark:border-violet-800 bg-gray-50 dark:bg-gray-800 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 px-1">
+                  {isRTL ? "الوصف" : "Description"}
+                </label>
+                <textarea
+                  value={descVal}
+                  onChange={(e) => setDescVal(e.target.value)}
+                  className="w-full h-20 px-3 py-2 rounded-xl border border-violet-100 dark:border-violet-800 bg-gray-50 dark:bg-gray-800 text-xs font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
+                  placeholder={isRTL ? "وصف القسم..." : "Section description..."}
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleRenameSubmit}
+                  className="flex-1 h-10 flex items-center justify-center gap-2 bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-all text-xs font-black"
+                >
+                  <Check className="w-4 h-4" />
+                  {isRTL ? "حفظ التعديلات" : "Save Changes"}
+                </button>
+                <button
+                  onClick={() => {
                     setRenaming(false);
                     setRenameVal(section.title);
-                  }
-                }}
-                className="flex-1 h-9 px-3 rounded-xl border border-violet-300 dark:border-violet-700 bg-violet-50 dark:bg-violet-900/20 text-sm font-bold text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-              />
-              <button
-                onClick={handleRenameSubmit}
-                className="w-9 h-9 flex items-center justify-center bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-all"
-              >
-                <Check className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => {
-                  setRenaming(false);
-                  setRenameVal(section.title);
-                }}
-                className="w-9 h-9 flex items-center justify-center border border-gray-200 dark:border-gray-700 text-gray-400 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
-              >
-                <X className="w-4 h-4" />
-              </button>
+                    setDescVal(section.description || "");
+                  }}
+                  className="h-10 px-4 flex items-center justify-center border border-gray-200 dark:border-gray-700 text-gray-400 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all font-bold text-xs"
+                >
+                  {isRTL ? "إلغاء" : "Cancel"}
+                </button>
+              </div>
             </div>
           ) : (
             <div>
@@ -259,6 +273,11 @@ function SectionCard({
                   </span>
                 )}
               </div>
+              {section.description && (
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
+                  {section.description}
+                </p>
+              )}
               <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
                 {resolvedMembers.length > 0
                   ? isRTL
@@ -401,6 +420,7 @@ export default function SectionsPage() {
   const [isLeader, setIsLeader] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [newTitle, setNewTitle] = useState("");
+  const [newDescription, setNewDescription] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [savingId, setSavingId] = useState(null); // sections currently saving members
 
@@ -429,10 +449,12 @@ export default function SectionsPage() {
     try {
       await axios.post("/api/sections", {
         title: newTitle.trim(),
+        description: newDescription.trim(),
         projectId: id,
       });
       toast.success(isRTL ? "تم إنشاء القسم" : "Section created!");
       setNewTitle("");
+      setNewDescription("");
       setShowCreate(false);
       refetch();
     } catch {
@@ -442,16 +464,16 @@ export default function SectionsPage() {
     }
   };
 
-  /* Rename */
-  const handleRename = (sectionId, title) => {
+  /* Rename & Update Description */
+  const handleRename = (sectionId, title, description) => {
     updateSection(
-      { sectionId, data: { title } },
+      { sectionId, data: { title, description } },
       {
         onSuccess: () => {
-          toast.success(isRTL ? "تم التعديل" : "Renamed!");
+          toast.success(isRTL ? "تم التحديث" : "Updated!");
           refetch();
         },
-        onError: () => toast.error(isRTL ? "فشل التعديل" : "Rename failed"),
+        onError: () => toast.error(isRTL ? "فشل التحديث" : "Update failed"),
       },
     );
   };
@@ -533,51 +555,73 @@ export default function SectionsPage() {
 
         {/* Create input */}
         {showCreate && (
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-violet-200 dark:border-violet-800/50 p-4 shadow-sm">
-            <p className="text-sm font-black text-gray-700 dark:text-gray-300 mb-3">
-              {isRTL ? "اسم القسم الجديد" : "New section name"}
-            </p>
-            <div className="flex gap-2">
-              <input
-                autoFocus
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleCreate();
-                  if (e.key === "Escape") {
-                    setShowCreate(false);
-                    setNewTitle("");
+          <div className="bg-white dark:bg-gray-900 rounded-3xl border border-violet-100 dark:border-violet-800/50 p-6 shadow-xl shadow-violet-500/5 space-y-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-violet-100 dark:bg-violet-900/40 rounded-xl text-violet-600 dark:text-violet-400">
+                <Plus className="w-4 h-4" />
+              </div>
+              <h3 className="font-black text-gray-900 dark:text-white">
+                {isRTL ? "إضافة قسم جديد" : "Add New Section"}
+              </h3>
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 px-1">
+                  {isRTL ? "اسم القسم" : "Section Name"}
+                </label>
+                <input
+                  autoFocus
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  placeholder={
+                    isRTL
+                      ? "مثال: تطوير الواجهات..."
+                      : "e.g. Frontend Development..."
                   }
-                }}
-                placeholder={
-                  isRTL
-                    ? "مثال: تطوير الواجهات..."
-                    : "e.g. Frontend Development..."
-                }
-                className="flex-1 h-11 px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-gray-300 dark:placeholder:text-gray-600"
-              />
+                  className="w-full h-12 px-4 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-gray-300 dark:placeholder:text-gray-600"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 px-1">
+                  {isRTL ? "الوصف" : "Description"}
+                </label>
+                <textarea
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  placeholder={
+                    isRTL
+                      ? "ما هي تخصصات هذا الفريق؟"
+                      : "What are this team's specialties?"
+                  }
+                  className="w-full h-24 px-4 py-3 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-xs font-medium focus:outline-none focus:ring-2 focus:ring-violet-500 placeholder:text-gray-300 dark:placeholder:text-gray-600 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
               <button
                 onClick={handleCreate}
                 disabled={!newTitle.trim() || isCreating}
-                className="h-11 px-5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white rounded-xl font-bold text-sm flex items-center gap-2"
+                className="flex-1 h-12 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20 transition-all active:scale-95"
               >
                 {isCreating ? (
-                  <LoaderCircle className="w-4 h-4 animate-spin" />
+                  <LoaderCircle className="w-5 h-5 animate-spin" />
                 ) : (
-                  <Check className="w-4 h-4" />
+                  <Check className="w-5 h-5" />
                 )}
-                <span className="hidden sm:inline">
-                  {isRTL ? "إنشاء" : "Create"}
-                </span>
+                {isRTL ? "تأكيد الإنشاء" : "Confirm Creation"}
               </button>
               <button
                 onClick={() => {
                   setShowCreate(false);
                   setNewTitle("");
+                  setNewDescription("");
                 }}
-                className="h-11 w-11 flex items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                className="h-12 px-6 flex items-center justify-center rounded-2xl border border-gray-200 dark:border-gray-700 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all font-bold text-sm"
               >
-                <X className="w-4 h-4" />
+                {isRTL ? "إلغاء" : "Cancel"}
               </button>
             </div>
           </div>
@@ -613,7 +657,7 @@ export default function SectionsPage() {
                 section={section}
                 allMembers={allMembers}
                 isRTL={isRTL}
-                onRename={(title) => handleRename(section._id, title)}
+                onRename={(title, description) => handleRename(section._id, title, description)}
                 onDelete={() => handleDelete(section)}
                 onSaveMembers={(ids) => handleSaveMembers(section._id, ids)}
                 isDeleting={isDeleting}

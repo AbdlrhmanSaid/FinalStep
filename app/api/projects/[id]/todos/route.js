@@ -43,7 +43,7 @@ export async function POST(req, { params }) {
     await dbConnect();
     const { id } = await params;
     const userId = req.headers.get("userId");
-    const { text, status = "todo" } = await req.json();
+    const { text, status = "todo", sectionId = null } = await req.json();
 
     if (!text?.trim())
       return NextResponse.json({ error: "Text is required" }, { status: 400 });
@@ -59,6 +59,7 @@ export async function POST(req, { params }) {
       _id: new mongoose.Types.ObjectId(),
       text: text.trim(),
       status,
+      sectionId: sectionId && mongoose.Types.ObjectId.isValid(sectionId) ? new mongoose.Types.ObjectId(sectionId) : null,
       order,
       createdAt: new Date(),
     };
@@ -106,7 +107,7 @@ export async function PUT(req, { params }) {
     }
 
     // Single item update
-    const { _id, text, status } = body;
+    const { _id, text, status, sectionId } = body;
 
     // Guard: Skip if _id is a temporary optimistic ID (not yet persisted)
     if (!mongoose.Types.ObjectId.isValid(_id)) {
@@ -116,6 +117,11 @@ export async function PUT(req, { params }) {
     const setFields = {};
     if (text !== undefined) setFields["todos.$.text"] = text.trim();
     if (status !== undefined) setFields["todos.$.status"] = status;
+    if (sectionId !== undefined) {
+      setFields["todos.$.sectionId"] = sectionId && mongoose.Types.ObjectId.isValid(sectionId) 
+        ? new mongoose.Types.ObjectId(sectionId) 
+        : null;
+    }
 
     await Project.updateOne(
       { _id: id, "todos._id": new mongoose.Types.ObjectId(_id) },

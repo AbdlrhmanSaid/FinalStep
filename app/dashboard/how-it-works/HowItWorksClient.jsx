@@ -271,6 +271,42 @@ export default function HowItWorksClient() {
             </div>
           </section>
 
+          {/* الأقسام وخارطة الطريق */}
+          <section className="hiw-section mb-12">
+            <div className="hiw-section-header">
+              <div className="hiw-icon-wrapper bg-violet-500">
+                <LayoutGrid className="w-6 h-6 text-white" />
+              </div>
+              <div className="hiw-section-content">
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-3">
+                  {t.sectionsTitle}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {t.sectionsText}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* الأقسام وخارطة الطريق */}
+          <section className="hiw-section mb-12">
+            <div className="hiw-section-header">
+              <div className="hiw-icon-wrapper bg-violet-500">
+                <LayoutGrid className="w-6 h-6 text-white" />
+              </div>
+              <div className="hiw-section-content">
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-3">
+                  {isRTL ? "أقسام المشروع وخارطة الطريق" : "Project Sections & Roadmap"}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {isRTL
+                    ? "تتيح ميزة الأقسام تقسيم المشروع لمجموعات عمل متخصصة. يمكنك الانضمام لقسم معين أو مغادرته، والقادة يمكنهم ربط عناصر خارطة الطريق (Roadmap) بأقسام محددة لضمان هيكلية عمل واضحة وتوزيع عادل للمسؤوليات."
+                    : "Sections allow dividing the project into specialized workgroups. You can join or leave specific sections, and leaders can link roadmap items to these sections to ensure a clear structure and fair task distribution."}
+                </p>
+              </div>
+            </div>
+          </section>
+
           {/* البحث */}
           <section className="hiw-section">
             <div className="hiw-section-header">

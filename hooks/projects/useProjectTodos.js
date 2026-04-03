@@ -19,20 +19,26 @@ export function useProjectTodos(projectId) {
 export function useAddTodo(projectId) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ text, status, userId }) =>
+    mutationFn: ({ text, status, sectionId, userId }) =>
       axios
         .post(
           `/api/projects/${projectId}/todos`,
-          { text, status },
+          { text, status, sectionId },
           { headers: getHeaders(userId) }
         )
         .then((r) => r.data),
 
     // Optimistic: append immediately
-    onMutate: async ({ text, status }) => {
+    onMutate: async ({ text, status, sectionId }) => {
       await qc.cancelQueries({ queryKey: KEY(projectId) });
       const prev = qc.getQueryData(KEY(projectId)) ?? [];
-      const optimistic = { _id: `tmp-${Date.now()}`, text, status, order: prev.length };
+      const optimistic = { 
+        _id: `tmp-${Date.now()}`, 
+        text, 
+        status, 
+        sectionId,
+        order: prev.length 
+      };
       qc.setQueryData(KEY(projectId), [...prev, optimistic]);
       return { prev };
     },
@@ -47,23 +53,28 @@ export function useAddTodo(projectId) {
 export function useUpdateTodo(projectId) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ _id, text, status, userId }) =>
+    mutationFn: ({ _id, text, status, sectionId, userId }) =>
       axios
         .put(
           `/api/projects/${projectId}/todos`,
-          { _id, text, status },
+          { _id, text, status, sectionId },
           { headers: getHeaders(userId) }
         )
         .then((r) => r.data),
 
-    onMutate: async ({ _id, text, status }) => {
+    onMutate: async ({ _id, text, status, sectionId }) => {
       await qc.cancelQueries({ queryKey: KEY(projectId) });
       const prev = qc.getQueryData(KEY(projectId)) ?? [];
       qc.setQueryData(
         KEY(projectId),
         prev.map((t) =>
           t._id === _id
-            ? { ...t, ...(text !== undefined && { text }), ...(status !== undefined && { status }) }
+            ? { 
+                ...t, 
+                ...(text !== undefined && { text }), 
+                ...(status !== undefined && { status }),
+                ...(sectionId !== undefined && { sectionId })
+              }
             : t
         )
       );
