@@ -83,8 +83,37 @@ export default function ProjectSectionsTab({
     );
   }
 
+  const mySections = sections.filter((s) =>
+    s.members?.some((m) => (m._id || m).toString() === userId?.toString()),
+  );
+
   return (
     <div className="space-y-6">
+      {mySections.length > 0 && !isLeader && (
+        <div className="bg-linear-to-r from-violet-600 to-indigo-600 p-6 rounded-[32px] text-white shadow-xl shadow-violet-500/20 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl transition-transform group-hover:scale-110" />
+          <div className="relative flex items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shrink-0">
+              <UserCheck className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black leading-tight">
+                {isRTL ? "أنت عضو في هذا المشروع" : "You are a team member"}
+              </h3>
+              <p className="text-white/80 text-sm font-bold mt-1 max-w-md">
+                {isRTL
+                  ? `أنت حالياً منضم إلى: ${mySections
+                      .map((s) => s.title)
+                      .join(" ، ")}. يمكنك متابعة مهامك وخطة عملك من خلال التبويبات المخصصة.`
+                  : `You are currently in: ${mySections
+                      .map((s) => s.title)
+                      .join(", ")}. Follow your targets in the dedicated plan tab.`}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-violet-50 dark:bg-violet-900/40 rounded-2xl">
@@ -127,16 +156,16 @@ export default function ProjectSectionsTab({
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
                       isMember
-                        ? "bg-violet-600 text-white"
+                        ? "bg-violet-600 text-white shadow-lg shadow-violet-500/40 scale-110"
                         : "bg-gray-50 dark:bg-gray-900 text-gray-400"
                     }`}
                   >
                     <Users className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-black text-gray-900 dark:text-white group-hover:text-violet-600 transition-colors">
+                    <h3 className={`font-black transition-colors ${isMember ? 'text-violet-600' : 'text-gray-900 dark:text-white group-hover:text-violet-600'}`}>
                       {section.title}
                     </h3>
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
@@ -146,8 +175,8 @@ export default function ProjectSectionsTab({
                 </div>
 
                 {isMember && (
-                  <Badge className="bg-violet-50 text-violet-600 border-violet-100 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-800 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter">
-                    {isRTL ? "قسمك" : "Your Section"}
+                  <Badge className="bg-violet-600 text-white border-none px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md">
+                    {isRTL ? "قسمك الحالي" : "Your Section"}
                   </Badge>
                 )}
               </div>

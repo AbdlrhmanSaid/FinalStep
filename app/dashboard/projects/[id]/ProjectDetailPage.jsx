@@ -48,7 +48,7 @@ import {
   ClipboardList,
   LayoutGrid,
   ShieldAlert,
-  Zap
+  Zap,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -277,8 +277,8 @@ const ProjectDetailPage = () => {
                   className="w-full space-y-6"
                   dir={isRTL ? "rtl" : "ltr"}
                 >
-                  <div className="flex items-center justify-between">
-                    <TabsList className="bg-white dark:bg-gray-800 p-1 rounded-2xl border border-gray-100 dark:border-gray-800 h-12">
+                  <div className="overflow-x-auto pb-2 scrollbar-none">
+                    <TabsList className="bg-white dark:bg-gray-800 p-1 rounded-2xl border border-gray-100 dark:border-gray-800 h-12 flex w-max min-w-full">
                       <TabsTrigger
                         value="tasks"
                         className="rounded-xl px-6 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/30 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 font-black text-xs uppercase tracking-widest gap-2"
@@ -344,7 +344,10 @@ const ProjectDetailPage = () => {
                     />
                   </TabsContent>
 
-                  <TabsContent value="section_plan" className="mt-0 outline-none">
+                  <TabsContent
+                    value="section_plan"
+                    className="mt-0 outline-none"
+                  >
                     <ProjectSectionPlan
                       projectId={id}
                       sections={sectionsData}
@@ -363,8 +366,8 @@ const ProjectDetailPage = () => {
                     {isRTL ? "محتوى خاص بالأعضاء" : "Members-Only Content"}
                   </h3>
                   <p className="text-sm text-gray-500 max-w-sm mx-auto">
-                    {isRTL 
-                      ? "يجب أن تكون عضواً في الفريق لرؤية المهام والأقسام وخارطة الطريق." 
+                    {isRTL
+                      ? "يجب أن تكون عضواً في الفريق لرؤية المهام والأقسام وخارطة الطريق."
                       : "You must be a team member to view tasks, sections, and the roadmap."}
                   </p>
                 </div>
