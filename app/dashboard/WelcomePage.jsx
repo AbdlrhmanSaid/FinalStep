@@ -13,6 +13,7 @@ import {
   Zap,
   LayoutGrid,
   ChevronRight,
+  Users,
 } from "lucide-react";
 import { translations } from "@/lib/translations";
 import Link from "next/link";
@@ -104,14 +105,18 @@ export default function WelcomePage() {
   );
   const completionRate = Math.round((totalCompleted / totalWorkload) * 100);
 
+  const ut = content.stats || {};
+
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 p-4 md:p-6 lg:p-8 transition-colors">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header / Top Toolbar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <LayoutGrid className="w-6 h-6 text-blue-600 dark:text-blue-500" />
+            <h1 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
+              <div className="p-2 rounded-xl bg-blue-600/10 dark:bg-blue-500/10">
+                <LayoutGrid className="w-6 h-6 text-blue-600 dark:text-blue-500" />
+              </div>
               {isRTL ? "لوحة القيادة" : "Dashboard"}
             </h1>
           </div>
@@ -119,7 +124,7 @@ export default function WelcomePage() {
             variant="outline"
             onClick={() => refetch()}
             disabled={isFetching}
-            className="w-full sm:w-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
+            className="w-full sm:w-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold"
           >
             <RefreshCw
               className={`w-4 h-4 mr-2 rtl:ml-2 rtl:mr-0 ${
@@ -133,101 +138,181 @@ export default function WelcomePage() {
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           {/* Welcome Banner (Spans 8 columns on large) */}
-          <div className="md:col-span-12 lg:col-span-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-8 relative overflow-hidden flex flex-col justify-center min-h-[200px]">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-100 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="md:col-span-12 lg:col-span-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-8 relative overflow-hidden flex flex-col justify-center min-h-[200px] shadow-sm">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-blue-100 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50" />
 
             <div className="relative z-10 max-w-lg">
-              <h2 className="text-3xl lg:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-2 w-full md:whitespace-nowrap ">
+              <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2 w-full md:whitespace-nowrap ">
                 {isRTL ? "مرحباً بعودتك،" : "Welcome back,"}{" "}
-                <span className="text-blue-600 dark:text-blue-500 ">
+                <span className="bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 ">
                   {session?.user?.name}
                 </span>
               </h2>
-              <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base mb-6 leading-relaxed">
+              <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base mb-6 font-medium leading-relaxed">
                 {isRTL
                   ? "قمنا بتجميع أهم تحديثات مشاريعك ومهامك المطلوبة منك اليوم لتسهيل عملك."
                   : "We've compiled your most important project updates and tasks for today."}
               </p>
               <Link href="/dashboard/how-it-works">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm px-6 h-11">
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-600/20 px-8 h-12 font-black">
                   {content.welcome.subtitle}
-                  <ChevronRight className="w-4 h-4 ml-1.5 rtl:mr-1.5 rtl:ml-0 rtl:rotate-180" />
+                  <ChevronRight className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0 rtl:rotate-180 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
             </div>
           </div>
 
           {/* Overall Performance (Spans 4 columns) */}
-          <div className="md:col-span-12 lg:col-span-4 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white relative overflow-hidden flex flex-col justify-between min-h-[200px] shadow-lg shadow-blue-900/5">
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 border-[20px] border-white/10 rounded-full" />
-            <div className="absolute top-10 right-10 w-2 h-2 bg-white/40 rounded-full" />
+          <div className="md:col-span-12 lg:col-span-4 bg-linear-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white relative shadow-2xl shadow-blue-900/30 overflow-hidden flex flex-col justify-between min-h-[200px]">
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 border-24 border-white/10 rounded-full" />
+            <div className="absolute top-10 right-10 w-2 h-2 bg-white/40 rounded-full animate-ping" />
 
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-1">
-                <Award className="w-5 h-5 text-blue-200" />
-                <span className="text-blue-100 font-medium text-sm">
-                  {isRTL ? "معدل الإنجاز" : "Completion Rate"}
+                <div className="p-1.5 rounded-lg bg-white/20">
+                    <Award className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-white/80 font-black text-xs uppercase tracking-widest leading-none">
+                  {isRTL ? "معدل الإنجاز العام" : "Overall Progress"}
                 </span>
               </div>
-              <div className="flex items-baseline gap-1 mt-2">
-                <span className="text-5xl font-black">{completionRate}</span>
-                <span className="text-2xl text-blue-200 font-bold">%</span>
+              <div className="flex items-baseline gap-1 mt-4">
+                <span className="text-6xl font-black tracking-tighter leading-none">{completionRate}</span>
+                <span className="text-2xl text-white/60 font-bold">%</span>
               </div>
-              <p className="text-blue-200/80 text-xs mt-3">
-                {isRTL
-                  ? `بناءً على إجمالي مشاريعك (${data?.projectsCount}) ومهامك (${data?.tasksCount})`
-                  : `Based on your total projects (${data?.projectsCount}) and tasks (${data?.tasksCount})`}
-              </p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                 <div className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[10px] font-black uppercase tracking-wider">
+                    {isRTL ? "مشاريعك:" : "Projects:"} {data?.projectsCount || 0}
+                 </div>
+                 <div className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[10px] font-black uppercase tracking-wider">
+                    {isRTL ? "مهامك:" : "Tasks:"} {data?.tasksCount || 0}
+                 </div>
+              </div>
             </div>
           </div>
 
-          {/* Quick Stats (3 standard cards) */}
-          <div className="md:col-span-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-6 flex flex-col justify-center">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                <Briefcase className="w-5 h-5" />
+          {/* Quick Stats Grid */}
+          <div className="md:col-span-12 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            {/* Total Projects */}
+            <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+              <div className="relative z-10">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-4 group-hover:scale-110 transition-transform">
+                  <Briefcase className="w-5 h-5" />
+                </div>
+                <h3 className="text-gray-400 dark:text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">
+                  {content.stats.projects}
+                </h3>
+                <p className="text-2xl font-black text-gray-900 dark:text-white leading-none">
+                  {data?.projectsCount || 0}
+                </p>
               </div>
-              <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-400 px-2.5 py-1 rounded-lg">
-                {projectsPercentage}% {isRTL ? "مكتمل" : "Done"}
-              </span>
+              <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700/50 flex items-center justify-between">
+                 <span className="text-[10px] font-black text-emerald-500">{projectsPercentage}%</span>
+                 <div className="h-1 flex-1 mx-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-500 transition-all duration-1000" style={{ width: `${projectsPercentage}%` }} />
+                 </div>
+              </div>
+              <div className="absolute top-0 right-0 p-2 opacity-5 scale-150 rotate-12 -translate-x-2 translate-y-2">
+                 <Briefcase className="w-16 h-16 text-gray-900 dark:text-white" />
+              </div>
             </div>
-            <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-1">
-              {content.stats.projects}
-            </h3>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {data?.projectsCount || 0}
-            </p>
-          </div>
 
-          <div className="md:col-span-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-6 flex flex-col justify-center">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400">
-                <ListChecks className="w-5 h-5" />
+            {/* Total Tasks */}
+            <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+              <div className="relative z-10">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-4 group-hover:scale-110 transition-transform">
+                  <ListChecks className="w-5 h-5" />
+                </div>
+                <h3 className="text-gray-400 dark:text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">
+                  {content.stats.tasks}
+                </h3>
+                <p className="text-2xl font-black text-gray-900 dark:text-white leading-none">
+                  {data?.tasksCount || 0}
+                </p>
               </div>
-              <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-400 px-2.5 py-1 rounded-lg">
-                {tasksPercentage}% {isRTL ? "مكتمل" : "Done"}
-              </span>
+              <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700/50 flex items-center justify-between">
+                 <span className="text-[10px] font-black text-indigo-500">{tasksPercentage}%</span>
+                 <div className="h-1 flex-1 mx-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-indigo-500 transition-all duration-1000" style={{ width: `${tasksPercentage}%` }} />
+                 </div>
+              </div>
+              <div className="absolute top-0 right-0 p-2 opacity-5 scale-150 rotate-12 -translate-x-2 translate-y-2">
+                 <ListChecks className="w-16 h-16 text-gray-900 dark:text-white" />
+              </div>
             </div>
-            <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-1">
-              {content.stats.tasks}
-            </h3>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {data?.tasksCount || 0}
-            </p>
-          </div>
 
-          <div className="md:col-span-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col justify-center">
-            <div className="flex justify-between items-start mb-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                <Mail className="w-5 h-5" />
+            {/* Managed Projects - FOR LEADERS */}
+            <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+              <div className="relative z-10">
+                <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-400 mb-4 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+                <h3 className="text-gray-400 dark:text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">
+                  {isRTL ? "مشاريع أديرها" : "Managed Projects"}
+                </h3>
+                <p className="text-2xl font-black text-gray-900 dark:text-white leading-none">
+                  {data?.managedProjectsCount || 0}
+                </p>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700/50 flex items-center gap-1.5">
+                 <Zap className="w-3 h-3 text-orange-500" />
+                 <span className="text-[9px] font-black text-orange-500 uppercase tracking-tight">{isRTL ? "صلاحيات كاملة" : "Leader Role"}</span>
+              </div>
+              <div className="absolute top-0 right-0 p-2 opacity-5 scale-150 rotate-12 -translate-x-2 translate-y-2">
+                 <TrendingUp className="w-16 h-16 text-gray-900 dark:text-white" />
               </div>
             </div>
-            <h3 className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-1">
-              {content.stats.pendingInvites}
-            </h3>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {data?.pendingInvitesCount || 0}
-            </p>
+
+            {/* Join Requests - CRITICAL FOR LEADERS */}
+            {data?.managedProjectsCount > 0 && (
+                <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group overflow-hidden relative ring-2 ring-transparent hover:ring-rose-500/10">
+                <div className="relative z-10">
+                    <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400 mb-4 group-hover:scale-110 transition-transform relative">
+                    <Users className="w-5 h-5" />
+                    {data?.pendingJoinRequestsCount > 0 && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse" />}
+                    </div>
+                    <h3 className="text-gray-400 dark:text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">
+                    {isRTL ? "طلبات انضمام" : "Join Requests"}
+                    </h3>
+                    <p className={`text-2xl font-black leading-none ${data?.pendingJoinRequestsCount > 0 ? "text-rose-600 dark:text-rose-400" : "text-gray-900 dark:text-white"}`}>
+                    {data?.pendingJoinRequestsCount || 0}
+                    </p>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700/50">
+                    <Link href="/dashboard/projects" className="flex items-center justify-between text-[10px] font-black text-rose-500 uppercase tracking-wider hover:underline">
+                        {isRTL ? "المراجعة" : "Review"}
+                        <ArrowRight className={`w-3 h-3 ${isRTL ? 'rotate-180' : ''}`} />
+                    </Link>
+                </div>
+                <div className="absolute top-0 right-0 p-2 opacity-5 scale-150 rotate-12 -translate-x-2 translate-y-2">
+                    <Users className="w-16 h-16 text-gray-900 dark:text-white" />
+                </div>
+                </div>
+            )}
+
+            {/* Pending Invites */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+              <div className="relative z-10">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-4 group-hover:scale-110 transition-transform">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <h3 className="text-gray-400 dark:text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">
+                  {content.stats.pendingInvites}
+                </h3>
+                <p className="text-2xl font-black text-gray-900 dark:text-white leading-none">
+                  {data?.pendingInvitesCount || 0}
+                </p>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700/50">
+                 <Link href="/dashboard/invitations" className="flex items-center justify-between text-[10px] font-black text-amber-500 uppercase tracking-wider hover:underline">
+                    {isRTL ? "عرض الكل" : "View All"}
+                    <ArrowRight className={`w-3 h-3 ${isRTL ? 'rotate-180' : ''}`} />
+                 </Link>
+              </div>
+              <div className="absolute top-0 right-0 p-2 opacity-5 scale-150 rotate-12 -translate-x-2 translate-y-2">
+                 <Mail className="w-16 h-16 text-gray-900 dark:text-white" />
+              </div>
+            </div>
           </div>
         </div>
 

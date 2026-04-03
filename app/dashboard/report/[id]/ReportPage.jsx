@@ -14,6 +14,8 @@ import {
   Users,
   CalendarDays,
   Tag,
+  Activity,
+  LayoutDashboard,
 } from "lucide-react";
 import CheckUserRole from "../../../../lib/actions/checkUserRole";
 import { Button } from "../../../../components/ui/button";
@@ -279,6 +281,47 @@ const ReportPage = () => {
             </p>
           </div>
 
+          {/* ── Strategic Roadmap (Enhanced & Prominent) ── */}
+          {(data.todos?.length ?? 0) > 0 && (
+            <div className="rp-roadmap-section">
+              <h2 className="rp-section-title">
+                <LayoutDashboard size={16} />
+                {isRTL ? "خطة العمل الإستراتيجية" : "Strategic Roadmap"}
+              </h2>
+              <div className="rp-roadmap-grid">
+                {[
+                  { id: "todo", label: isRTL ? "قادم" : "Upcoming", icon: <Clock size={12} />, color: "#6b7280", bg: "#f3f4f6" },
+                  { id: "doing", label: isRTL ? "قيد التنفيذ" : "In Progress", icon: <Activity size={12} />, color: "#d97706", bg: "#fffbeb" },
+                  { id: "done", label: isRTL ? "تم الإنجاز" : "Completed", icon: <CheckCircle2 size={12} />, color: "#059669", bg: "#f0fdf4" }
+                ].map((st) => {
+                  const items = (data.todos ?? []).filter((t) => t.status === st.id);
+                  return (
+                    <div key={st.id} className="rp-roadmap-col">
+                      <div className="rp-roadmap-col-header" style={{ color: st.color, backgroundColor: st.bg }}>
+                        {st.icon}
+                        <span>{st.label} ({items.length})</span>
+                      </div>
+                      <div className="rp-roadmap-items">
+                        {items.length === 0 ? (
+                          <p className="rp-roadmap-empty">{isRTL ? "لا يوجد حالياً" : "None yet"}</p>
+                        ) : (
+                          items.map((t) => (
+                            <div key={t._id} className="rp-roadmap-item">
+                              <span className="rp-roadmap-dot" style={{ backgroundColor: st.color }} />
+                              <span className={`rp-roadmap-text ${t.status === "done" ? "done" : ""}`}>
+                                {t.text}
+                              </span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* ── Tasks list ── */}
           <div className="rp-tasks-section">
             <h2 className="rp-section-title">
@@ -379,39 +422,6 @@ const ReportPage = () => {
             </div>
           </div>
 
-          {/* ── Roadmap / Todos ── */}
-          {(data.todos?.length ?? 0) > 0 && (
-            <div className="rp-summary">
-              <h2 className="rp-section-title">
-                {isRTL ? "خطة العمل" : "Project Roadmap"}
-              </h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "0.5rem", marginTop: "0.5rem" }}>
-                {["todo", "doing", "done"].map((st) => {
-                  const items = (data.todos ?? []).filter((t) => t.status === st);
-                  const labels = { todo: isRTL ? "قادم" : "To Do", doing: isRTL ? "جاري" : "In Progress", done: isRTL ? "تم" : "Done" };
-                  const colors = { todo: "#6b7280", doing: "#d97706", done: "#059669" };
-                  return (
-                    <div key={st} style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: "0.5rem", breakInside: "avoid" }}>
-                      <p style={{ fontSize: "0.65rem", fontWeight: 900, textTransform: "uppercase", color: colors[st], marginBottom: "0.35rem", letterSpacing: "0.05em" }}>
-                        {labels[st]} ({items.length})
-                      </p>
-                      {items.map((t) => (
-                        <div key={t._id} style={{ display: "flex", alignItems: "flex-start", gap: "0.3rem", marginBottom: "0.2rem" }}>
-                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: colors[st], flexShrink: 0, marginTop: 4 }} />
-                          <span style={{ fontSize: "0.68rem", color: t.status === "done" ? "#9ca3af" : "#111827", textDecoration: t.status === "done" ? "line-through" : "none" }}>
-                            {t.text}
-                          </span>
-                        </div>
-                      ))}
-                      {items.length === 0 && (
-                        <p style={{ fontSize: "0.6rem", color: "#d1d5db" }}>{isRTL ? "لا يوجد" : "None"}</p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           {/* ── Summary ── */}
           <div className="rp-summary">

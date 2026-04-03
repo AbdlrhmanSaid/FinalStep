@@ -526,128 +526,147 @@ export default function CreateTaskPage() {
             {teamMembers.length > 0 && (
               <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-5">
                 {project?.hasSections ? (
-                  /* ── Sections mode ── */
+                  /* ── Sections mode: one card per section ── */
                   <>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
-                          {isRTL ? "الأقسام والأعضاء" : "Sections & Members"}
-                        </span>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={addAllSections}
-                          className="text-xs font-black text-violet-600 dark:text-violet-400 hover:underline"
-                        >
-                          {isRTL ? "كل الأقسام" : "All Sections"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={addSection}
-                          className="flex items-center gap-1 text-xs font-black text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                          {isRTL ? "قسم" : "Section"}
-                        </button>
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                        {isRTL ? "تعيين الأعضاء لكل قسم" : "Assign Members per Section"}
+                      </span>
                     </div>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 -mt-3">
+                      {isRTL
+                        ? "اضغط على اسم العضو لإضافته أو إزالته من القسم"
+                        : "Tap a member to assign or remove them from a section"}
+                    </p>
 
-                    <div className="space-y-4">
-                      {form.sectionAssignments.map((assignment, idx) => {
-                        const sec = availableSections.find(
-                          (s) => s._id === assignment.sectionId,
+                    <div className="space-y-3">
+                      {availableSections.map((sec) => {
+                        /* which team members belong to this section */
+                        const secMembers = !sec.members?.length
+                          ? teamMembers
+                          : teamMembers.filter((tm) =>
+                              sec.members.some(
+                                (m) => String(typeof m === "object" ? m._id : m) === String(tm._id)
+                              )
+                            );
+
+                        /* find or initialise this section's assignment */
+                        const assignIdx = form.sectionAssignments.findIndex(
+                          (a) => a.sectionId === sec._id
                         );
-                        const secMembers =
-                          !sec || !sec.members?.length
-                            ? teamMembers
-                            : teamMembers.filter((tm) =>
-                                sec.members.some(
-                                  (m) =>
-                                    String(
-                                      typeof m === "object" ? m._id : m,
-                                    ) === String(tm._id),
-                                ),
-                              );
+                        const selectedIds =
+                          assignIdx >= 0 ? form.sectionAssignments[assignIdx].members : [];
+
+                        const toggleSecMember = (uid) => {
+                          const arr = [...form.sectionAssignments];
+                          if (assignIdx < 0) {
+                            arr.push({ sectionId: sec._id, members: [uid] });
+                          } else {
+                            const cur = arr[assignIdx].members;
+                            arr[assignIdx] = {
+                              ...arr[assignIdx],
+                              members: cur.includes(uid)
+                                ? cur.filter((x) => x !== uid)
+                                : [...cur, uid],
+                            };
+                          }
+                          setField("sectionAssignments", arr);
+                        };
+
+                        const selectAll = () => {
+                          const arr = [...form.sectionAssignments];
+                          const allIds = secMembers.map((m) => m._id);
+                          if (assignIdx < 0) {
+                            arr.push({ sectionId: sec._id, members: allIds });
+                          } else {
+                            arr[assignIdx] = { ...arr[assignIdx], members: allIds };
+                          }
+                          setField("sectionAssignments", arr);
+                        };
+
+                        const clearAll = () => {
+                          const arr = [...form.sectionAssignments];
+                          if (assignIdx >= 0) {
+                            arr[assignIdx] = { ...arr[assignIdx], members: [] };
+                            setField("sectionAssignments", arr);
+                          }
+                        };
 
                         return (
                           <div
-                            key={idx}
-                            className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 overflow-hidden"
+                            key={sec._id}
+                            className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 overflow-hidden"
                           >
                             {/* Section header */}
-                            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                              <div className="flex-1">
-                                <StyledSelect
-                                  value={assignment.sectionId}
-                                  onChange={(e) =>
-                                    updateSectionId(idx, e.target.value)
-                                  }
-                                >
-                                  <option value="" disabled>
-                                    {isRTL
-                                      ? "اختر القسم..."
-                                      : "Select section..."}
-                                  </option>
-                                  {availableSections.map((s) => (
-                                    <option key={s._id} value={s._id}>
-                                      {s.title}
-                                    </option>
-                                  ))}
-                                </StyledSelect>
+                            <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-violet-500" />
+                                <span className="text-sm font-black text-gray-800 dark:text-white">
+                                  {sec.title}
+                                </span>
+                                {selectedIds.length > 0 && (
+                                  <span className="text-[10px] font-black px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-full">
+                                    {selectedIds.length} {isRTL ? "محدد" : "selected"}
+                                  </span>
+                                )}
                               </div>
-                              {idx > 0 && (
+                              <div className="flex gap-3 text-[11px] font-bold">
                                 <button
                                   type="button"
-                                  onClick={() => removeSection(idx)}
-                                  className="p-2 rounded-xl text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all shrink-0"
+                                  onClick={selectAll}
+                                  className="text-blue-600 dark:text-blue-400 hover:underline"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  {isRTL ? "الكل" : "All"}
                                 </button>
-                              )}
+                                {selectedIds.length > 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={clearAll}
+                                    className="text-rose-500 dark:text-rose-400 hover:underline"
+                                  >
+                                    {isRTL ? "مسح" : "Clear"}
+                                  </button>
+                                )}
+                              </div>
                             </div>
 
-                            {/* Member picker for this section */}
-                            {assignment.sectionId && (
-                              <div className="p-4 space-y-3">
-                                {secMembers.length === 0 ? (
-                                  <p className="text-xs text-gray-400 text-center py-3">
-                                    {isRTL
-                                      ? "لا يوجد أعضاء في هذا القسم — أضفهم من صفحة إدارة الأقسام"
-                                      : "No members in this section — add them from the Sections page"}
-                                  </p>
-                                ) : (
-                                  <MemberPicker
-                                    members={secMembers}
-                                    selected={assignment.members}
-                                    onToggle={(uid) => toggleMember(uid, idx)}
-                                    onSelectAll={() =>
-                                      setSectionAllMembers(idx)
-                                    }
-                                    isRTL={isRTL}
-                                  />
-                                )}
-
-                                {/* Selected chips */}
-                                {assignment.members.length > 0 && (
-                                  <div className="flex flex-wrap gap-1.5 pt-1">
-                                    {assignment.members.map((uid) => {
-                                      const u = teamMembers.find(
-                                        (u) => u._id === uid,
-                                      );
-                                      return (
-                                        <MemberChip
-                                          key={uid}
-                                          user={u}
-                                          onRemove={() =>
-                                            toggleMember(uid, idx)
-                                          }
-                                        />
-                                      );
-                                    })}
-                                  </div>
-                                )}
+                            {/* Members toggle grid */}
+                            {secMembers.length === 0 ? (
+                              <p className="text-xs text-gray-400 text-center py-4 px-4">
+                                {isRTL
+                                  ? "لا يوجد أعضاء في هذا القسم — أضفهم من صفحة إدارة الأقسام"
+                                  : "No members in this section — add them from the Sections page"}
+                              </p>
+                            ) : (
+                              <div className="p-3 flex flex-wrap gap-2">
+                                {secMembers.map((member) => {
+                                  const sel = selectedIds.includes(member._id);
+                                  return (
+                                    <button
+                                      key={member._id}
+                                      type="button"
+                                      onClick={() => toggleSecMember(member._id)}
+                                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 text-sm font-bold transition-all ${
+                                        sel
+                                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
+                                      }`}
+                                    >
+                                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black shrink-0 ${
+                                        sel
+                                          ? "bg-blue-500 text-white"
+                                          : "bg-gray-200 dark:bg-gray-700 text-gray-500"
+                                      }`}>
+                                        {member.image
+                                          ? <img src={member.image} alt="" className="w-full h-full rounded-full object-cover" />
+                                          : initials(member)}
+                                      </div>
+                                      {displayName(member)}
+                                      {sel && <Check className="w-3.5 h-3.5 shrink-0" />}
+                                    </button>
+                                  );
+                                })}
                               </div>
                             )}
                           </div>
@@ -667,44 +686,45 @@ export default function CreateTaskPage() {
                       </div>
                       <button
                         type="button"
-                        onClick={() =>
-                          setField(
-                            "assignedTo",
-                            teamMembers.map((u) => u._id),
-                          )
-                        }
+                        onClick={() => setField("assignedTo", teamMembers.map((u) => u._id))}
                         className="text-xs font-black text-blue-600 dark:text-blue-400 hover:underline"
                       >
                         {isRTL ? "اختيار الكل" : "Select All"}
                       </button>
                     </div>
 
-                    <MemberPicker
-                      members={teamMembers}
-                      selected={form.assignedTo}
-                      onToggle={(uid) => toggleMember(uid)}
-                      isRTL={isRTL}
-                    />
-
-                    {/* Selected chips */}
-                    {form.assignedTo.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {form.assignedTo.map((uid) => {
-                          const u = teamMembers.find((u) => u._id === uid);
-                          return (
-                            <MemberChip
-                              key={uid}
-                              user={u}
-                              onRemove={() => toggleMember(uid)}
-                            />
-                          );
-                        })}
-                      </div>
-                    )}
+                    <div className="flex flex-wrap gap-2">
+                      {teamMembers.map((member) => {
+                        const sel = form.assignedTo.includes(member._id);
+                        return (
+                          <button
+                            key={member._id}
+                            type="button"
+                            onClick={() => toggleMember(member._id)}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 text-sm font-bold transition-all ${
+                              sel
+                                ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                                : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-gray-300"
+                            }`}
+                          >
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black shrink-0 ${
+                              sel ? "bg-blue-500 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-500"
+                            }`}>
+                              {member.image
+                                ? <img src={member.image} alt="" className="w-full h-full rounded-full object-cover" />
+                                : initials(member)}
+                            </div>
+                            {displayName(member)}
+                            {sel && <Check className="w-3.5 h-3.5 shrink-0" />}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </>
                 )}
               </div>
             )}
+
 
             {/* ── Late submission toggle ── */}
             <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm flex items-center justify-between gap-4">

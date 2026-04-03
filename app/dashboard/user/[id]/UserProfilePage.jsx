@@ -616,8 +616,9 @@ function PrivatePlaceholder({ msg }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-const UserProfilePage = ({ isDark }) => {
-  const { id } = useParams();
+const UserProfilePage = ({ isDark, userId: overrideId }) => {
+  const { id: paramId } = useParams();
+  const id = overrideId || paramId;
   const router = useRouter();
   const { language, isRTL, userId: currentUserId } = useAppContext();
   const dateLocale = language === "ar" ? ar : enUS;
@@ -705,13 +706,13 @@ const UserProfilePage = ({ isDark }) => {
         {/* Hero Card */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
           {/* Cover */}
-          <div className="h-28 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600" />
+          <div className="h-28 bg-linear-to-r from-blue-500 via-indigo-500 to-purple-600" />
 
           <div className="px-5 pb-5">
             {/* Avatar row */}
             <div className="-mt-12 mb-3 flex items-end justify-between flex-wrap gap-2">
               {/* Avatar */}
-              <div className="relative w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 shadow-lg overflow-hidden shrink-0 bg-gradient-to-br from-blue-400 to-indigo-600">
+              <div className="relative w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 shadow-lg overflow-hidden shrink-0 bg-linear-to-br from-blue-400 to-indigo-600">
                 {user.imageUrl ? (
                   <Image
                     src={user?.imageUrl}

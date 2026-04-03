@@ -367,8 +367,10 @@ export default function TodosPage() {
   if (loadingProject || loadingTodos) return <Loading />;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={isRTL ? "rtl" : "ltr"}>
-
+    <div
+      className="min-h-screen bg-gray-50 dark:bg-gray-900"
+      dir={isRTL ? "rtl" : "ltr"}
+    >
       <ProjectPageHeader
         projectId={projectId}
         projectTitle={project?.title}
@@ -378,10 +380,16 @@ export default function TodosPage() {
         isRTL={isRTL}
         action={
           <div className="flex bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-            <button onClick={() => setView("grid")} className={`p-2.5 transition-all ${view === "grid" ? "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white" : "text-gray-400 hover:text-gray-600"}`}>
+            <button
+              onClick={() => setView("grid")}
+              className={`p-2.5 transition-all ${view === "grid" ? "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white" : "text-gray-400 hover:text-gray-600"}`}
+            >
               <LayoutGrid className="w-4 h-4" />
             </button>
-            <button onClick={() => setView("list")} className={`p-2.5 transition-all ${view === "list" ? "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white" : "text-gray-400 hover:text-gray-600"}`}>
+            <button
+              onClick={() => setView("list")}
+              className={`p-2.5 transition-all ${view === "list" ? "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white" : "text-gray-400 hover:text-gray-600"}`}
+            >
               <List className="w-4 h-4" />
             </button>
           </div>
@@ -389,7 +397,6 @@ export default function TodosPage() {
       />
 
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-5">
-
         {/* ── Stats bar ── */}
         {total > 0 && (
           <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm">
@@ -453,7 +460,7 @@ export default function TodosPage() {
                     ? "أضف عنصراً جديداً للخطة..."
                     : "Add a new roadmap item..."
                 }
-                className="flex-1 h-11 px-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm font-semibold text-gray-800 dark:text-white placeholder:text-gray-300 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="flex-1 h-11 px-4 min-h-[40px] rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm font-semibold text-gray-800 dark:text-white placeholder:text-gray-300 dark:placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
               <div className="flex gap-2 shrink-0">
                 {/* Status picker */}

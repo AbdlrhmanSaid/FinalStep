@@ -37,6 +37,9 @@ import ProjectTeamSection from "./components/ProjectTeamSection";
 import ProjectJoinRequests from "./components/ProjectJoinRequests";
 import ProjectTasks from "./components/ProjectTasks";
 import ProjectActions from "./components/ProjectActions";
+import ProjectRoadmapWidget from "./components/ProjectRoadmapWidget";
+import CollapsibleSidebarSection from "./components/CollapsibleSidebarSection";
+import { Info, Users, GitPullRequest, ClipboardList } from "lucide-react";
 
 const ProjectDetailPage = () => {
   const { id } = useParams();
@@ -271,37 +274,71 @@ const ProjectDetailPage = () => {
             </div>
 
             {/* Right Column: Sidebar — leaders see full sidebar, members see minimal */}
-            <aside className={`${isLeader ? "lg:col-span-4" : "lg:col-span-3"} space-y-8`}>
-              <ProjectDetailsSection
-                data={data}
-                content={content}
+            <aside className={`${isLeader ? "lg:col-span-4" : "lg:col-span-3"} space-y-6`}>
+              <CollapsibleSidebarSection
+                title={isRTL ? "معلومات المشروع" : "Project Info"}
+                icon={Info}
                 isRTL={isRTL}
-                dateLocale={dateLocale}
-              />
-
-              {/* Team section — leaders only */}
-              {isLeader && (
-                <ProjectTeamSection
+                defaultOpen={true}
+              >
+                <ProjectDetailsSection
                   data={data}
                   content={content}
                   isRTL={isRTL}
-                  isLeader={isLeader}
-                  updateMemberTitle={updateMemberTitle}
+                  dateLocale={dateLocale}
+                  isWrapped={true}
                 />
+              </CollapsibleSidebarSection>
+
+              {/* Team section — leaders only */}
+              {isLeader && (
+                <CollapsibleSidebarSection
+                  title={isRTL ? "أعضاء الفريق" : "Team Members"}
+                  icon={Users}
+                  isRTL={isRTL}
+                  defaultOpen={true}
+                >
+                  <ProjectTeamSection
+                    data={data}
+                    content={content}
+                    isRTL={isRTL}
+                    isLeader={isLeader}
+                    updateMemberTitle={updateMemberTitle}
+                    isWrapped={true}
+                  />
+                </CollapsibleSidebarSection>
               )}
 
               {/* Join requests — leaders only */}
               {isLeader && pendingJoinRequests.length > 0 && (
-                <ProjectJoinRequests
-                  data={data}
-                  content={content}
-                  isLeader={isLeader}
-                  pendingJoinRequests={pendingJoinRequests}
-                  isResponding={isResponding}
-                  respondJoin={respondJoin}
-                  userId={userId}
-                />
+                <CollapsibleSidebarSection
+                  title={isRTL ? "طلبات الانضمام" : "Join Requests"}
+                  icon={GitPullRequest}
+                  isRTL={isRTL}
+                  defaultOpen={true}
+                >
+                  <ProjectJoinRequests
+                    data={data}
+                    content={content}
+                    isLeader={isLeader}
+                    pendingJoinRequests={pendingJoinRequests}
+                    isResponding={isResponding}
+                    respondJoin={respondJoin}
+                    userId={userId}
+                    isWrapped={true}
+                  />
+                </CollapsibleSidebarSection>
               )}
+
+              {/* Roadmap widget — visible to ALL members */}
+              <CollapsibleSidebarSection
+                title={isRTL ? "خطة العمل" : "Roadmap"}
+                icon={ClipboardList}
+                isRTL={isRTL}
+                defaultOpen={true}
+              >
+                <ProjectRoadmapWidget projectId={id} isRTL={isRTL} isWrapped={true} />
+              </CollapsibleSidebarSection>
 
               <ProjectActions
                 data={data}

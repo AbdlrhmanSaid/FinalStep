@@ -25,23 +25,40 @@ export async function POST(request, { params }) {
     }
 
     const body = await request.json();
-    const { password } = body;
+    const { password, currentPassword } = body;
 
     if (!password || password.length < 6) {
       return NextResponse.json(
-        { error: "Password must be at least 6 characters long" },
+        { error: "New password must be at least 6 characters long" },
         { status: 400 }
       );
     }
 
     await dbConnect();
 
-    const user = await User.findById(id);
+    const user = await User.findById(id).select("+password");
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Hash the password
+    // If user has an existing password, they MUST provide the current one correctly
+    if (user.password) {
+      if (!currentPassword) {
+        return NextResponse.json(
+          { error: "Current password is required" },
+          { status: 400 }
+        );
+      }
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return NextResponse.json(
+          { error: "Current password is incorrect" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Hash the new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 

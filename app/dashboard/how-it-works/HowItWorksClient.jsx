@@ -27,17 +27,17 @@ export default function HowItWorksClient() {
 
     overviewTitle: isRTL ? "نظرة عامة على النظام" : "System Overview",
     overviewText: isRTL
-      ? "بعد تسجيل الدخول، سيتم نقلك إلى الصفحة الرئيسية التي تتيح لك الوصول الكامل إلى تفاصيل حسابك. من هناك، يمكنك متابعة المشاريع التي تديرها أو تشارك فيها، عرض المهام المكتملة، مراجعة الدعوات المعلقة، واستعراض ملخصات المشاريع والإجراءات السريعة."
-      : "Once you log in, you'll be taken directly to the main dashboard. From here, you can easily access your account information, view all the projects you lead or contribute to, track completed tasks, and manage pending invitations.",
+      ? "بعد تسجيل الدخول، ستجد لوحة تحكم ذكية تعرض إحصائيات متقدمة. إذا كنت تقود مشاريع، ستظهر لك بطاقات مخصصة تعرض عدد المشاريع التي تديرها وطلبات الانضمام المعلقة للمراجعة السريعة. كما تعرض اللوحة ملخصاً لمهامك، مشاريعك الحالية، ومعدل الإنجاز العام بتصميم Bento Grid عصري."
+      : "Once you log in, you'll see a smart dashboard with advanced statistics. For project leaders, dedicated cards display managed projects and pending join requests for quick review. The dashboard also shows a summary of your tasks, current projects, and overall completion rate in a modern Bento Grid design.",
 
     projectsTitle: isRTL ? "صفحة المشاريع" : "Projects Page",
     projectsSubtitle: isRTL
-      ? "يمكنك هنا رؤية جميع المشاريع التي تقودها أو تشارك فيها."
-      : "Here you can see all your projects - both those you lead and those you join.",
+      ? "يمكنك رؤية جميع مشاريعك هنا. المشاريع التي تديرها وتنتظر انضمام أعضاء جدد ستظهر عليها علامة (Badge) تنبيه حمراء توضح عدد الطلبات المعلقة."
+      : "View all your projects here. Projects you lead with pending join requests will display a red notification badge showing the request count.",
     viewDetails: isRTL ? "عرض التفاصيل" : "View Details",
     viewDetailsDesc: isRTL
-      ? "اضغط على أي مشروع لمشاهدة كافة تفاصيله"
-      : "Click any project to see its full details",
+      ? "اضغط على أي مشروع لمشاهدة كافة تفاصيله. تم تنظيم صفحة التفاصيل بأقسام جانبية قابلة للطي (Collapsible) لتوفير مساحة عمل منظمة."
+      : "Click any project to see its full details. The details page is organized with collapsible sidebar sections for a clean workspace.",
     leaderTitle: isRTL ? "قائد المشروع" : "Project Leader",
     leaderDesc: isRTL
       ? "إذا كنت قائد المشروع: يمكنك تعديل الأقسام، دعوة الأعضاء، وحفظ التغييرات"
@@ -84,11 +84,11 @@ export default function HowItWorksClient() {
   return (
     <>
       <div
-        className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-all ${
+        className={`min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-all ${
           isRTL ? "rtl" : "ltr"
         } py-16 px-4 sm:px-6 lg:px-8`}
       >
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               {t.title}
@@ -177,7 +177,7 @@ export default function HowItWorksClient() {
                   </div>
                 </div>
 
-                <div className="hiw-guide-summary mt-8 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+                <div className="hiw-guide-summary mt-8 bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
                   <p className="text-center text-gray-700 dark:text-gray-300 font-medium">
                     {t.projectsSummary}
                   </p>

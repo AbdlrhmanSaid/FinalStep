@@ -1,11 +1,10 @@
 import { getFullUserOrRedirect } from "@/lib/getFullUser";
-import { redirect } from "next/navigation";
+import UserProfilePage from "../user/[id]/UserProfilePage";
 
-// Redirect to the unified profile page (/dashboard/user/[id])
-// The owner sees their  with a Settings tab available there
+// Render the unified profile page (/dashboard/profile) without redirecting to the ID-based URL
 const ProfilePage = async () => {
   const user = await getFullUserOrRedirect();
-  redirect(`/dashboard/user/${user._id}`);
+  return <UserProfilePage userId={user._id.toString()} />;
 };
 
 export default ProfilePage;

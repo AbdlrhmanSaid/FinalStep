@@ -1,6 +1,7 @@
 import dbConnect from "../../../../../lib/db";
 import Project from "../../../../../models/Project";
 import Task from "../../../../../models/Task";
+import Section from "../../../../../models/Section";
 
 export async function PUT(request, { params }) {
   try {
@@ -20,15 +21,22 @@ export async function PUT(request, { params }) {
       return Response.json({ error: "Project not found" }, { status: 404 });
     }
 
+    // Remove from project members & co-leaders
     project.members = project.members.filter(
       (memberId) => memberId.toString() !== userId,
     );
-
     project.coLeaders = project.coLeaders.filter(
       (memberId) => memberId.toString() !== userId,
     );
 
+    // Remove from all tasks assigned to them
     await Task.updateMany({ projectId }, { $pull: { assignedTo: userId } });
+
+    // Remove from all sections in this project
+    await Section.updateMany(
+      { projectId },
+      { $pull: { members: userId } }
+    );
 
     await project.save();
 
@@ -41,3 +49,4 @@ export async function PUT(request, { params }) {
     return Response.json({ error: "Failed to leave project" }, { status: 500 });
   }
 }
+

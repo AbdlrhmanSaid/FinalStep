@@ -89,7 +89,7 @@ export default function ProjectsList() {
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors ${
+      className={`min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors ${
         isRTL ? "rtl" : "ltr"
       } flex flex-col`}
     >
@@ -163,7 +163,7 @@ export default function ProjectsList() {
                   ) || 0}
                 </span>
               </div>
-              <div className="w-[1px] h-8 bg-gray-200 dark:bg-gray-700" />
+              <div className="w-px h-8 bg-gray-200 dark:bg-gray-700" />
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">
                   {isRTL ? "إنجاز" : "Completion"}
@@ -246,7 +246,7 @@ export default function ProjectsList() {
       </section>
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grow w-full">
         <Tabs value={activeTab} className="w-full">
           {/* Leading Projects Tab */}
           <TabsContent value="leading" className="mt-6">
@@ -265,6 +265,7 @@ export default function ProjectsList() {
                         isRTL={isRTL}
                         className="h-full"
                         viewMode={viewMode}
+                        currentUserId={userId}
                       />
                     </Link>
                   ))}
@@ -283,6 +284,7 @@ export default function ProjectsList() {
                         isRTL={isRTL}
                         className="h-full"
                         viewMode={viewMode}
+                        currentUserId={userId}
                       />
                     </Link>
                   ))}
@@ -290,7 +292,7 @@ export default function ProjectsList() {
               )
             ) : searchTerm ? (
               <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg py-16 px-6 text-center">
-                <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mb-4">
+                <div className="mx-auto w-20 h-20 bg-linear-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mb-4">
                   <Search className="w-10 h-10 text-blue-500 dark:text-blue-400" />
                 </div>
                 <p className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
@@ -304,7 +306,7 @@ export default function ProjectsList() {
               </div>
             ) : (
               <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg py-16 px-6 text-center">
-                <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mb-4">
+                <div className="mx-auto w-20 h-20 bg-linear-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-full flex items-center justify-center mb-4">
                   <Folder className="w-10 h-10 text-blue-500 dark:text-blue-400" />
                 </div>
                 <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
@@ -316,7 +318,7 @@ export default function ProjectsList() {
                     : "Start by creating a new project to lead"}
                 </p>
                 <Link href="/dashboard/createProject">
-                  <button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
+                  <button className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
                     <Plus className="w-5 h-5 inline-block mr-2" />
                     {content.dashboard.quickActions.createProject}
                   </button>
@@ -342,6 +344,7 @@ export default function ProjectsList() {
                         isRTL={isRTL}
                         className="h-full"
                         viewMode={viewMode}
+                        currentUserId={userId}
                       />
                     </Link>
                   ))}
@@ -360,6 +363,7 @@ export default function ProjectsList() {
                         isRTL={isRTL}
                         className="h-full"
                         viewMode={viewMode}
+                        currentUserId={userId}
                       />
                     </Link>
                   ))}

@@ -20,9 +20,18 @@ export default function ProjectCard({
   isRTL,
   className = "",
   viewMode = "grid",
+  currentUserId,
 }) {
   const status = project.status || (project.public ? "active" : "pending");
   const dateLocale = isRTL ? ar : enUS;
+
+  const isManager = 
+    project.leaderId?._id?.toString() === currentUserId?.toString() || 
+    project.coLeaders?.some(cl => (cl._id || cl)?.toString() === currentUserId?.toString());
+
+  const pendingJoinCount = isManager 
+    ? project.joinRequests?.filter(r => r.status === "pending").length || 0 
+    : 0;
 
   // ─── Theme Colors based on ID ──────────────────────────────────────────────
   const getProjectTheme = (id) => {
@@ -77,8 +86,15 @@ export default function ProjectCard({
     return (
       <div className={`group relative bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-xl hover:shadow-gray-500/5 transition-all duration-300 ${className}`}>
         <div className="flex items-center gap-6">
-          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${theme.bg} flex items-center justify-center text-white shadow-lg shadow-gray-500/10`}>
-            <Layout className="w-5 h-5" />
+          <div className="relative">
+            <div className={`w-10 h-10 rounded-xl bg-linear-to-br ${theme.bg} flex items-center justify-center text-white shadow-lg shadow-gray-500/10`}>
+              <Layout className="w-5 h-5" />
+            </div>
+            {pendingJoinCount > 0 && (
+              <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-500 border-2 border-white dark:border-gray-900 text-white text-[10px] font-black flex items-center justify-center rounded-full shadow-lg shadow-rose-500/20 animate-pulse">
+                {pendingJoinCount}
+              </div>
+            )}
           </div>
           
           <div className="flex-1 min-w-0">
@@ -120,14 +136,22 @@ export default function ProjectCard({
   return (
     <div className={`group relative bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-2xl hover:shadow-gray-500/10 transition-all duration-500 ${className} overflow-hidden`}>
       {/* Accent Background */}
-      <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${theme.bg} opacity-[0.03] rounded-full blur-3xl group-hover:opacity-10 transition-opacity`} />
+      <div className={`absolute top-0 right-0 w-32 h-32 bg-linear-to-br ${theme.bg} opacity-[0.03] rounded-full blur-3xl group-hover:opacity-10 transition-opacity`} />
       
       {/* Header identity stripe */}
-      <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${theme.bg} opacity-20 group-hover:opacity-100 transition-opacity`} />
+      <div className={`absolute top-0 left-0 w-full h-1 bg-linear-to-r ${theme.bg} opacity-20 group-hover:opacity-100 transition-opacity`} />
 
       <div className="flex justify-between items-start mb-6 pt-2">
-        <div className={`p-2.5 rounded-2xl ${theme.light} ${theme.color} transition-colors`}>
-          <Layout className="w-6 h-6" />
+        <div className="flex flex-col gap-3">
+          <div className={`p-2.5 rounded-2xl ${theme.light} ${theme.color} transition-colors w-fit shadow-lg shadow-gray-500/5`}>
+            <Layout className="w-6 h-6" />
+          </div>
+          {pendingJoinCount > 0 && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-500 text-white shadow-lg shadow-rose-500/20 animate-pulse">
+              <Users className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-black tracking-tight">{pendingJoinCount} {isRTL ? "طلبات" : "Requests"}</span>
+            </div>
+          )}
         </div>
         <div className="flex flex-col items-end gap-2">
            <StatusDot status={status} />
@@ -198,7 +222,7 @@ export default function ProjectCard({
 
       {/* Floating Action Hint */}
       <div className="absolute bottom-4 right-4 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-        <div className={`p-2 rounded-xl bg-gradient-to-br ${theme.bg} text-white shadow-lg shadow-gray-500/20`}>
+        <div className={`p-2 rounded-xl bg-linear-to-br ${theme.bg} text-white shadow-lg shadow-gray-500/20`}>
           <ArrowUpRight className="w-4 h-4" />
         </div>
       </div>

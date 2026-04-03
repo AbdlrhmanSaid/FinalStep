@@ -1,17 +1,3 @@
-/**
- * ProjectPageHeader — unified header used across all sub-pages of a project.
- *
- * Props:
- *   projectId     – string
- *   projectTitle  – string
- *   icon          – Lucide icon component
- *   iconColor     – tailwind bg class for the icon pill,  e.g. "bg-violet-500"
- *   label         – short sub-title shown above the main title (e.g. "Sections")
- *   title         – main page title
- *   isRTL         – bool
- *   action        – optional JSX rendered in the right slot (button, etc.)
- */
-
 import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 

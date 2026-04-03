@@ -64,6 +64,16 @@ export async function GET() {
     .filter(p => p.status !== "finished")
     .slice(0, 3);
   
+  // Projects where user is leader/co-leader
+  const managedProjects = allProjects.filter(p => 
+    p.leaderId?._id?.toString() === user._id.toString() || 
+    p.coLeaders?.some(cl => cl.toString() === user._id.toString())
+  );
+
+  const pendingJoinRequestsCount = managedProjects.reduce((acc, p) => 
+    acc + (p.joinRequests?.filter(r => r.status === "pending").length || 0), 0
+  );
+
   // Tasks Breakdown by status
   const taskStatusBreakdown = {
     pending: allTasks.filter(t => t.status === "pending").length,
@@ -75,10 +85,12 @@ export async function GET() {
 
   return NextResponse.json({
     projectsCount: allProjects.length,
+    managedProjectsCount: managedProjects.length,
     finishedProjectsCount: finishedProjects.length,
     tasksCount: allTasks.length,
     finishedTasksCount: finishedTasks.length,
     pendingInvitesCount: pendingInvites.length,
+    pendingJoinRequestsCount,
     recentInvites: pendingInvites,
     recentTasks: recentTasks,
     upcomingTasks,
