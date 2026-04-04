@@ -255,6 +255,7 @@ export default function SectionsPage() {
                 key={section._id}
                 section={section}
                 allMembers={allMembers}
+                sections={sections}
                 isRTL={isRTL}
                 onRename={(title, description) => handleRename(section._id, title, description)}
                 onDelete={() => handleDelete(section)}

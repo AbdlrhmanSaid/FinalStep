@@ -239,6 +239,7 @@ export default function SectionCard({
           <MemberPicker
             section={section}
             allMembers={allMembers}
+            sections={sections}
             isRTL={isRTL}
             onSave={(ids) => {
               setExpanded(false);

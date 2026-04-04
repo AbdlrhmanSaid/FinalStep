@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UserPlus, UserMinus, Check, LoaderCircle } from "lucide-react";
+import { UserPlus, UserMinus, Check, LoaderCircle, Search, Filter } from "lucide-react";
 
 /* ─── helpers ──────────────────────────── */
 const dName = (u) =>
@@ -40,6 +40,7 @@ export function MemberPicker({
   onSave,
   isSaving,
   onClose,
+  sections = [],
 }) {
   const currentIds =
     section.members?.map((m) => (typeof m === "object" ? m._id : m)) ?? [];
@@ -50,39 +51,96 @@ export function MemberPicker({
       p.includes(id) ? p.filter((x) => x !== id) : [...p, id],
     );
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showUnassignedOnly, setShowUnassignedOnly] = useState(false);
+
+  const filteredMembers = allMembers.filter((m) => {
+    // text search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const name = dName(m).toLowerCase();
+      const email = (m.email || "").toLowerCase();
+      if (!name.includes(q) && !email.includes(q)) return false;
+    }
+    
+    // unassigned filter
+    if (showUnassignedOnly) {
+      const isUnassigned = !sections.some(s => s.members?.some(sm => String(typeof sm === "object" ? sm._id : sm) === String(m._id)));
+      const belongsToCurrent = selected.includes(m._id);
+      if (!isUnassigned && !belongsToCurrent) return false;
+    }
+
+    return true;
+  });
+
   return (
     <div className="mt-3 border-t border-gray-100 dark:border-gray-800 pt-4 space-y-3">
-      <div className="flex items-center justify-between px-1">
+      <div className="flex flex-col sm:flex-row gap-2 justify-between px-1">
+        <div className="relative flex-1">
+          <Search className={`w-4 h-4 text-gray-400 absolute top-1/2 -translate-y-1/2 ${isRTL ? "right-3" : "left-3"}`} />
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={isRTL ? "بحث بالاسم أو البريد..." : "Search by name or email..."}
+            className={`w-full h-8 text-xs font-semibold bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all ${isRTL ? "pr-9 pl-3" : "pl-9 pr-3"}`}
+          />
+        </div>
+        <button
+          onClick={() => setShowUnassignedOnly(!showUnassignedOnly)}
+          className={`flex items-center gap-1.5 px-3 h-8 text-xs font-bold rounded-lg border transition-all shrink-0 ${
+            showUnassignedOnly
+              ? "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800/50"
+              : "bg-gray-50 dark:bg-gray-800/80 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700/80 hover:bg-gray-100 dark:hover:bg-gray-800"
+          }`}
+        >
+          <Filter className="w-3.5 h-3.5" />
+          {isRTL ? "بدون قسم فقط" : "Unassigned only"}
+        </button>
+      </div>
+
+      <div className="flex items-center justify-between px-1 pt-1">
         <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
           {selected.length}/{allMembers.length} {isRTL ? "محدد" : "selected"}
+          {filteredMembers.length !== allMembers.length && (
+            <span className="ms-2 text-[10px] text-violet-500 dark:text-violet-400">
+              ({isRTL ? `يظهر ${filteredMembers.length}` : `Showing ${filteredMembers.length}`})
+            </span>
+          )}
         </p>
         <div className="flex gap-3 text-xs font-bold">
           <button
             type="button"
-            onClick={() => setSelected(allMembers.map((m) => m._id))}
+            onClick={() => setSelected((p) => {
+              const newIds = filteredMembers.map(m => m._id);
+              const merged = new Set([...p, ...newIds]);
+              return Array.from(merged);
+            })}
             className="flex items-center gap-1 text-violet-600 dark:text-violet-400 hover:underline"
           >
             <UserPlus className="w-3 h-3" />
-            {isRTL ? "الكل" : "All"}
+            {isRTL ? "تحديد الظاهر" : "Select Visible"}
           </button>
           <button
             type="button"
-            onClick={() => setSelected([])}
+            onClick={() => setSelected((p) => {
+              const visibleIds = filteredMembers.map(m => m._id);
+              return p.filter(id => !visibleIds.includes(id));
+            })}
             className="flex items-center gap-1 text-rose-500 dark:text-rose-400 hover:underline"
           >
             <UserMinus className="w-3 h-3" />
-            {isRTL ? "إلغاء" : "None"}
+            {isRTL ? "إلغاء الظاهر" : "Unselect Visible"}
           </button>
         </div>
       </div>
 
-      {allMembers.length === 0 ? (
+      {filteredMembers.length === 0 ? (
         <p className="text-xs text-gray-400 text-center py-4">
-          {isRTL ? "لا يوجد أعضاء في الفريق" : "No team members"}
+          {isRTL ? "لا توجد نتائج تطابق بحثك" : "No results match your search"}
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {allMembers.map((member) => {
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto pe-1">
+          {filteredMembers.map((member) => {
             const sel = selected.includes(member._id);
             return (
               <button
