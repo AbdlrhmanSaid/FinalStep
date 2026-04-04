@@ -54,9 +54,7 @@ export default function ProjectTasks({
     if (!isLeader) {
       // Members see ONLY sections they are explicitly assigned to
       secs = secs.filter((s) =>
-        s.members?.some(
-          (m) => (typeof m === "object" ? m._id : m) === userId,
-        ),
+        s.members?.some((m) => (typeof m === "object" ? m._id : m) === userId),
       );
     }
     setAvailableSections(secs);
@@ -182,8 +180,8 @@ export default function ProjectTasks({
                         ? "المكتمل"
                         : "Done"
                       : isRTL
-                        ? "المتوقف"
-                        : "Archived"}
+                        ? "المنتهي"
+                        : "ended"}
               </button>
             ))}
           </div>
@@ -222,10 +220,10 @@ export default function ProjectTasks({
                 activeSectionId === sec._id
                   ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shadow-sm"
                   : "text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-900"
-            }`}
-          >
-            {sec.title}
-          </button>
+              }`}
+            >
+              {sec.title}
+            </button>
           ))}
           {isLeader && (
             <Link
@@ -328,7 +326,8 @@ export default function ProjectTasks({
                               ))}
                               {task.assignedTo.length > 1 && (
                                 <span className="text-[9px] font-black text-gray-400 ms-2 self-center">
-                                  {task.assignedTo.length} {isRTL ? "أعضاء" : "Members"}
+                                  {task.assignedTo.length}{" "}
+                                  {isRTL ? "أعضاء" : "Members"}
                                 </span>
                               )}
                             </div>

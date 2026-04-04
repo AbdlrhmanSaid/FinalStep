@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono, Noto_Sans_Arabic } from "next/font/google";
+import { Geist, Geist_Mono, Cairo } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "react-hot-toast";
@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const notoSansArabic = Noto_Sans_Arabic({
+const cairo = Cairo({
   variable: "--font-arabic",
   subsets: ["arabic"],
   weight: ["400", "500", "600", "700"],
@@ -87,9 +87,7 @@ export default function RootLayout({ children }) {
       <head>
         <JsonLd />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${notoSansArabic.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} ${cairo.variable} antialiased font-sans`}>
         <Providers>
           <ScrollToTop />
           <Toaster />

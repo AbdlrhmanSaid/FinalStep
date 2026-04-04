@@ -7,37 +7,158 @@ import { useAppContext } from "../../../../../contexts/AppContext";
 import Loading from "../../../../../components/Loading";
 import CheckUserRole from "../../../../../lib/actions/checkUserRole";
 import toast from "react-hot-toast";
-
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import {
-  Command,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import { translations } from "../../../../../lib/translations";
 import DatePicker from "../../../../../components/ui/DatePicker";
 import { useGetProject } from "../../../../../hooks/projects/useGetProjects";
 import { useGetSections } from "../../../../../hooks/sections/useGetSections";
+import ProjectPageHeader from "../../../projects/[id]/components/ProjectPageHeader";
 
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Edit, RefreshCw, Plus, Trash } from "lucide-react";
+  ListTodo,
+  RefreshCw,
+  Plus,
+  Trash2,
+  X,
+  Check,
+  ChevronDown,
+  Link2,
+  AlignLeft,
+  Calendar,
+  Tag,
+  Users,
+  Clock,
+  Edit3,
+} from "lucide-react";
+
+/* ─── tiny helpers ────────────────────────────── */
+const displayName = (u) =>
+  u?.name && u.name !== "null null" ? u.name : (u?.email?.split("@")[0] ?? "?");
+const initials = (u) => displayName(u).charAt(0).toUpperCase();
+
+/* ─── Field wrapper ───────────────────────────── */
+function Field({ label, hint, icon: Icon, children }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        {Icon && <Icon className="w-4 h-4 text-gray-400" />}
+        <label className="text-sm font-bold text-gray-700 dark:text-gray-200">
+          {label}
+        </label>
+        {hint && (
+          <span className="text-xs text-gray-400 font-medium">({hint})</span>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+/* ─── Styled select ───────────────────────────── */
+function StyledSelect({ children, ...props }) {
+  return (
+    <div className="relative">
+      <select
+        {...props}
+        className="w-full h-11 px-4 pr-10 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none transition-all"
+      >
+        {children}
+      </select>
+      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+    </div>
+  );
+}
+
+/* ─── Member picker ───────────────────────────── */
+function MemberPicker({ members, selected, onToggle, onSelectAll, isRTL }) {
+  const [search, setSearch] = useState("");
+  const filtered = members.filter((u) =>
+    displayName(u).toLowerCase().includes(search.toLowerCase()),
+  );
+
+  return (
+    <div className="rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="flex items-center gap-2 px-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60">
+        <Users className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={isRTL ? "ابحث عن عضو..." : "Search member..."}
+          className="flex-1 h-10 bg-transparent text-sm text-gray-700 dark:text-white placeholder:text-gray-400 focus:outline-none"
+          dir={isRTL ? "rtl" : "ltr"}
+        />
+        {onSelectAll && (
+          <button
+            type="button"
+            onClick={onSelectAll}
+            className="text-[10px] font-black text-blue-600 dark:text-blue-400 hover:underline shrink-0 whitespace-nowrap"
+          >
+            {isRTL ? "الكل" : "All"}
+          </button>
+        )}
+      </div>
+
+      <div className="max-h-44 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800">
+        {filtered.length === 0 ? (
+          <div className="py-6 text-center text-sm text-gray-400">
+            {isRTL ? "لا يوجد أعضاء" : "No members found"}
+          </div>
+        ) : (
+          filtered.map((user) => {
+            const isSelected = selected.includes(user._id);
+            return (
+              <button
+                key={user._id}
+                type="button"
+                onClick={() => onToggle(user._id)}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+                  isSelected
+                    ? "bg-blue-50 dark:bg-blue-900/20"
+                    : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                }`}
+              >
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
+                    isSelected
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                  }`}
+                >
+                  {user.image ? (
+                    <img
+                      src={user.image}
+                      alt=""
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    initials(user)
+                  )}
+                </div>
+                <span
+                  className={`flex-1 text-sm font-semibold truncate ${
+                    isSelected
+                      ? "text-blue-700 dark:text-blue-300"
+                      : "text-gray-800 dark:text-white"
+                  }`}
+                >
+                  {displayName(user)}
+                </span>
+                {isSelected && (
+                  <Check className="w-4 h-4 text-blue-500 shrink-0" />
+                )}
+              </button>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function EditTaskPage() {
   const { id } = useParams();
   const router = useRouter();
   const { data: task, isLoading, isError } = useGetTask(id);
-  const { mutate: updateTask, isLoading: isUpdating } = useUpdateTask();
+  const { mutate: updateTask, isPending } = useUpdateTask();
   const { userId, language, isRTL } = useAppContext();
 
   const [form, setForm] = useState({
@@ -53,8 +174,10 @@ export default function EditTaskPage() {
     sectionAssignments: [{ sectionId: "", members: [] }],
   });
 
+  const [collapsedSections, setCollapsedSections] = useState([]);
+
   const content = translations[language].dashboard.editTask;
-  const addTaskContent = translations[language].dashboard.addTask;
+  const addTaskTranslations = translations[language].dashboard.addTask;
 
   const projectId = task?.projectId?._id || task?.projectId;
   const { data: project, isLoading: isLoadingProject } = useGetProject(projectId);
@@ -75,80 +198,52 @@ export default function EditTaskPage() {
         ),
         submissionMethod: task.submissionMethod || "both",
         submissionDescription: task.submissionDescription || "",
-        allowLateSubmission: task.allowLateSubmission !== false, // default true
+        allowLateSubmission: task.allowLateSubmission !== false,
         sectionAssignments: (task.sectionAssignments && task.sectionAssignments.length > 0)
           ? task.sectionAssignments.map(sa => ({
               sectionId: sa.sectionId?._id || sa.sectionId,
               members: sa.members?.map(m => (typeof m === "object" ? m._id : m)) || []
             }))
-          : [{ sectionId: task.sectionId?._id || task.sectionId || "", members: (task.assignedTo || []).map((u) => (typeof u === "object" ? u._id : u)) }],
+          : [{ sectionId: "", members: [] }],
       });
     }
   }, [task]);
 
-  const allUsers = project
-    ? [...(project.coLeaders || []), ...(project.members || [])]
-    : [];
+  if (isLoading || isLoadingProject || isLoadingSections || !task || !project) return <Loading />;
+  if (isError) return <div className="p-8 text-center text-red-500 font-bold">Task not found.</div>;
 
-  const teamMembers = Array.from(
-    new Map(allUsers.map((user) => [user._id, user])).values(),
-  );
+  const isLeader = project.leaderId?._id === userId || project.coLeaders?.some((u) => u._id === userId);
+  let availableSections = sectionsData || [];
+  if (!isLeader) {
+    availableSections = availableSections.filter((s) =>
+      s.members?.some((m) => (typeof m === "object" ? m._id : m) === userId),
+    );
+  }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const allUsers = [...(project.coLeaders ?? []), ...(project.members ?? [])];
+  const teamMembers = Array.from(new Map(allUsers.map((u) => [u._id, u])).values());
 
-  const handleAssign = (uid, sectionIndex = null) => {
-    if (sectionIndex !== null) {
-      setForm(prev => {
-         const newArr = [...prev.sectionAssignments];
-         if (!newArr[sectionIndex].members.includes(uid)) {
-            newArr[sectionIndex].members.push(uid);
-         }
-         return { ...prev, sectionAssignments: newArr };
-      });
-    } else {
-      if (!form.assignedTo.includes(uid)) {
-        setForm((prev) => ({ ...prev, assignedTo: [...prev.assignedTo, uid] }));
-      }
-    }
-  };
-
-  const handleRemoveAssigned = (uid, sectionIndex = null) => {
-    if (sectionIndex !== null) {
-      setForm(prev => {
-         const newArr = [...prev.sectionAssignments];
-         newArr[sectionIndex].members = newArr[sectionIndex].members.filter(id => id !== uid);
-         return { ...prev, sectionAssignments: newArr };
-      });
-    } else {
-      setForm((prev) => ({
-        ...prev,
-        assignedTo: prev.assignedTo.filter((id) => id !== uid),
-      }));
-    }
-  };
+  const setField = (key, val) => setForm((p) => ({ ...p, [key]: val }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     let finalAssignments = [];
+
     if (project?.hasSections) {
-      finalAssignments = form.sectionAssignments.filter(sa => sa.sectionId);
-      if (finalAssignments.length === 0) {
-        toast.error(isRTL ? "يرجى اختيار قسم واحد على الأقل" : "Please select at least one section");
+      finalAssignments = form.sectionAssignments.filter((sa) => sa.sectionId);
+      if (!finalAssignments.length) {
+        toast.error(isRTL ? "اختر قسماً واحداً على الأقل" : "Select at least one section");
         return;
       }
       for (const sa of finalAssignments) {
-        if (!sa.members || sa.members.length === 0) {
-          toast.error(isRTL ? "يرجى تعيين عضو واحد على الأقل لكل قسم مختار" : "Please assign at least one member for each selected section");
+        if (!sa.members?.length) {
+          toast.error(isRTL ? "عيّن عضواً لكل قسم" : "Assign at least one member per section");
           return;
         }
       }
     } else {
-      if (form.assignedTo.length === 0) {
-        toast.error(isRTL ? "يرجى تعيين المهمة لعضو واحد على الأقل" : "At least one member must be assigned");
+      if (!form.assignedTo.length) {
+        toast.error(isRTL ? "عيّن عضواً واحداً على الأقل" : "Assign at least one member");
         return;
       }
       if (availableSections.length > 0) {
@@ -161,519 +256,248 @@ export default function EditTaskPage() {
         taskId: id,
         userId,
         data: {
-          title: form.title,
-          description: form.description,
-          referenceLink: form.referenceLink,
-          priority: form.priority,
-          dueDate: form.dueDate || null,
-          assignedTo: form.assignedTo,
+          ...form,
           sectionAssignments: finalAssignments,
-          submissionMethod: form.submissionMethod,
-          submissionDescription: form.submissionDescription,
-          allowLateSubmission: form.allowLateSubmission,
+          dueDate: form.dueDate || null,
         },
       },
       {
         onSuccess: () => {
-          toast.success(
-            isRTL ? "تم تحديث المهمة بنجاح" : "Task updated successfully",
-          );
-          router.push(
-            `/dashboard/projects/${task.projectId._id || task.projectId}`,
-          );
+          toast.success(isRTL ? "تم تحديث المهمة بنجاح" : "Task updated successfully");
+          router.push(`/dashboard/projects/${projectId}`);
         },
-        onError: (error) => {
-          toast.error(
-            error?.response?.data?.message ||
-              (isRTL
-                ? "حدث خطأ أثناء التحديث"
-                : "An error occurred while updating the task."),
-          );
-        },
-      },
+        onError: (err) =>
+          toast.error(err?.response?.data?.message || (isRTL ? "حدث خطأ" : "An error occurred")),
+      }
     );
   };
 
-  if (isLoading || isLoadingProject || isLoadingSections) return <Loading />;
-  if (isError || !task)
-    return (
-      <div className="p-8 text-center text-red-500 font-bold">
-        Task not found.
-      </div>
-    );
-
-  let availableSections = sectionsData || [];
-  if (availableSections.length > 0) {
-    const isLeader = project?.leaderId?._id === userId || project?.coLeaders?.some(u => u._id === userId);
-    if (!isLeader) {
-      availableSections = availableSections.filter(s => s.members?.length === 0 || s.members?.some(m => m._id === userId));
-    }
-  }
+  const priorityOpts = [
+    { value: "low", label: addTaskTranslations.priorityLow },
+    { value: "medium", label: addTaskTranslations.priorityMedium },
+    { value: "high", label: addTaskTranslations.priorityHigh },
+  ];
 
   return (
-    <CheckUserRole projectId={task.projectId._id || task.projectId}>
-      <div className="p-4 md:p-8 bg-gray-50/50 dark:bg-gray-900 min-h-screen transition-colors overflow-hidden">
-        <Card
-          className="max-w-3xl mx-auto border-gray-200 dark:border-gray-800 dark:bg-gray-800 shadow-md transition-colors"
-          dir={isRTL ? "rtl" : "ltr"}
-        >
-          <CardHeader className="bg-gray-50/50 dark:bg-gray-800/20 border-b border-gray-100 dark:border-gray-800 mb-6 pb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600 dark:text-yellow-400 rounded-xl">
-                <Edit className="w-6 h-6" />
-              </div>
-              <div>
-                <CardTitle className="text-xl md:text-2xl font-bold dark:text-white">
-                  {content.head}
-                </CardTitle>
-                <CardDescription className="text-sm text-gray-500 mt-1">
-                  {isRTL
-                    ? "تعديل معلومات وتفاصيل المهمة الحالية وميزاتها."
-                    : "Edit the current task details and properties."}
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
+    <CheckUserRole projectId={projectId}>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900" dir={isRTL ? "rtl" : "ltr"}>
+        <ProjectPageHeader
+          projectId={projectId}
+          projectTitle={project.title}
+          icon={Edit3}
+          iconBg="bg-linear-to-br from-amber-500 to-orange-600"
+          label={isRTL ? "تعديل مهمة" : "Edit Task"}
+          isRTL={isRTL}
+        />
 
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6 pb-4">
-              <div className="space-y-2">
-                <Label htmlFor="title" className="text-[15px] font-semibold">
-                  {content.title}
-                </Label>
-                <Input
-                  id="title"
+        <div className="max-w-2xl mx-auto px-4 py-8 space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-6 space-y-5 shadow-sm">
+              <Field label={addTaskTranslations.taskTitle} icon={ListTodo}>
+                <input
                   name="title"
                   value={form.title}
-                  onChange={handleChange}
+                  onChange={(e) => setField("title", e.target.value)}
                   required
-                  className="h-12 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm focus-visible:ring-blue-500"
+                  className="w-full h-11 px-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 />
-              </div>
+              </Field>
 
-              <div className="space-y-2">
-                <Label
-                  htmlFor="description"
-                  className="text-[15px] font-semibold"
-                >
-                  {content.description}
-                </Label>
-                <Textarea
-                  id="description"
+              <Field label={addTaskTranslations.taskDescription} hint={isRTL ? "اختياري" : "Optional"} icon={AlignLeft}>
+                <textarea
                   name="description"
                   value={form.description}
-                  onChange={handleChange}
-                  rows={4}
-                  className="resize-none bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm focus-visible:ring-blue-500"
+                  onChange={(e) => setField("description", e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm font-medium resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
+                <div className="flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{addTaskTranslations.taskPriority}</span>
+                </div>
+                <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                  {priorityOpts.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setField("priority", opt.value)}
+                      className={`flex-1 py-2 text-xs font-black transition-all ${
+                        form.priority === opt.value
+                          ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
+                          : "bg-white dark:bg-gray-800 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
+                <div className="flex items-center gap-2">
+                  <AlignLeft className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{addTaskTranslations.submissionMethod}</span>
+                </div>
+                <StyledSelect value={form.submissionMethod} onChange={(e) => setField("submissionMethod", e.target.value)}>
+                  <option value="both">{addTaskTranslations.methodBoth}</option>
+                  <option value="text">{addTaskTranslations.methodText}</option>
+                  <option value="link">{addTaskTranslations.methodLink}</option>
+                </StyledSelect>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{addTaskTranslations.dueDate}</span>
+                </div>
+                <DatePicker
+                  value={form.dueDate}
+                  onChange={(val) => setField("dueDate", val)}
+                  disablePast={false}
+                  locale={isRTL ? "ar" : "en"}
                 />
               </div>
 
-
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="priority"
-                    className="text-[15px] font-semibold block"
-                  >
-                    {content.priority}
-                  </Label>
-                  <select
-                    id="priority"
-                    name="priority"
-                    value={form.priority}
-                    onChange={handleChange}
-                    className="w-full h-12 px-3 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option
-                      value="low"
-                      className="text-blue-600 dark:text-blue-400"
-                    >
-                      {isRTL ? "منخفضة" : "Low"}
-                    </option>
-                    <option
-                      value="medium"
-                      className="text-yellow-600 dark:text-yellow-400"
-                    >
-                      {isRTL ? "متوسطة" : "Medium"}
-                    </option>
-                    <option
-                      value="high"
-                      className="text-red-600 dark:text-red-400"
-                    >
-                      {isRTL ? "مرتفعة" : "High"}
-                    </option>
-                  </select>
+              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
+                <div className="flex items-center gap-2">
+                  <Link2 className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{isRTL ? "رابط مرجعي" : "Reference Link"}</span>
                 </div>
-
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="submissionMethod"
-                    className="text-[15px] font-semibold block"
-                  >
-                    {content.submissionMethod}
-                  </Label>
-                  <select
-                    id="submissionMethod"
-                    name="submissionMethod"
-                    value={form.submissionMethod}
-                    onChange={handleChange}
-                    className="w-full h-12 px-3 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="both">{content.methodBoth}</option>
-                    <option value="text">{content.methodText}</option>
-                    <option value="link">{content.methodLink}</option>
-                  </select>
-                </div>
+                <input
+                  type="url"
+                  value={form.referenceLink}
+                  onChange={(e) => setField("referenceLink", e.target.value)}
+                  placeholder="https://..."
+                  className="w-full h-11 px-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                />
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label
-                  htmlFor="submissionDescription"
-                  className="text-[15px] font-semibold"
-                >
-                  {content.submissionDescriptionLabel}
-                </Label>
-                <Textarea
-                  id="submissionDescription"
-                  name="submissionDescription"
+            <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-3">
+              <Field label={addTaskTranslations.submissionDescriptionLabel} hint={isRTL ? "ما المطلوب تسليمه؟" : "What should members submit?"} icon={AlignLeft}>
+                <textarea
                   value={form.submissionDescription}
-                  onChange={handleChange}
+                  onChange={(e) => setField("submissionDescription", e.target.value)}
                   rows={2}
-                  placeholder={content.submissionDescriptionPlaceholder}
-                  className="resize-none bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm focus-visible:ring-blue-500"
+                  className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm font-medium resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 />
-              </div>
+              </Field>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                <div className="space-y-2 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
-                  <Label className="text-[15px] font-semibold block mb-2">
-                    {content.dueDate}
-                  </Label>
-                  <DatePicker
-                    value={form.dueDate}
-                    onChange={(val) =>
-                      setForm((prev) => ({ ...prev, dueDate: val }))
-                    }
-                    placeholder={
-                      content.dueDatePlaceholder || "Pick a due date..."
-                    }
-                    disablePast={false}
-                    locale={isRTL ? "ar" : "en"}
-                  />
-                  {form.dueDate && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                      {content.dueDateHint}
-                    </p>
-                  )}
-                </div>
+            {teamMembers.length > 0 && (
+              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm space-y-5">
+                {project?.hasSections ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{isRTL ? "تعيين الأعضاء لكل قسم" : "Assign Members per Section"}</span>
+                    </div>
+                    {availableSections.map((sec) => {
+                      const secMembers = !sec.members?.length ? teamMembers : teamMembers.filter((tm) => sec.members.some((m) => String(m._id || m) === String(tm._id)));
+                      const assignIdx = form.sectionAssignments.findIndex((a) => a.sectionId === sec._id);
+                      const selectedIds = assignIdx >= 0 ? form.sectionAssignments[assignIdx].members : [];
 
-                <div className="space-y-2 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
-                  <Label
-                    htmlFor="referenceLink"
-                    className="text-[15px] font-semibold block mb-2"
-                  >
-                    {isRTL
-                      ? "رابط مرجعي (اختياري)"
-                      : "Reference Link (Optional)"}
-                  </Label>
-                  <Input
-                    id="referenceLink"
-                    name="referenceLink"
-                    type="url"
-                    value={form.referenceLink}
-                    onChange={handleChange}
-                    placeholder="https://..."
-                    className="h-11 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-sm focus-visible:ring-blue-500"
-                  />
-                </div>
-              </div>
+                      const toggleSecMember = (uid) => {
+                        const arr = [...form.sectionAssignments];
+                        if (assignIdx < 0) {
+                          arr.push({ sectionId: sec._id, members: [uid] });
+                        } else {
+                          const cur = arr[assignIdx].members;
+                          arr[assignIdx] = { ...arr[assignIdx], members: cur.includes(uid) ? cur.filter((x) => x !== uid) : [...cur, uid] };
+                        }
+                        setField("sectionAssignments", arr);
+                      };
 
-              {/* Assign Members */}
-              {teamMembers.length > 0 && (
-                <div className="space-y-4 pt-2">
-                  {project?.hasSections ? (
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
-                        <Label className="text-[16px] font-bold block">{isRTL ? "أقسام المهمة والأعضاء" : "Task Sections & Members"}</Label>
-                        <div className="flex gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              const existingSectionIds = (form.sectionAssignments||[]).map(a => a.sectionId);
-                              const sectionsToAdd = availableSections.filter(s => !existingSectionIds.includes(s._id));
-                              if (sectionsToAdd.length > 0) {
-                                setForm(prev => ({
-                                  ...prev, 
-                                  sectionAssignments: [
-                                    ...(prev.sectionAssignments||[]).filter(a => a.sectionId !== ""), 
-                                    ...sectionsToAdd.map(sec => ({ sectionId: sec._id, members: [] }))
-                                  ]
-                                }));
-                              }
-                            }}
-                            className="rounded-xl font-bold bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/50"
-                          >
-                            <Plus className="w-4 h-4 mr-1 ml-1" />
-                            {isRTL ? "إضافة كل الأقسام" : "Add All"}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setForm(prev => ({...prev, sectionAssignments: [...(prev.sectionAssignments||[]), {sectionId: "", members: []}]}))}
-                            className="rounded-xl font-bold"
-                          >
-                            <Plus className="w-4 h-4 mr-1 ml-1" />
-                            {isRTL ? "إضافة قسم" : "Add Section"}
-                          </Button>
+                      return (
+                        <div key={sec._id} className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 overflow-hidden">
+                          <div onClick={() => setCollapsedSections(p => p.includes(sec._id) ? p.filter(id => id !== sec._id) : [...p, sec._id])} className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 cursor-pointer select-none hover:bg-gray-50 dark:hover:bg-gray-800/80 transition-colors">
+                            <span className="text-sm font-black text-gray-800 dark:text-white">{sec.title}</span>
+                            <div className="flex items-center gap-2">
+                              {selectedIds.length > 0 && <span className="text-[10px] font-black px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-full">{selectedIds.length} {isRTL ? "محدد" : "selected"}</span>}
+                              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${collapsedSections.includes(sec._id) ? "rotate-90 rtl:-rotate-90" : "rotate-0"}`} />
+                            </div>
+                          </div>
+                          {!collapsedSections.includes(sec._id) && (
+                            <div className="p-3 flex flex-wrap gap-2">
+                              {secMembers.map((member) => {
+                                const sel = selectedIds.includes(member._id);
+                                return (
+                                  <button key={member._id} type="button" onClick={() => toggleSecMember(member._id)} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 text-sm font-bold transition-all ${sel ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300"}`}>
+                                    {member.image ? <img src={member.image} alt="" className="w-5 h-5 rounded-full object-cover" /> : <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[9px] font-black">{initials(member)}</div>}
+                                    {displayName(member)}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
-                      </div>
-
-                      {(form.sectionAssignments || []).map((assignment, index) => {
-                         const getFilteredOptions = () => {
-                           if (!assignment.sectionId) return teamMembers;
-                           const sec = availableSections.find(s => s._id === assignment.sectionId);
-                           if (!sec || !sec.members || sec.members.length === 0) return [];
-                           const allowedIds = sec.members.map(m => String(typeof m === "object" ? m._id : m));
-                           return teamMembers.filter(tm => allowedIds.includes(String(tm._id)));
-                         };
-                         const sectionOptions = getFilteredOptions();
-
-                         return (
-                           <div key={index} className="p-4 bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 shadow-sm rounded-[24px] space-y-4 transition-all">
-                             <div className="flex items-center justify-between">
-                               <Label className="font-black text-gray-700 dark:text-gray-300">
-                                 {isRTL ? `القسم ${index + 1}` : `Section ${index + 1}`}
-                               </Label>
-                               {index > 0 && (
-                                 <button type="button" onClick={() => {
-                                   const newArr = [...form.sectionAssignments];
-                                   newArr.splice(index, 1);
-                                   setForm(prev => ({...prev, sectionAssignments: newArr}));
-                                 }} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40 p-2 rounded-xl transition-colors">
-                                   <Trash className="w-4 h-4" />
-                                 </button>
-                               )}
-                             </div>
-
-                             <select
-                               value={assignment.sectionId}
-                               onChange={(e) => {
-                                 const newArr = [...form.sectionAssignments];
-                                 newArr[index].sectionId = e.target.value;
-                                 setForm(prev => ({...prev, sectionAssignments: newArr}));
-                               }}
-                               className="w-full h-12 px-3 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
-                             >
-                               <option value="" disabled>{isRTL ? "اختر القسم..." : "Select a section..."}</option>
-                               {availableSections.map(sec => <option key={sec._id} value={sec._id}>{sec.title}</option>)}
-                             </select>
-
-                             {assignment.sectionId && (
-                               <div className="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800">
-                                  <div className="flex items-center justify-between">
-                                    <Label className="text-sm font-bold text-gray-600 dark:text-gray-400">{isRTL ? "أعضاء هذا القسم" : "Members for this section"}</Label>
-                                    <button type="button" onClick={() => {
-                                      if (sectionOptions.length > 0) {
-                                        setForm(prev => {
-                                          const newArr = [...prev.sectionAssignments];
-                                          newArr[index].members = sectionOptions.map(u => u._id);
-                                          return {...prev, sectionAssignments: newArr};
-                                        });
-                                      }
-                                    }} className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
-                                      {isRTL ? "اختيار الكل" : "Select All"}
-                                    </button>
-                                  </div>
-                                  <Command className="border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-sm dark:bg-gray-800" dir={isRTL ? "rtl" : "ltr"}>
-                                    <div className="relative">
-                                      <CommandInput placeholder={addTaskContent.searchMember} className={`h-12 border-none ring-0 focus:ring-0 ${isRTL ? "pr-10" : "pl-10"}`} />
-                                    </div>
-                                    <CommandList className="max-h-40 overflow-auto">
-                                      {sectionOptions.length === 0 && (
-                                        <div className="p-4 text-center text-sm text-gray-500 font-medium bg-gray-50/50 dark:bg-gray-800/50">
-                                          {isRTL ? "يجب إضافة أعضاء لهذا القسم من خلال خيارات القسم في لوحة المهام أولاً" : "Add members to this section via Section options in Project Tasks first"}
-                                        </div>
-                                      )}
-                                      {sectionOptions.map((user) => (
-                                        <CommandItem
-                                          key={user._id}
-                                          value={user.name !== "null null" && user.name ? user.name : user.email?.split("@")[0].replace(/[0-9]/g, "")}
-                                          onSelect={() => handleAssign(user._id, index)}
-                                          className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer flex items-center justify-between gap-3 min-w-0"
-                                        >
-                                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                                            <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 flex items-center justify-center text-xs font-bold shrink-0">
-                                              {user?.email?.charAt(0).toUpperCase()}
-                                            </div>
-                                            <div className="min-w-0">
-                                              <p className="font-semibold text-gray-800 dark:text-white truncate">
-                                                {user.name !== "null null" && user.name ? user.name : user.email?.split("@")[0].replace(/[0-9]/g, "")}
-                                              </p>
-                                            </div>
-                                          </div>
-                                          {assignment.members.includes(user._id) && (
-                                            <span className="shrink-0 text-green-600 dark:text-green-400 text-[10px] font-black uppercase tracking-wider flex items-center">
-                                              ✓ {isRTL ? "مضاف" : "ADDED"}
-                                            </span>
-                                          )}
-                                        </CommandItem>
-                                      ))}
-                                    </CommandList>
-                                  </Command>
-
-                                  {assignment.members.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 pt-2">
-                                      {assignment.members.map((uid) => {
-                                        const user = teamMembers.find((u) => u._id === uid);
-                                        const fallback = (task.assignedTo || []).find((u) => (u._id || u) === uid);
-                                        const displayUser = user || fallback;
-                                        const displayName = displayUser ? typeof displayUser === "object" ? displayUser.name && displayUser.name !== "null null" ? displayUser.name : displayUser.email?.split("@")[0] || uid : uid : uid;
-                                        return (
-                                          <Badge key={uid} onClick={() => handleRemoveAssigned(uid, index)} variant="secondary" className="cursor-pointer px-3 py-1.5 rounded-xl hover:bg-red-50 hover:text-red-600 border border-gray-200">
-                                            <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 flex items-center justify-center text-[10px] font-bold mr-2 ml-2">
-                                              {(typeof displayName === "string" ? displayName : String(displayName)).charAt(0).toUpperCase()}
-                                            </div>
-                                            <span className="font-bold mr-1 ml-1">{displayName}</span>
-                                            <span className="text-gray-400 font-bold">×</span>
-                                          </Badge>
-                                        );
-                                      })}
-                                    </div>
-                                  )}
-                               </div>
-                             )}
-                           </div>
-                         );
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{addTaskTranslations.assignTo}</span>
+                      <button type="button" onClick={() => setField("assignedTo", teamMembers.map((u) => u._id))} className="text-xs font-black text-blue-600 dark:text-blue-400 hover:underline">{isRTL ? "اختيار الكل" : "Select All"}</button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {teamMembers.map((member) => {
+                        const sel = form.assignedTo.includes(member._id);
+                        return (
+                          <button key={member._id} type="button" onClick={() => setField("assignedTo", sel ? form.assignedTo.filter(id => id !== member._id) : [...form.assignedTo, member._id])} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 text-sm font-bold transition-all ${sel ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300" : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300"}`}>
+                            {member.image ? <img src={member.image} alt="" className="w-5 h-5 rounded-full object-cover" /> : <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[9px] font-black">{initials(member)}</div>}
+                            {displayName(member)}
+                          </button>
+                        );
                       })}
                     </div>
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <Label className="text-[15px] font-semibold">{addTaskContent.assignTo}</Label>
-                        <button type="button" onClick={() => {
-                           setForm(prev => ({...prev, assignedTo: teamMembers.map(u => u._id)}));
-                        }} className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline">
-                          {isRTL ? "اختيار الكل" : "Select All"}
-                        </button>
-                      </div>
-                      <Command className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm dark:bg-gray-900 mt-1" dir={isRTL ? "rtl" : "ltr"}>
-                        <div className="relative">
-                          <CommandInput
-                            placeholder={addTaskContent.searchMember}
-                            className={`h-12 outline-none border-none ring-0 shadow-none focus-visible:ring-0 focus:outline-none ${isRTL ? "pr-10" : "pl-10"}`}
-                          />
-                        </div>
-                        <CommandList className="max-h-48 overflow-auto">
-                          {teamMembers.map((user) => (
-                            <CommandItem
-                              key={user._id}
-                              value={user.name !== "null null" && user.name ? user.name : user.email?.split("@")[0]}
-                              onSelect={() => handleAssign(user._id)}
-                              className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer flex items-center justify-between gap-3 min-w-0"
-                            >
-                              <div className="flex items-center gap-3 min-w-0 flex-1">
-                                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700">
-                                  {user?.email?.charAt(0).toUpperCase()}
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="font-semibold text-gray-800 dark:text-white truncate">
-                                    {user.name !== "null null" && user.name ? user.name : user.email?.split("@")[0]}
-                                  </p>
-                                </div>
-                              </div>
-                              {form.assignedTo.includes(user._id) && (
-                                <span className="text-green-600 dark:text-green-400 text-xs font-bold">✓ {isRTL ? "مضاف" : "Added"}</span>
-                              )}
-                            </CommandItem>
-                          ))}
-                        </CommandList>
-                      </Command>
+                  </div>
+                )}
+              </div>
+            )}
 
-                      {form.assignedTo.length > 0 && (
-                        <div className="space-y-2 mt-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                          <Label className="text-[14px] text-gray-600 font-medium">{addTaskContent.selectedMembers}</Label>
-                          <div className="flex flex-wrap gap-2">
-                            {form.assignedTo.map((uid) => {
-                              const user = teamMembers.find((u) => u._id === uid);
-                              const fallback = (task.assignedTo || []).find((u) => (u._id || u) === uid);
-                              const displayUser = user || fallback;
-                              const displayName = displayUser ? typeof displayUser === "object" ? displayUser.name && displayUser.name !== "null null" ? displayUser.name : displayUser.email?.split("@")[0] || uid : uid : uid;
-                              
-                              return (
-                                <Badge key={uid} onClick={() => handleRemoveAssigned(uid)} variant="secondary" className="cursor-pointer border border-gray-200 px-3 py-1.5 rounded-xl">
-                                  <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400 flex items-center justify-center text-[10px] font-bold mr-2 ml-2">
-                                    {(typeof displayName === "string" ? displayName : String(displayName)).charAt(0).toUpperCase()}
-                                  </div>
-                                  <span className="font-medium mr-1 ml-1">{displayName}</span>
-                                  <span className="text-gray-400 font-bold">×</span>
-                                </Badge>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  )}
+            <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Clock className="w-4 h-4 text-gray-400 shrink-0" />
+                <div>
+                  <p className="text-sm font-bold text-gray-800 dark:text-white">{isRTL ? "السماح بالتسليم المتأخر" : "Allow Late Submission"}</p>
                 </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setField("allowLateSubmission", !form.allowLateSubmission)}
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none ${form.allowLateSubmission ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-600"}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${form.allowLateSubmission ? (isRTL ? "-translate-x-6" : "translate-x-6") : (isRTL ? "-translate-x-1" : "translate-x-1")}`} />
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-black rounded-2xl transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 text-sm"
+            >
+              {isPending ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  {isRTL ? "جاري التحديث..." : "Updating..."}
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4" />
+                  {isRTL ? "تحديث المهمة" : "Update Task"}
+                </>
               )}
-
-              {/* Late Submission Toggle */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 gap-4">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-[15px] font-semibold text-gray-800 dark:text-white">
-                    {isRTL ? "السماح بالتسليم المتأخر" : "Allow Late Submission"}
-                  </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {form.allowLateSubmission
-                      ? isRTL
-                        ? "الأعضاء يقدرون يسلموا بعد الـ deadline (يُحتسب متأخر)"
-                        : "Members can submit after the deadline (marked as late)"
-                      : isRTL
-                        ? "لا يُسمح بالتسليم بعد انتهاء الـ deadline"
-                        : "Submissions blocked after the deadline"}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setForm((prev) => ({ ...prev, allowLateSubmission: !prev.allowLateSubmission }))}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                    form.allowLateSubmission ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                      form.allowLateSubmission ? (isRTL ? "-translate-x-6" : "translate-x-6") : (isRTL ? "-translate-x-1" : "translate-x-1")
-                    }`}
-                  />
-                </button>
-              </div>
-
-              <div className="pt-6 border-t border-gray-100 dark:border-gray-800 mt-8">
-                <Button
-                  type="submit"
-                  disabled={isUpdating}
-                  className="w-full h-12 text-md font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                >
-                  {isUpdating ? (
-                    <span className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      {isRTL ? "جاري التحديث..." : "Updating..."}
-                    </span>
-                  ) : (
-                    <>
-                      <RefreshCw className="w-5 h-5" />
-                      {isRTL ? "تحديث المهمة" : "Update Task"}
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+            </button>
+          </form>
+        </div>
       </div>
     </CheckUserRole>
   );

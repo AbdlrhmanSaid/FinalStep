@@ -281,21 +281,21 @@ const ProjectDetailPage = () => {
                     <TabsList className="bg-white dark:bg-gray-800 p-1 rounded-2xl border border-gray-100 dark:border-gray-800 md:h-12 flex flex-col md:flex-row w-max min-w-full h-fit">
                       <TabsTrigger
                         value="tasks"
-                        className="rounded-xl px-6 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/30 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 font-black text-xs uppercase tracking-widest gap-2 w-full"
+                        className="rounded-xl px-6 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/30 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 font-black uppercase tracking-widest gap-2 w-full"
                       >
                         <ClipboardList className="w-4 h-4" />
                         {isRTL ? "المهام" : "Tasks"}
                       </TabsTrigger>
                       <TabsTrigger
                         value="sections"
-                        className="rounded-xl px-6 data-[state=active]:bg-violet-50 dark:data-[state=active]:bg-violet-900/30 data-[state=active]:text-violet-600 dark:data-[state=active]:text-violet-400 font-black text-xs uppercase tracking-widest gap-2 w-full"
+                        className="rounded-xl px-6 data-[state=active]:bg-violet-50 dark:data-[state=active]:bg-violet-900/30 data-[state=active]:text-violet-600 dark:data-[state=active]:text-violet-400 font-black uppercase tracking-widest gap-2 w-full"
                       >
                         <LayoutGrid className="w-4 h-4" />
                         {isRTL ? "الأقسام" : "Sections"}
                       </TabsTrigger>
                       <TabsTrigger
                         value="section_plan"
-                        className="rounded-xl px-6 data-[state=active]:bg-teal-50 dark:data-[state=active]:bg-teal-900/30 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 font-black text-xs uppercase tracking-widest gap-2 w-full"
+                        className="rounded-xl px-6 data-[state=active]:bg-teal-50 dark:data-[state=active]:bg-teal-900/30 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 font-black  uppercase tracking-widest gap-2 w-full"
                       >
                         <Zap className="w-4 h-4" />
                         {isRTL ? "خطة القسم" : "Section Plan"}

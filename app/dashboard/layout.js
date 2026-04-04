@@ -16,7 +16,7 @@ const layout = async ({ children }) => {
   return (
     <QueryProvider>
       <AppProvider user={user}>
-        <div className="antialiased min-h-screen flex flex-col">
+        <div className="antialiased min-h-screen flex flex-col font-arabic">
           <nav className="relative z-[999] w-full overflow-visible">
             <Navbar />
           </nav>
