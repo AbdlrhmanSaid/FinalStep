@@ -196,17 +196,17 @@ export default function ProjectsList() {
               className="w-full lg:w-auto"
               dir={isRTL ? "rtl" : "ltr"}
             >
-              <div className=" mx-4 px-4 sm:mx-0 sm:px-0">
-                <TabsList className="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl md:h-10 border border-gray-200 dark:border-gray-700  sm:w-auto  flex flex-col md:flex-row whitespace-nowrap w-fit h-fit">
+              <div className="mx-0 px-0">
+                <TabsList className="bg-gray-100 dark:bg-gray-800 p-1.5 rounded-2xl border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row w-full sm:w-fit h-auto sm:h-12 shadow-sm gap-1 sm:gap-0">
                   <TabsTrigger
                     value="leading"
-                    className="rounded-lg px-4 sm:px-6 w-full text-sm font-medium transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
+                    className="rounded-xl px-4 py-2.5 sm:py-1 sm:px-6 w-full text-sm font-bold transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 data-[state=active]:shadow-sm"
                   >
                     {content.dashboard.sections.leading}
                   </TabsTrigger>
                   <TabsTrigger
                     value="participating"
-                    className="rounded-lg px-4 sm:px-6 text-sm font-medium transition-all w-full data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400"
+                    className="rounded-xl px-4 py-2.5 sm:py-1 sm:px-6 text-sm font-bold transition-all w-full data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400 data-[state=active]:shadow-sm"
                   >
                     {content.dashboard.sections.participating}
                   </TabsTrigger>

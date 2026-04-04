@@ -6,6 +6,7 @@ import ConfirmDeleteDialog from "@/components/dashboard/ConfirmDeleteDialog";
 export default function CurrentTeamSection({
   project,
   isRTL,
+  sections,
   onPromote,
   onDemote,
   onDelete,
@@ -39,9 +40,31 @@ export default function CurrentTeamSection({
           <span className="block text-xs sm:text-sm font-black text-gray-900 dark:text-white truncate">
             {user.name !== "null null" ? user.name : user.email.split("@")[0]}
           </span>
-          <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-tighter truncate block">
-            {user.email}
-          </span>
+          <div className="flex flex-wrap items-center gap-2 mt-0.5">
+            <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-tighter truncate max-w-[120px] sm:max-w-xs">
+              {user.email}
+            </span>
+            {sections && (() => {
+              const userSections = sections.filter(s => s.members?.some(m => (m._id || m) === user._id));
+              if (userSections.length > 0) {
+                return (
+                  <div className="flex flex-wrap gap-1">
+                    {userSections.map(s => (
+                      <span key={s._id} className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                        {s.title}
+                      </span>
+                    ))}
+                  </div>
+                );
+              } else {
+                return (
+                  <span className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                    {isRTL ? "بدون قسم" : "No Section"}
+                  </span>
+                );
+              }
+            })()}
+          </div>
         </div>
       </div>
 

@@ -90,7 +90,9 @@ export function TypeDropdown({ currentType, onSelect, isRTL, disabled }) {
         <>
           <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
           <div
-            className={`absolute z-30 mt-1.5 w-36 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden ${isRTL ? "right-0" : "left-0"}`}
+            className={`absolute z-30 mt-1.5 w-[calc(100vw-2rem)] sm:w-36 max-w-[150px] bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden ${
+              isRTL ? "right-[-10px] sm:right-0" : "left-[-10px] sm:left-0"
+            }`}
           >
             {Object.entries(TYPES).map(([key, t]) => {
               const TIcon = t.icon;
@@ -108,9 +110,9 @@ export function TypeDropdown({ currentType, onSelect, isRTL, disabled }) {
                       : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                   }`}
                 >
-                  <TIcon className="w-3.5 h-3.5" />
-                  {isRTL ? t.label.ar : t.label.en}
-                  {key === currentType && <Check className="w-3 h-3 ms-auto" />}
+                  <TIcon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{isRTL ? t.label.ar : t.label.en}</span>
+                  {key === currentType && <Check className="w-3 h-3 ms-auto shrink-0" />}
                 </button>
               );
             })}
@@ -157,7 +159,9 @@ export function SectionDropdown({
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
           <div
-            className={`absolute z-20 mt-1.5 w-48 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden ${isRTL ? "right-0" : "left-0"}`}
+            className={`absolute z-20 mt-1.5 w-[calc(100vw-2rem)] sm:w-48 max-w-[200px] bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xl overflow-hidden ${
+              isRTL ? "right-[-10px] sm:right-0" : "left-[-10px] sm:left-0"
+            }`}
           >
             <button
               onClick={() => {
@@ -168,7 +172,7 @@ export function SectionDropdown({
             >
               {isRTL ? "بدون قسم (عام)" : "No Section (General)"}
             </button>
-            <div className="max-h-40 overflow-y-auto">
+            <div className="max-h-56 overflow-y-auto">
               {sections.map((s) => (
                 <button
                   key={s._id}
@@ -182,8 +186,8 @@ export function SectionDropdown({
                       : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                   }`}
                 >
-                  {s.title}
-                  {s._id === currentId && <Check className="w-3 h-3" />}
+                  <span className="truncate">{s.title}</span>
+                  {s._id === currentId && <Check className="w-3 h-3 shrink-0 ms-2" />}
                 </button>
               ))}
             </div>

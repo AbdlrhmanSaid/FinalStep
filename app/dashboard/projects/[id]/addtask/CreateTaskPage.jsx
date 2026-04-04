@@ -201,6 +201,8 @@ export default function CreateTaskPage() {
     sectionAssignments: [{ sectionId: "", members: [] }],
   });
 
+  const [collapsedSections, setCollapsedSections] = useState([]);
+
   if (isLoading || isLoadingSections || !project) return <Loading />;
 
   /* ─── Sections & team ─── */
@@ -599,7 +601,10 @@ export default function CreateTaskPage() {
                             className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 overflow-hidden"
                           >
                             {/* Section header */}
-                            <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+                            <div 
+                              onClick={() => setCollapsedSections(p => p.includes(sec._id) ? p.filter(id => id !== sec._id) : [...p, sec._id])}
+                              className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 cursor-pointer select-none hover:bg-gray-50 dark:hover:bg-gray-800/80 transition-colors"
+                            >
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-violet-500" />
                                 <span className="text-sm font-black text-gray-800 dark:text-white">
@@ -611,10 +616,10 @@ export default function CreateTaskPage() {
                                   </span>
                                 )}
                               </div>
-                              <div className="flex gap-3 text-[11px] font-bold">
+                              <div className="flex items-center gap-3 text-[11px] font-bold">
                                 <button
                                   type="button"
-                                  onClick={selectAll}
+                                  onClick={(e) => { e.stopPropagation(); selectAll(); }}
                                   className="text-blue-600 dark:text-blue-400 hover:underline"
                                 >
                                   {isRTL ? "الكل" : "All"}
@@ -622,51 +627,57 @@ export default function CreateTaskPage() {
                                 {selectedIds.length > 0 && (
                                   <button
                                     type="button"
-                                    onClick={clearAll}
+                                    onClick={(e) => { e.stopPropagation(); clearAll(); }}
                                     className="text-rose-500 dark:text-rose-400 hover:underline"
                                   >
                                     {isRTL ? "مسح" : "Clear"}
                                   </button>
                                 )}
+                                <div className="w-px h-4 bg-gray-200 dark:bg-gray-700 ms-1" />
+                                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${collapsedSections.includes(sec._id) ? "rotate-90 rtl:-rotate-90" : "rotate-0"} shrink-0`} />
                               </div>
                             </div>
 
-                            {/* Members toggle grid */}
-                            {secMembers.length === 0 ? (
-                              <p className="text-xs text-gray-400 text-center py-4 px-4">
-                                {isRTL
-                                  ? "لا يوجد أعضاء في هذا القسم — أضفهم من صفحة إدارة الأقسام"
-                                  : "No members in this section — add them from the Sections page"}
-                              </p>
-                            ) : (
-                              <div className="p-3 flex flex-wrap gap-2">
-                                {secMembers.map((member) => {
-                                  const sel = selectedIds.includes(member._id);
-                                  return (
-                                    <button
-                                      key={member._id}
-                                      type="button"
-                                      onClick={() => toggleSecMember(member._id)}
-                                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 text-sm font-bold transition-all ${
-                                        sel
-                                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
-                                      }`}
-                                    >
-                                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black shrink-0 ${
-                                        sel
-                                          ? "bg-blue-500 text-white"
-                                          : "bg-gray-200 dark:bg-gray-700 text-gray-500"
-                                      }`}>
-                                        {member.image
-                                          ? <img src={member.image} alt="" className="w-full h-full rounded-full object-cover" />
-                                          : initials(member)}
-                                      </div>
-                                      {displayName(member)}
-                                      {sel && <Check className="w-3.5 h-3.5 shrink-0" />}
-                                    </button>
-                                  );
-                                })}
+                            {!collapsedSections.includes(sec._id) && (
+                              <div className="border-t border-gray-100 dark:border-gray-700/50">
+                                {/* Members toggle grid */}
+                                {secMembers.length === 0 ? (
+                                  <p className="text-xs text-gray-400 text-center py-4 px-4">
+                                    {isRTL
+                                      ? "لا يوجد أعضاء في هذا القسم — أضفهم من صفحة إدارة الأقسام"
+                                      : "No members in this section — add them from the Sections page"}
+                                  </p>
+                                ) : (
+                                  <div className="p-3 flex flex-wrap gap-2">
+                                    {secMembers.map((member) => {
+                                      const sel = selectedIds.includes(member._id);
+                                      return (
+                                        <button
+                                          key={member._id}
+                                          type="button"
+                                          onClick={() => toggleSecMember(member._id)}
+                                          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 text-sm font-bold transition-all ${
+                                            sel
+                                              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                                              : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
+                                          }`}
+                                        >
+                                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black shrink-0 ${
+                                            sel
+                                              ? "bg-blue-500 text-white"
+                                              : "bg-gray-200 dark:bg-gray-700 text-gray-500"
+                                          }`}>
+                                            {member.image
+                                              ? <img src={member.image} alt="" className="w-full h-full rounded-full object-cover" />
+                                              : initials(member)}
+                                          </div>
+                                          {displayName(member)}
+                                          {sel && <Check className="w-3.5 h-3.5 shrink-0" />}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>

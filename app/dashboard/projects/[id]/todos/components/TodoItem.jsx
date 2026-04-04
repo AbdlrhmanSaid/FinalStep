@@ -62,7 +62,7 @@ export default function TodoItem({
 
   return (
     <div
-      className={`group relative flex flex-col sm:flex-row gap-3 p-4 rounded-2xl border transition-all duration-200 ${
+      className={`group relative flex flex-col sm:flex-row gap-3 p-4 rounded-2xl border transition-all duration-200 z-10 hover:z-50 focus-within:z-50 ${
         isOptimistic ? "opacity-50 animate-pulse" : ""
       } ${cfg.border} ${cfg.hover} bg-white dark:bg-gray-800/60 backdrop-blur-sm`}
     >

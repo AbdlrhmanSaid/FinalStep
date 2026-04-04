@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Users, ArrowUp, ArrowLeft } from "lucide-react";
 
 import { useGetProject } from "@/hooks/projects/useGetProjects";
+import { useGetSections } from "@/hooks/sections/useGetSections";
 import { useDeleteMember } from "@/hooks/projects/useDeleteMember";
 import { useUpdateMemberRole } from "@/hooks/projects/useUpdateMemberRole";
 import { useAppContext } from "@/contexts/AppContext";
@@ -16,7 +17,8 @@ import CurrentTeamSection from "./components/CurrentTeamSection";
 export default function UpdateTeam() {
   const { id } = useParams();
   const router = useRouter();
-  const { data: project, isLoading, error } = useGetProject(id);
+  const { data: project, isLoading: loadingProject, error } = useGetProject(id);
+  const { data: sections } = useGetSections(id);
   const { userId, isRTL, email: sender } = useAppContext();
 
   const { mutate: deleteMember } = useDeleteMember();
@@ -42,7 +44,7 @@ export default function UpdateTeam() {
     });
   };
 
-  if (isLoading) return <Loading />;
+  if (loadingProject) return <Loading />;
   if (error) return <div>Error: {error.message}</div>;
   if (!project) return null;
 
@@ -90,6 +92,7 @@ export default function UpdateTeam() {
           <CurrentTeamSection
             project={project}
             isRTL={isRTL}
+            sections={sections}
             onPromote={handlePromote}
             onDemote={handleDemote}
             onDelete={handleDelete}
