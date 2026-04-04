@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Loading from "../../../../components/Loading";
+import Loading from "@/components/Loading";
 
 const ReportPage = dynamic(() => import("./ReportPage"), {
   ssr: false,

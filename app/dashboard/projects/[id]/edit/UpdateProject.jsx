@@ -1,13 +1,13 @@
 "use client";
 
 import { useParams, redirect } from "next/navigation";
-import { useUpdateProject } from "../../../../hooks/projects/useUpdateProject";
+import { useUpdateProject } from "@/hooks/projects/useUpdateProject";
 import ProjectEditForm from "./ProjectEditForm";
-import Loading from "../../../../components/Loading";
-import CheckUserRole from "../../../../lib/actions/checkUserRole";
-import { useAppContext } from "../../../../contexts/AppContext";
-import { useGetProject } from "../../../../hooks/projects/useGetProjects";
-import { translations } from "../../../../lib/translations";
+import Loading from "@/components/Loading";
+import CheckUserRole from "@/lib/actions/checkUserRole";
+import { useAppContext } from "@/contexts/AppContext";
+import { useGetProject } from "@/hooks/projects/useGetProjects";
+import { translations } from "@/lib/translations";
 
 export default function UpdateProjectPage() {
   const { id } = useParams();

@@ -7,7 +7,8 @@ import { useGetUserById } from "../../../../hooks/users/useGetUsers";
 import { useUpdateCurrentUser } from "../../../../hooks/users/useUpdateCurrentUser";
 import { useAppContext } from "../../../../contexts/AppContext";
 import { translations } from "../../../../lib/translations";
-import Loading from "../../../../components/Loading";
+import Loading from "@/components/Loading";
+
 import { Button } from "../../../../components/ui/button";
 import Link from "next/link";
 import { format } from "date-fns";

@@ -382,7 +382,7 @@ const ProjectDetailPage = () => {
                 title={isRTL ? "معلومات المشروع" : "Project Info"}
                 icon={Info}
                 isRTL={isRTL}
-                defaultOpen={true}
+                defaultOpen={false}
               >
                 <ProjectDetailsSection
                   data={data}
@@ -399,7 +399,7 @@ const ProjectDetailPage = () => {
                   title={isRTL ? "أعضاء الفريق" : "Team Members"}
                   icon={Users}
                   isRTL={isRTL}
-                  defaultOpen={true}
+                  defaultOpen={false}
                 >
                   <ProjectTeamSection
                     data={data}
@@ -418,7 +418,7 @@ const ProjectDetailPage = () => {
                   title={isRTL ? "طلبات الانضمام" : "Join Requests"}
                   icon={GitPullRequest}
                   isRTL={isRTL}
-                  defaultOpen={true}
+                  defaultOpen={false}
                 >
                   <ProjectJoinRequests
                     data={data}
@@ -439,7 +439,7 @@ const ProjectDetailPage = () => {
                   title={isRTL ? "خطة العمل" : "Roadmap"}
                   icon={ClipboardList}
                   isRTL={isRTL}
-                  defaultOpen={true}
+                  defaultOpen={false}
                 >
                   <ProjectRoadmapWidget
                     projectId={id}

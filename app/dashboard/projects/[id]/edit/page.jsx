@@ -1,8 +1,7 @@
 import dynamic from "next/dynamic";
 import Loading from "@/components/Loading";
 
-
-const TaskDetailPage = dynamic(() => import("./TaskDetailPage"), {
+const UpdateProjectPage = dynamic(() => import("./UpdateProject"), {
   loading: () => (
     <div className="flex items-center justify-center py-10 text-sm text-gray-500">
       <Loading />
@@ -12,7 +11,7 @@ const TaskDetailPage = dynamic(() => import("./TaskDetailPage"), {
 });
 
 const Page = () => {
-  return <TaskDetailPage />;
+  return <UpdateProjectPage />;
 };
 
 export default Page;

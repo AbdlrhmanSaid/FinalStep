@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "../../../../components/ui/switch";
-import { Button } from "../../../../components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Settings, Save, Globe, Layers } from "lucide-react";
-import DatePicker from "../../../../components/ui/DatePicker";
+import DatePicker from "@/components/ui/DatePicker";
 
 export default function ProjectEditForm({
   project,

@@ -3,12 +3,12 @@
 import { useParams, useRouter } from "next/navigation";
 import { Users, ArrowUp, ArrowLeft } from "lucide-react";
 
-import { useGetProject } from "../../../../hooks/projects/useGetProjects";
-import { useDeleteMember } from "../../../../hooks/projects/useDeleteMember";
-import { useUpdateMemberRole } from "../../../../hooks/projects/useUpdateMemberRole";
-import { useAppContext } from "../../../../contexts/AppContext";
-import Loading from "../../../../components/Loading";
-import CheckUserRole from "../../../../lib/actions/checkUserRole";
+import { useGetProject } from "@/hooks/projects/useGetProjects";
+import { useDeleteMember } from "@/hooks/projects/useDeleteMember";
+import { useUpdateMemberRole } from "@/hooks/projects/useUpdateMemberRole";
+import { useAppContext } from "@/contexts/AppContext";
+import Loading from "@/components/Loading";
+import CheckUserRole from "@/lib/actions/checkUserRole";
 
 import InviteMemberSection from "./components/InviteMemberSection";
 import CurrentTeamSection from "./components/CurrentTeamSection";
