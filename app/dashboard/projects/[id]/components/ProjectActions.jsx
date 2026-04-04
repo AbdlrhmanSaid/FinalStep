@@ -12,17 +12,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import Link from "next/link";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+import ConfirmDeleteDialog from "@/components/dashboard/ConfirmDeleteDialog";
 import { toast } from "react-hot-toast";
 
 export default function ProjectActions({
@@ -143,71 +133,37 @@ export default function ProjectActions({
           )}
 
           {isLeader && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
+            <ConfirmDeleteDialog
+              trigger={
                 <button className="w-full flex items-center justify-center gap-3 p-3.5 rounded-2xl font-black text-xs uppercase tracking-widest text-rose-600 bg-rose-50 dark:bg-rose-900/10 hover:bg-rose-100 dark:hover:bg-rose-900/20 transition-all">
                   <Trash className="w-4 h-4" />
                   {content.delete}
                 </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 rounded-3xl">
-                <AlertDialogHeader>
-                  <div className="mx-auto w-12 h-12 bg-rose-50 dark:bg-rose-900/20 rounded-full flex items-center justify-center mb-2">
-                    <ShieldAlert className="w-6 h-6 text-rose-600" />
-                  </div>
-                  <AlertDialogTitle className="font-black text-center">
-                    {modal.confirmTitle}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription className="text-gray-500 text-center">
-                    {modal.alertTitle}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="flex-row gap-2">
-                  <AlertDialogCancel className="rounded-xl flex-1 font-bold">
-                    {modal.cancel}
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    className="bg-rose-600 hover:bg-rose-700 rounded-xl flex-1 font-black"
-                  >
-                    {modal.confirm}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+              }
+              title={modal.confirmTitle}
+              description={modal.alertTitle}
+              onConfirm={handleDelete}
+              cancelText={modal.cancel}
+              confirmText={modal.confirm}
+            />
           )}
 
           {/* Member-only: leave button — subtle and simple */}
           {isMember && !isFinished && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
+            <ConfirmDeleteDialog
+              variant="warning"
+              trigger={
                 <button className="w-full flex items-center justify-center gap-2 p-3 rounded-2xl text-xs font-bold text-rose-500 dark:text-rose-400 border border-rose-100 dark:border-rose-900/40 hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all">
                   <UserMinus className="w-4 h-4" />
                   {content.leave}
                 </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 rounded-3xl">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="dark:text-white">
-                    {content.leaveConfirmTitle}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription className="text-gray-500">
-                    {content.leaveConfirmDesc}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="flex-row gap-2">
-                  <AlertDialogCancel className="rounded-xl flex-1 font-bold">
-                    {modal.cancel}
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleLeave}
-                    className="bg-rose-600 hover:bg-rose-700 rounded-xl flex-1 font-black"
-                  >
-                    {content.leaveConfirm}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+              }
+              title={content.leaveConfirmTitle}
+              description={content.leaveConfirmDesc}
+              onConfirm={handleLeave}
+              cancelText={modal.cancel}
+              confirmText={content.leaveConfirm}
+            />
           )}
         </div>
       </div>

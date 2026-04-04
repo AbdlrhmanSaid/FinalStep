@@ -19,17 +19,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Loading from "@/components/Loading";
 import { isBefore, isToday, differenceInDays, format } from "date-fns";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+import ConfirmDeleteDialog from "@/components/dashboard/ConfirmDeleteDialog";
 import {
   Tooltip,
   TooltipContent,
@@ -232,10 +222,10 @@ export default function ProjectTasks({
                 activeSectionId === sec._id
                   ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shadow-sm"
                   : "text-gray-500 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-900"
-              }`}
-            >
-              {sec.title}
-            </button>
+            }`}
+          >
+            {sec.title}
+          </button>
           ))}
           {isLeader && (
             <Link
@@ -381,41 +371,18 @@ export default function ProjectTasks({
                               </TooltipContent>
                             </Tooltip>
 
-                            <AlertDialog>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <AlertDialogTrigger asChild>
-                                    <button className="p-2.5 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-xl transition-all">
-                                      <Trash className="w-4 h-4" />
-                                    </button>
-                                  </AlertDialogTrigger>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>{content.delete}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                              <AlertDialogContent className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-3xl">
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle className="font-black">
-                                    {modal.confirmTitle}
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription className="text-gray-500">
-                                    {modal.alertTitle}
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel className="rounded-xl font-bold">
-                                    {modal.cancel}
-                                  </AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => deleteTask(task._id)}
-                                    className="bg-rose-600 hover:bg-rose-700 rounded-xl font-bold"
-                                  >
-                                    {modal.confirm}
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                            <ConfirmDeleteDialog
+                              trigger={
+                                <button className="p-2.5 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-xl transition-all">
+                                  <Trash className="w-4 h-4" />
+                                </button>
+                              }
+                              title={modal.confirmTitle}
+                              description={modal.alertTitle}
+                              onConfirm={() => deleteTask(task._id)}
+                              cancelText={modal.cancel}
+                              confirmText={modal.confirm}
+                            />
                           </TooltipProvider>
                         </div>
                       )}

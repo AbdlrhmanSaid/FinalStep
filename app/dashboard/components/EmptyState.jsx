@@ -14,7 +14,7 @@ export default function EmptyState({ content, isRTL }) {
         {content.emptyState.description}
       </p>
       <Link
-        href={"/dashboard/createProject"}
+        href={"/dashboard/projects/create"}
         className="bg-blue-700 px-3 py-1 rounded text-white "
       >
         {content.emptyState.action}

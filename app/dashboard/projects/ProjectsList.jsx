@@ -119,7 +119,7 @@ export default function ProjectsList() {
                 />
               </button>
 
-              <Link href="/dashboard/createProject">
+              <Link href="/dashboard/projects/create">
                 <button className="ml-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-sm shadow-blue-500/20">
                   <Plus className="w-4 h-4" />
                   {content.dashboard.quickActions.createProject}
@@ -148,7 +148,7 @@ export default function ProjectsList() {
               </p>
             </div>
 
-            <div className="flex items-center gap-8 py-2 px-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-4 sm:gap-8 py-2 px-4 sm:px-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">
                   {isRTL ? "نشط" : "Active Tasks"}
@@ -196,20 +196,22 @@ export default function ProjectsList() {
               className="w-full lg:w-auto"
               dir={isRTL ? "rtl" : "ltr"}
             >
-              <TabsList className="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl h-10 border border-gray-200 dark:border-gray-700">
-                <TabsTrigger
-                  value="leading"
-                  className="rounded-lg px-6 text-sm font-medium transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
-                >
-                  {content.dashboard.sections.leading}
-                </TabsTrigger>
-                <TabsTrigger
-                  value="participating"
-                  className="rounded-lg px-6 text-sm font-medium transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400"
-                >
-                  {content.dashboard.sections.participating}
-                </TabsTrigger>
-              </TabsList>
+              <div className=" mx-4 px-4 sm:mx-0 sm:px-0">
+                <TabsList className="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl md:h-10 border border-gray-200 dark:border-gray-700  sm:w-auto  flex flex-col md:flex-row whitespace-nowrap w-fit h-fit">
+                  <TabsTrigger
+                    value="leading"
+                    className="rounded-lg px-4 sm:px-6 w-full text-sm font-medium transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
+                  >
+                    {content.dashboard.sections.leading}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="participating"
+                    className="rounded-lg px-4 sm:px-6 text-sm font-medium transition-all w-full data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-purple-600 dark:data-[state=active]:text-purple-400"
+                  >
+                    {content.dashboard.sections.participating}
+                  </TabsTrigger>
+                </TabsList>
+              </div>
             </Tabs>
 
             <div className="flex items-center gap-3 w-full lg:w-auto">
@@ -317,7 +319,7 @@ export default function ProjectsList() {
                     ? "ابدأ بإنشاء مشروع جديد لتتمكن من قيادته"
                     : "Start by creating a new project to lead"}
                 </p>
-                <Link href="/dashboard/createProject">
+                <Link href="/dashboard/projects/create">
                   <button className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-medium shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
                     <Plus className="w-5 h-5 inline-block mr-2" />
                     {content.dashboard.quickActions.createProject}

@@ -163,7 +163,7 @@ export default function ProjectTeamSection({
       {/* Manager Action Button */}
       {isLeader && (
         <div className="mt-4 pt-2 dark:text-white">
-          <Link href={`/dashboard/updateTeam/${data._id}`}>
+          <Link href={`/dashboard/projects/${data._id}/team`}>
             <Button
               variant="outline"
               className="w-full h-10 rounded-xl border-gray-100 dark:border-gray-800 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 font-black text-[10px] uppercase tracking-widest gap-2 group/btn"
@@ -197,7 +197,7 @@ export default function ProjectTeamSection({
             </div>
 
             {isLeader && (
-              <Link href={`/dashboard/updateTeam/${data._id}`}>
+              <Link href={`/dashboard/projects/${data._id}/team`}>
                 <button className="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-all">
                   <Settings className="w-4 h-4" />
                 </button>
