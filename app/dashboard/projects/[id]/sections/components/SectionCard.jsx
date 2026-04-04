@@ -24,6 +24,7 @@ const initial = (u) => dName(u).charAt(0).toUpperCase();
 export default function SectionCard({
   section,
   allMembers,
+  sections,
   isRTL,
   onRename,
   onDelete,
