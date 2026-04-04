@@ -230,16 +230,12 @@ export default function EditTaskPage() {
     let finalAssignments = [];
 
     if (project?.hasSections) {
-      finalAssignments = form.sectionAssignments.filter((sa) => sa.sectionId);
+      // Filter out any assignments that don't have a sectionId OR have no members
+      finalAssignments = form.sectionAssignments.filter((sa) => sa.sectionId && sa.members?.length > 0);
+      
       if (!finalAssignments.length) {
-        toast.error(isRTL ? "اختر قسماً واحداً على الأقل" : "Select at least one section");
+        toast.error(isRTL ? "اختر قسماً واحداً على الأقل وعيّن له أعضاء" : "Select at least one section and assign members to it");
         return;
-      }
-      for (const sa of finalAssignments) {
-        if (!sa.members?.length) {
-          toast.error(isRTL ? "عيّن عضواً لكل قسم" : "Assign at least one member per section");
-          return;
-        }
       }
     } else {
       if (!form.assignedTo.length) {
@@ -404,28 +400,101 @@ export default function EditTaskPage() {
                       const assignIdx = form.sectionAssignments.findIndex((a) => a.sectionId === sec._id);
                       const selectedIds = assignIdx >= 0 ? form.sectionAssignments[assignIdx].members : [];
 
-                      const toggleSecMember = (uid) => {
-                        const arr = [...form.sectionAssignments];
-                        if (assignIdx < 0) {
-                          arr.push({ sectionId: sec._id, members: [uid] });
-                        } else {
-                          const cur = arr[assignIdx].members;
-                          arr[assignIdx] = { ...arr[assignIdx], members: cur.includes(uid) ? cur.filter((x) => x !== uid) : [...cur, uid] };
-                        }
-                        setField("sectionAssignments", arr);
-                      };
+                        const toggleSecMember = (uid) => {
+                          const arr = [...form.sectionAssignments];
+                          if (assignIdx < 0) {
+                            arr.push({ sectionId: sec._id, members: [uid] });
+                          } else {
+                            const cur = arr[assignIdx].members;
+                            arr[assignIdx] = {
+                              ...arr[assignIdx],
+                              members: cur.includes(uid)
+                                ? cur.filter((x) => x !== uid)
+                                : [...cur, uid],
+                            };
+                          }
+                          setField("sectionAssignments", arr);
+                        };
 
-                      return (
-                        <div key={sec._id} className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 overflow-hidden">
-                          <div onClick={() => setCollapsedSections(p => p.includes(sec._id) ? p.filter(id => id !== sec._id) : [...p, sec._id])} className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 cursor-pointer select-none hover:bg-gray-50 dark:hover:bg-gray-800/80 transition-colors">
-                            <span className="text-sm font-black text-gray-800 dark:text-white">{sec.title}</span>
-                            <div className="flex items-center gap-2">
-                              {selectedIds.length > 0 && <span className="text-[10px] font-black px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-full">{selectedIds.length} {isRTL ? "محدد" : "selected"}</span>}
-                              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${collapsedSections.includes(sec._id) ? "rotate-90 rtl:-rotate-90" : "rotate-0"}`} />
+                        const selectAll = () => {
+                          const arr = [...form.sectionAssignments];
+                          const allIds = secMembers.map((m) => m._id);
+                          if (assignIdx < 0) {
+                            arr.push({ sectionId: sec._id, members: allIds });
+                          } else {
+                            arr[assignIdx] = { ...arr[assignIdx], members: allIds };
+                          }
+                          setField("sectionAssignments", arr);
+                        };
+
+                        const clearAll = () => {
+                          if (assignIdx >= 0) {
+                            const arr = [...form.sectionAssignments];
+                            arr[assignIdx] = { ...arr[assignIdx], members: [] };
+                            setField("sectionAssignments", arr);
+                          }
+                        };
+
+                        return (
+                          <div
+                            key={sec._id}
+                            className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 overflow-hidden"
+                          >
+                            <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 select-none transition-colors">
+                              <span
+                                className="text-sm font-black text-gray-800 dark:text-white cursor-pointer"
+                                onClick={() =>
+                                  setCollapsedSections((p) =>
+                                    p.includes(sec._id)
+                                      ? p.filter((id) => id !== sec._id)
+                                      : [...p, sec._id],
+                                  )
+                                }
+                              >
+                                {sec.title}
+                              </span>
+                              <div className="flex items-center gap-3">
+                                {selectedIds.length > 0 && (
+                                  <span className="text-[10px] font-black px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-full">
+                                    {selectedIds.length} {isRTL ? "محدد" : "selected"}
+                                  </span>
+                                )}
+                                <div className="flex items-center gap-2 text-[10px] font-bold">
+                                  <button
+                                    type="button"
+                                    onClick={selectAll}
+                                    className="text-blue-600 hover:underline"
+                                  >
+                                    {isRTL ? "الكل" : "All"}
+                                  </button>
+                                  {selectedIds.length > 0 && (
+                                    <button
+                                      type="button"
+                                      onClick={clearAll}
+                                      className="text-rose-500 hover:underline"
+                                    >
+                                      {isRTL ? "مسح" : "Clear"}
+                                    </button>
+                                  )}
+                                </div>
+                                <ChevronDown
+                                  onClick={() =>
+                                    setCollapsedSections((p) =>
+                                      p.includes(sec._id)
+                                        ? p.filter((id) => id !== sec._id)
+                                        : [...p, sec._id],
+                                    )
+                                  }
+                                  className={`w-4 h-4 text-gray-400 transition-transform cursor-pointer ${
+                                    collapsedSections.includes(sec._id)
+                                      ? "rotate-90 rtl:-rotate-90"
+                                      : "rotate-0"
+                                  }`}
+                                />
+                              </div>
                             </div>
-                          </div>
-                          {!collapsedSections.includes(sec._id) && (
-                            <div className="p-3 flex flex-wrap gap-2">
+                            {!collapsedSections.includes(sec._id) && (
+                              <div className="p-3 flex flex-wrap gap-2">
                               {secMembers.map((member) => {
                                 const sel = selectedIds.includes(member._id);
                                 return (
