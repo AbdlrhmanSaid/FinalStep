@@ -134,7 +134,7 @@ const ReportPage = () => {
     <CheckUserRole projectId={id}>
       <div className="rp-container" dir={isRTL ? "rtl" : "ltr"}>
         {/* ── Top action bar ── */}
-        <div className="rp-actions no-print md:flex">
+        <div className="rp-actions no-print md:flex gap-2">
           <Button
             onClick={handlePrint}
             disabled={isPrinting}
@@ -290,25 +290,57 @@ const ReportPage = () => {
               </h2>
               <div className="rp-roadmap-grid">
                 {[
-                  { id: "todo", label: isRTL ? "قادم" : "Upcoming", icon: <Clock size={12} />, color: "#6b7280", bg: "#f3f4f6" },
-                  { id: "doing", label: isRTL ? "قيد التنفيذ" : "In Progress", icon: <Activity size={12} />, color: "#d97706", bg: "#fffbeb" },
-                  { id: "done", label: isRTL ? "تم الإنجاز" : "Completed", icon: <CheckCircle2 size={12} />, color: "#059669", bg: "#f0fdf4" }
+                  {
+                    id: "todo",
+                    label: isRTL ? "قادم" : "Upcoming",
+                    icon: <Clock size={12} />,
+                    color: "#6b7280",
+                    bg: "#f3f4f6",
+                  },
+                  {
+                    id: "doing",
+                    label: isRTL ? "قيد التنفيذ" : "In Progress",
+                    icon: <Activity size={12} />,
+                    color: "#d97706",
+                    bg: "#fffbeb",
+                  },
+                  {
+                    id: "done",
+                    label: isRTL ? "تم الإنجاز" : "Completed",
+                    icon: <CheckCircle2 size={12} />,
+                    color: "#059669",
+                    bg: "#f0fdf4",
+                  },
                 ].map((st) => {
-                  const items = (data.todos ?? []).filter((t) => t.status === st.id);
+                  const items = (data.todos ?? []).filter(
+                    (t) => t.status === st.id,
+                  );
                   return (
                     <div key={st.id} className="rp-roadmap-col">
-                      <div className="rp-roadmap-col-header" style={{ color: st.color, backgroundColor: st.bg }}>
+                      <div
+                        className="rp-roadmap-col-header"
+                        style={{ color: st.color, backgroundColor: st.bg }}
+                      >
                         {st.icon}
-                        <span>{st.label} ({items.length})</span>
+                        <span>
+                          {st.label} ({items.length})
+                        </span>
                       </div>
                       <div className="rp-roadmap-items">
                         {items.length === 0 ? (
-                          <p className="rp-roadmap-empty">{isRTL ? "لا يوجد حالياً" : "None yet"}</p>
+                          <p className="rp-roadmap-empty">
+                            {isRTL ? "لا يوجد حالياً" : "None yet"}
+                          </p>
                         ) : (
                           items.map((t) => (
                             <div key={t._id} className="rp-roadmap-item">
-                              <span className="rp-roadmap-dot" style={{ backgroundColor: st.color }} />
-                              <span className={`rp-roadmap-text ${t.status === "done" ? "done" : ""}`}>
+                              <span
+                                className="rp-roadmap-dot"
+                                style={{ backgroundColor: st.color }}
+                              />
+                              <span
+                                className={`rp-roadmap-text ${t.status === "done" ? "done" : ""}`}
+                              >
                                 {t.text}
                               </span>
                             </div>
@@ -330,22 +362,27 @@ const ReportPage = () => {
             </h2>
 
             <div className="rp-tasks-list">
-              {data.sections?.map(section => (
-                <div key={section.id || section.title} className="mb-6">
+              {data.sections?.map((section) => {
+                const isEmpty = section.tasks?.length === 0;
+                return (
+                <div key={section.id || section.title} className="rp-section-block">
                   {data.hasSections && (
-                    <h3 className="font-bold text-lg mb-4 text-gray-800 pb-2 border-b border-gray-100 flex items-center gap-2">
-                      <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-xl text-sm border border-blue-100">
+                    <div className="rp-section-heading">
+                      <span className="rp-sec-badge primary">
                         {section.title}
                       </span>
-                      <span className="text-sm font-normal text-gray-500 bg-gray-50 px-2 py-1 rounded-lg">
-                        {section.completedTasks} / {section.totalTasks} {isRTL ? 'مكتملة' : 'Completed'}
+                      <span className="rp-sec-badge secondary">
+                        {section.completedTasks} / {section.totalTasks}{" "}
+                        {isRTL ? "مكتملة" : "Completed"}
                       </span>
-                    </h3>
+                    </div>
                   )}
-                  <div className="rp-tasks-items flex flex-col gap-3">
-                    {section.tasks?.length === 0 ? (
-                      <div className="text-sm text-gray-400 py-2">
-                        {isRTL ? "لا توجد مهام في هذا القسم" : "No tasks in this section"}
+                  <div className="rp-tasks-items">
+                    {isEmpty ? (
+                      <div className="rp-empty-section">
+                        {isRTL
+                          ? "لا توجد مهام في هذا القسم"
+                          : "No tasks in this section"}
                       </div>
                     ) : (
                       section.tasks?.map((task, i) => {
@@ -359,7 +396,9 @@ const ReportPage = () => {
                             {/* row top */}
                             <div className="rp-task-top">
                               <span className="rp-task-index">{i + 1}</span>
-                              <h3 className="rp-task-title">{safeValue(task.title)}</h3>
+                              <h3 className="rp-task-title">
+                                {safeValue(task.title)}
+                              </h3>
                               <span className={`rp-badge rp-status ${sm.cls}`}>
                                 {sm.icon} {sm.label}
                               </span>
@@ -367,7 +406,9 @@ const ReportPage = () => {
 
                             {/* row meta */}
                             <div className="rp-task-meta">
-                              <span className={`rp-badge rp-priority ${pm.cls}`}>
+                              <span
+                                className={`rp-badge rp-priority ${pm.cls}`}
+                              >
                                 <Tag size={11} />
                                 {isRTL ? "الأولوية:" : "Priority:"} {pm.label}
                               </span>
@@ -400,11 +441,14 @@ const ReportPage = () => {
                             </div>
 
                             {/* assigned members */}
-                            {task.assignedTo?.filter((n) => n && n !== "null null")
-                              .length > 0 && (
+                            {task.assignedTo?.filter(
+                              (n) => n && n !== "null null",
+                            ).length > 0 && (
                               <div className="rp-task-assigned">
                                 <Users size={11} />
-                                <span>{isRTL ? "المكلفون:" : "Assigned to:"}</span>
+                                <span>
+                                  {isRTL ? "المكلفون:" : "Assigned to:"}
+                                </span>
                                 <span className="rp-assigned-names">
                                   {task.assignedTo
                                     .filter((n) => n && n !== "null null")
@@ -418,10 +462,9 @@ const ReportPage = () => {
                     )}
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
-
 
           {/* ── Summary ── */}
           <div className="rp-summary">

@@ -79,6 +79,20 @@ export async function GET(req, { params }) {
 
         if (isOverdue) overdueTasksCount++;
 
+        let sectionAssignedTo = task.assignedTo || [];
+        const sa = task.sectionAssignments?.find(s => s.sectionId?.toString() === section._id.toString() || s.sectionId?._id?.toString() === section._id.toString());
+        
+        if (sa && sa.members && sa.members.length > 0) {
+            const mmIds = sa.members.map(m => m.toString());
+            sectionAssignedTo = sectionAssignedTo.filter(u => u && mmIds.includes(u._id.toString()));
+        } else if (section.members && section.members.length > 0) {
+            const secMemberIds = section.members.map(m => m.toString());
+            const intersected = sectionAssignedTo.filter(u => u && secMemberIds.includes(u._id.toString()));
+            if (intersected.length > 0) {
+                sectionAssignedTo = intersected;
+            }
+        }
+
         return {
           title: task.title,
           status: task.status,
@@ -86,7 +100,7 @@ export async function GET(req, { params }) {
           dueDate: task.dueDate,
           isOverdue,
           submissionMethod: task.submissionMethod,
-          assignedTo: task.assignedTo ? task.assignedTo.map(formatName) : [],
+          assignedTo: sectionAssignedTo.map(formatName),
         };
       });
 
