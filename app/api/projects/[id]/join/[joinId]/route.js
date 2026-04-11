@@ -1,7 +1,9 @@
 import dbConnect from "../../../../../../lib/db";
 import Project from "../../../../../../models/Project";
+import User from "../../../../../../models/User";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
+import { sendJoinDecisionEmail } from "@/lib/emailService";
 
 export async function PUT(request, { params }) {
   try {
@@ -84,6 +86,23 @@ export async function PUT(request, { params }) {
     }
 
     await project.save();
+
+    // Send Emails asynchronously
+    (async () => {
+      try {
+        const requester = await User.findById(joinRequest.userId).select("email");
+        if (requester && requester.email) {
+          await sendJoinDecisionEmail({
+            requesterEmail: requester.email,
+            projectName: project.title,
+            isAccepted: action === "accept",
+            projectId: project._id.toString()
+          });
+        }
+      } catch (err) {
+        console.error("Error sending Join Decision Email:", err);
+      }
+    })();
 
     return NextResponse.json(
       { message: `Join request ${action}ed successfully` },

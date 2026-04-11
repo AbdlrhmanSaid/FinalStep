@@ -1,10 +1,33 @@
 import { NextResponse } from "next/server";
 import { createTask, getAllTasks } from "@/lib/server/tasks";
+import { sendTaskAssignmentEmail } from "@/lib/emailService";
+import Project from "@/models/Project";
+import User from "@/models/User";
 
 export async function POST(req) {
   try {
     const body = await req.json();
     const task = await createTask(body);
+
+    // Send Emails asynchronously
+    (async () => {
+      try {
+        const project = await Project.findById(task.projectId).select("title");
+        const assignedUsers = await User.find({ _id: { $in: task.assignedTo } }).select("email");
+        const emailsToNotify = assignedUsers.map(u => u.email).filter(Boolean);
+        
+        if (emailsToNotify.length > 0 && project) {
+          await sendTaskAssignmentEmail({
+            emails: emailsToNotify,
+            taskTitle: task.title,
+            projectName: project.title,
+            taskId: task._id.toString()
+          });
+        }
+      } catch (err) {
+        console.error("Error sending Task Emails:", err);
+      }
+    })();
 
     return NextResponse.json(task, { status: 201 });
   } catch (error) {

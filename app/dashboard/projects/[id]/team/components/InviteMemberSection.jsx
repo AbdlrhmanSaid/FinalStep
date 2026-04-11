@@ -11,6 +11,7 @@ export default function InviteMemberSection({
   projectTitle,
   sender,
   isRTL,
+  userId,
   onInviteSent,
 }) {
   const [invites, setInvites] = useState([""]);
@@ -82,7 +83,7 @@ export default function InviteMemberSection({
       await fetch(`/api/projects/${projectId}/invite`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ emails: validEmails }),
+        body: JSON.stringify({ emails: validEmails, userId }),
       });
 
       toast.success(

@@ -28,7 +28,7 @@ export async function POST(req) {
     const results = await Promise.allSettled(
       validReceivers.map((receiver) =>
         resend.emails.send({
-          from: "onboarding@resend.dev",
+          from: "FinalStep <notifications@finalstep.site>",
           to: receiver,
           subject: `Invitation to join project: ${projectName}`,
           html: `

@@ -87,6 +87,7 @@ export default function UpdateTeam() {
             projectTitle={project.title}
             sender={sender}
             isRTL={isRTL}
+            userId={userId}
           />
 
           <CurrentTeamSection

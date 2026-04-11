@@ -51,10 +51,10 @@ export default function ProjectEditForm({
     };
 
     try {
-      await toast.promise(onSubmit(formData), {
+      const result = await toast.promise(onSubmit(formData), {
         loading: isRTL ? "جاري التحديث..." : "Updating project...",
-        success: isRTL ? "تم تحديث المشروع!" : "Project updated successfully!",
-        error: isRTL ? "فشل التحديث" : "Failed to update problem.",
+        success: isRTL ? "تم بنجاح!" : "Saved successfully!",
+        error: isRTL ? "فشل الحفظ" : "Failed to save.",
       });
 
       setTitle("");
@@ -62,7 +62,10 @@ export default function ProjectEditForm({
       setPublicProject(false);
       setDeadline("");
 
-      router.push(`/dashboard/projects/${project._id}`);
+      const targetId = result?._id || project?._id;
+      if (targetId) {
+        router.push(`/dashboard/projects/${targetId}`);
+      }
     } catch (err) {
       console.error(err);
     }

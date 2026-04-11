@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Task from "@/models/Task";
 import Project from "@/models/Project";
+import User from "@/models/User";
+import { sendTaskSubmissionEmail, sendTaskReviewEmail } from "@/lib/emailService";
 
 export async function GET(request, { params }) {
   try {
@@ -194,6 +196,30 @@ export async function PUT(request, { params }) {
       recomputeTaskStatus(task);
       task.markModified("memberSubmissions");
       const updated = await task.save();
+
+      // Send Emails asynchronously
+      (async () => {
+        try {
+          const leaders = await User.find({ 
+            _id: { $in: [project.leaderId, ...(project.coLeaders || [])] } 
+          }).select("email");
+          const submiter = await User.findById(submittingUserId).select("name email");
+          const leaderEmails = leaders.map(u => u.email).filter(Boolean);
+          
+          if (leaderEmails.length > 0 && submiter) {
+            await sendTaskSubmissionEmail({
+              leaderEmails,
+              taskTitle: task.title,
+              projectName: project.title,
+              taskId: task._id.toString(),
+              memberName: submiter.name || submiter.email
+            });
+          }
+        } catch (err) {
+          console.error("Error sending Task Submission Email:", err);
+        }
+      })();
+
       return NextResponse.json(updated);
     }
 
@@ -260,6 +286,25 @@ export async function PUT(request, { params }) {
       recomputeTaskStatus(task);
       task.markModified("memberSubmissions");
       const updated = await task.save();
+
+      // Send Emails asynchronously
+      (async () => {
+        try {
+          const targetUser = await User.findById(targetUserId).select("email");
+          if (targetUser && targetUser.email) {
+            await sendTaskReviewEmail({
+              memberEmail: targetUser.email,
+              taskTitle: task.title,
+              projectName: project.title,
+              taskId: task._id.toString(),
+              isApproved: reviewAction === "completed"
+            });
+          }
+        } catch (err) {
+          console.error("Error sending Task Review Email:", err);
+        }
+      })();
+
       return NextResponse.json(updated);
     }
 

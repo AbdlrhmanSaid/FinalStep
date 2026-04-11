@@ -1,7 +1,9 @@
 import dbConnect from "../../../../../lib/db";
 import Project from "../../../../../models/Project";
+import User from "../../../../../models/User";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
+import { sendJoinRequestEmail } from "@/lib/emailService";
 
 export async function POST(request, { params }) {
   try {
@@ -83,6 +85,28 @@ export async function POST(request, { params }) {
     });
 
     await project.save();
+
+    // Send Emails asynchronously
+    (async () => {
+      try {
+        const leaders = await User.find({ 
+          _id: { $in: [project.leaderId, ...project.coLeaders] } 
+        }).select("email");
+        const requester = await User.findById(userId).select("name email");
+        const leaderEmails = leaders.map(u => u.email).filter(Boolean);
+        
+        if (leaderEmails.length > 0 && requester) {
+          await sendJoinRequestEmail({
+            leaderEmails,
+            projectName: project.title,
+            requesterName: requester.name || requester.email,
+            projectId: project._id.toString()
+          });
+        }
+      } catch (err) {
+        console.error("Error sending Join Request Emails:", err);
+      }
+    })();
 
     return NextResponse.json(
       { message: "Join request sent successfully" },
