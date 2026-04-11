@@ -12,7 +12,8 @@ import {
   ListChecks,
   Settings,
   FileText,
-  Search
+  Search,
+  LayoutGrid,
 } from "lucide-react";
 import "./style.css";
 
@@ -223,7 +224,10 @@ export default function HowItWorksClient() {
           {/* المهام */}
           <section className="hiw-section mb-12">
             <div className="hiw-section-header">
-              <div className="hiw-icon-wrapper" style={{ backgroundColor: '#f97316' }}>
+              <div
+                className="hiw-icon-wrapper"
+                style={{ backgroundColor: "#f97316" }}
+              >
                 <ListChecks className="w-6 h-6 text-white" />
               </div>
               <div className="hiw-section-content">
@@ -240,7 +244,10 @@ export default function HowItWorksClient() {
           {/* التقارير */}
           <section className="hiw-section mb-12">
             <div className="hiw-section-header">
-              <div className="hiw-icon-wrapper" style={{ backgroundColor: '#8b5cf6' }}>
+              <div
+                className="hiw-icon-wrapper"
+                style={{ backgroundColor: "#8b5cf6" }}
+              >
                 <FileText className="w-6 h-6 text-white" />
               </div>
               <div className="hiw-section-content">
@@ -296,7 +303,9 @@ export default function HowItWorksClient() {
               </div>
               <div className="hiw-section-content">
                 <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-3">
-                  {isRTL ? "أقسام المشروع وخارطة الطريق" : "Project Sections & Roadmap"}
+                  {isRTL
+                    ? "أقسام المشروع وخارطة الطريق"
+                    : "Project Sections & Roadmap"}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                   {isRTL
@@ -310,7 +319,10 @@ export default function HowItWorksClient() {
           {/* البحث */}
           <section className="hiw-section">
             <div className="hiw-section-header">
-              <div className="hiw-icon-wrapper" style={{ backgroundColor: '#14b8a6' }}>
+              <div
+                className="hiw-icon-wrapper"
+                style={{ backgroundColor: "#14b8a6" }}
+              >
                 <Search className="w-6 h-6 text-white" />
               </div>
               <div className="hiw-section-content">
