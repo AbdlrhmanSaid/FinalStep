@@ -17,20 +17,26 @@ const TYPES = {
   meeting:   { label: { ar: "اجتماع", en: "Meeting" },   bg: "bg-rose-50 dark:bg-rose-900/40",    color: "text-rose-600",   icon: Users },
 };
 
-export default function ProjectSectionPlan({ projectId, sections, userId, isRTL, isLeader }) {
+export default function ProjectSectionPlan({ projectId, sections, userId, isRTL, isLeader, hasSections }) {
   const { data: todos = [], isLoading } = useProjectTodos(projectId);
 
   // Determine sections to show
-  const mySections = isLeader 
-    ? (sections || []) 
-    : (sections?.filter(s => 
-        s.members?.some(m => (m._id || m).toString() === userId?.toString())
-      ) || []);
+  let mySections = [];
+  let sectionTodos = [];
 
-  const mySectionIds = mySections.map(s => s._id.toString());
-  
-  // Filter todos for those sections
-  const sectionTodos = todos.filter(t => t.sectionId && mySectionIds.includes(t.sectionId.toString()));
+  if (hasSections !== false) {
+    mySections = isLeader 
+      ? (sections || []) 
+      : (sections?.filter(s => 
+          s.members?.some(m => (m._id || m).toString() === userId?.toString())
+        ) || []);
+    const mySectionIds = mySections.map(s => s._id.toString());
+    sectionTodos = todos.filter(t => t.sectionId && mySectionIds.includes(t.sectionId.toString()));
+  } else {
+    // Project has no sections, mock one for the entire project
+    mySections = [{ _id: 'project_plan', title: isRTL ? "المشروع بأكمله" : "The Entire Project" }];
+    sectionTodos = todos;
+  }
 
   if (isLoading) return <div className="p-10 flex justify-center"><Loading /></div>;
 
@@ -57,7 +63,10 @@ export default function ProjectSectionPlan({ projectId, sections, userId, isRTL,
   return (
     <div className="space-y-6">
       {mySections.map(section => {
-        const myTodos = sectionTodos.filter(t => t.sectionId.toString() === section._id.toString());
+        const myTodos = hasSections === false 
+          ? sectionTodos 
+          : sectionTodos.filter(t => t.sectionId.toString() === section._id.toString());
+        
         const doneCount = myTodos.filter(t => t.status === "done").length;
         const total = myTodos.length;
         const pct = total > 0 ? Math.round((doneCount / total) * 100) : 0;

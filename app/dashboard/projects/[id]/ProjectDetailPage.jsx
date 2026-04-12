@@ -286,19 +286,21 @@ const ProjectDetailPage = () => {
                         <ClipboardList className="w-4 h-4" />
                         {isRTL ? "المهام" : "Tasks"}
                       </TabsTrigger>
-                      <TabsTrigger
-                        value="sections"
-                        className="rounded-xl px-6 data-[state=active]:bg-violet-50 dark:data-[state=active]:bg-violet-900/30 data-[state=active]:text-violet-600 dark:data-[state=active]:text-violet-400 font-black uppercase tracking-widest gap-2 w-full"
-                      >
-                        <LayoutGrid className="w-4 h-4" />
-                        {isRTL ? "الأقسام" : "Sections"}
-                      </TabsTrigger>
+                      {data.hasSections !== false && (
+                        <TabsTrigger
+                          value="sections"
+                          className="rounded-xl px-6 data-[state=active]:bg-violet-50 dark:data-[state=active]:bg-violet-900/30 data-[state=active]:text-violet-600 dark:data-[state=active]:text-violet-400 font-black uppercase tracking-widest gap-2 w-full"
+                        >
+                          <LayoutGrid className="w-4 h-4" />
+                          {isRTL ? "الأقسام" : "Sections"}
+                        </TabsTrigger>
+                      )}
                       <TabsTrigger
                         value="section_plan"
                         className="rounded-xl px-6 data-[state=active]:bg-teal-50 dark:data-[state=active]:bg-teal-900/30 data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400 font-black  uppercase tracking-widest gap-2 w-full"
                       >
                         <Zap className="w-4 h-4" />
-                        {isRTL ? "خطة القسم" : "Section Plan"}
+                        {isRTL ? "الخطة" : "The Plan"}
                       </TabsTrigger>
                     </TabsList>
                   </div>
@@ -328,21 +330,23 @@ const ProjectDetailPage = () => {
                     />
                   </TabsContent>
 
-                  <TabsContent value="sections" className="mt-0 outline-none">
-                    <ProjectSectionsTab
-                      projectId={id}
-                      isLeader={isLeader}
-                      isRTL={isRTL}
-                      userId={userId}
-                      sections={sectionsData}
-                      isLoading={isLoadingSections}
-                      projectMembers={[
-                        ...(data.leaderId ? [data.leaderId] : []),
-                        ...(data.coLeaders || []),
-                        ...(data.members || []),
-                      ]}
-                    />
-                  </TabsContent>
+                  {data.hasSections !== false && (
+                    <TabsContent value="sections" className="mt-0 outline-none">
+                      <ProjectSectionsTab
+                        projectId={id}
+                        isLeader={isLeader}
+                        isRTL={isRTL}
+                        userId={userId}
+                        sections={sectionsData}
+                        isLoading={isLoadingSections}
+                        projectMembers={[
+                          ...(data.leaderId ? [data.leaderId] : []),
+                          ...(data.coLeaders || []),
+                          ...(data.members || []),
+                        ]}
+                      />
+                    </TabsContent>
+                  )}
 
                   <TabsContent
                     value="section_plan"
@@ -354,6 +358,7 @@ const ProjectDetailPage = () => {
                       userId={userId}
                       isRTL={isRTL}
                       isLeader={isLeader}
+                      hasSections={data.hasSections}
                     />
                   </TabsContent>
                 </Tabs>

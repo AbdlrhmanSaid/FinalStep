@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+export const dynamic = 'force-dynamic';
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Project from "@/models/Project";
@@ -32,7 +33,7 @@ export async function GET(request) {
     })
       .populate("leaderId", "name email")
       .select(
-        "title description leaderId createdAt status deadline tasks members",
+        "title description leaderId createdAt status deadline tasks members public",
       )
       .sort({ createdAt: -1 })
       .limit(20)

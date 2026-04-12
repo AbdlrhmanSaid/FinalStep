@@ -44,6 +44,12 @@ export default function SectionsPage() {
 
   useEffect(() => {
     if (!project || !userId) return;
+    
+    if (project.hasSections === false) {
+      router.push(`/dashboard/projects/${id}`);
+      return;
+    }
+
     const uid = userId.toString();
     const lead =
       project.leaderId?._id === uid ||
