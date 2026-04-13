@@ -124,28 +124,62 @@ export default function ProjectTeamSection({
       {/* Scrollable Members Area (Optional if list is long) */}
       <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 -mr-1 custom-scrollbar">
         {allMembers.map((member) => (
-          <div key={member._id} className={`group relative flex items-center gap-3 p-2.5 rounded-xl border border-gray-50 dark:border-gray-700/30 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-white dark:hover:bg-gray-800/40 transition-all ${isRTL ? 'flex-row' : 'flex-row'}`}>
+          <div
+            key={member._id}
+            className={`group relative flex items-center gap-3 p-2.5 rounded-xl border border-gray-50 dark:border-gray-700/30 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-white dark:hover:bg-gray-800/40 transition-all ${isRTL ? "flex-row" : "flex-row"}`}
+          >
             <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-900 border-2 border-white dark:border-gray-800 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
-               {member.image ? <img src={member.image} className="w-full h-full object-cover" alt=""/> : <span className="text-gray-400 font-bold text-xs">{member.name?.charAt(0)}</span>}
+              {member.image ? (
+                <img
+                  src={member.image}
+                  className="w-full h-full object-cover"
+                  alt=""
+                />
+              ) : (
+                <span className="text-gray-400 font-bold text-xs">
+                  {member.name?.charAt(0)}
+                </span>
+              )}
             </div>
 
-            <div className={`flex-1 min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
-              <Link href={`/dashboard/user/${member._id}`} className="block text-xs font-black text-gray-800 dark:text-gray-200 truncate hover:text-blue-600 transition-colors">
+            <div
+              className={`flex-1 min-w-0 ${isRTL ? "text-right" : "text-left"}`}
+            >
+              <Link
+                href={`/dashboard/user/${member._id}`}
+                className="block text-xs font-black text-gray-800 dark:text-gray-200 truncate hover:text-blue-600 transition-colors"
+              >
                 {member.name || "Member"}
               </Link>
               <div className="flex items-center gap-1.5 mt-0.5">
-                 <span className={`text-[9px] font-black uppercase tracking-tighter px-1.5 py-0.5 rounded-md leading-none ${
-                   member._role === 'coLeader' 
-                     ? 'text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-900/30' 
-                     : 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30'
-                 }`}>
-                   {data.customRoles?.[member._id] || (member._role === 'coLeader' ? content.coLeaders : (isRTL ? "عضو فريق" : "Team Member"))}
-                 </span>
-                 {isLeader && (
-                   <button onClick={(e) => openTitleDialog(e, member._id, data.customRoles?.[member._id] || "")} className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-blue-500 transition-all p-1 hover:bg-white dark:hover:bg-gray-800 rounded-lg">
-                     <Edit className="w-3 h-3" />
-                   </button>
-                 )}
+                <span
+                  className={`text-[9px] font-black uppercase tracking-tighter px-1.5 py-0.5 rounded-md leading-none ${
+                    member._role === "coLeader"
+                      ? "text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-900/30"
+                      : "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30"
+                  }`}
+                >
+                  {data.customRoles?.[member._id] ||
+                    (member._role === "coLeader"
+                      ? content.coLeaders
+                      : isRTL
+                        ? "عضو فريق"
+                        : "Team Member")}
+                </span>
+                {isLeader && (
+                  <button
+                    onClick={(e) =>
+                      openTitleDialog(
+                        e,
+                        member._id,
+                        data.customRoles?.[member._id] || "",
+                      )
+                    }
+                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-blue-500 transition-all p-1 hover:bg-white dark:hover:bg-gray-800 rounded-lg"
+                  >
+                    <Edit className="w-3 h-3" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -227,7 +261,7 @@ export default function ProjectTeamSection({
               <Input
                 value={titleValue}
                 onChange={(e) => setTitleValue(e.target.value)}
-                className="rounded-xl border-gray-100 dark:border-gray-800 font-bold"
+                className="rounded-xl border-gray-100 dark:border-gray-800 font-bold dark:text-white"
                 placeholder={isRTL ? "مثال: مخرج فني" : "e.g. Art Director"}
               />
             </div>
@@ -235,7 +269,7 @@ export default function ProjectTeamSection({
               <Button
                 variant="ghost"
                 onClick={() => setDialogOpen(false)}
-                className="rounded-xl flex-1 font-bold "
+                className="rounded-xl flex-1 font-bold dark:text-white "
               >
                 {isRTL ? "إلغاء" : "Cancel"}
               </Button>
