@@ -68,23 +68,33 @@ export default function InviteMemberSection({
 
     setIsSending(true);
     try {
-      const response = await fetch("/api/send-invites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sender,
-          receivers: validEmails,
-          projectName: projectTitle,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to send invites");
-
-      await fetch(`/api/projects/${projectId}/invite`, {
+      const inviteRes = await fetch(`/api/projects/${projectId}/invite`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ emails: validEmails, userId }),
       });
+
+      const inviteData = await inviteRes.json();
+
+      if (!inviteRes.ok) {
+        throw new Error(inviteData.error || (isRTL ? "فشل إعداد الدعوات" : "Failed to prepare invites"));
+      }
+
+      const { newEmails } = inviteData;
+
+      if (newEmails && newEmails.length > 0) {
+        const response = await fetch("/api/send-invites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sender,
+            receivers: newEmails,
+            projectName: projectTitle,
+          }),
+        });
+
+        if (!response.ok) throw new Error(isRTL ? "فشل إرسال الإيميلات" : "Failed to send emails");
+      }
 
       toast.success(
         isRTL ? "تم إرسال الدعوات بنجاح" : "Invites sent successfully",
@@ -92,7 +102,7 @@ export default function InviteMemberSection({
       setInvites([""]);
       if (onInviteSent) onInviteSent();
     } catch (err) {
-      toast.error(isRTL ? "فشل إرسال الدعوات" : "Failed to send invites");
+      toast.error(err.message || (isRTL ? "فشل إرسال الدعوات" : "Failed to send invites"));
     } finally {
       setIsSending(false);
     }

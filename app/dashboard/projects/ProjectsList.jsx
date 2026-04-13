@@ -223,7 +223,7 @@ export default function ProjectsList() {
                   placeholder={isRTL ? "البحث..." : "Search..."}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="dark:placeholder:text-white w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
+                  className="dark:placeholder:text-white dark:text-white w-full pl-9 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500/20 transition-all outline-none"
                 />
               </div>
 

@@ -1,6 +1,7 @@
 import dbConnect from "../../../../../lib/db";
 import Project from "../../../../../models/Project";
 import InviteRequest from "../../../../../models/InviteRequest";
+import User from "../../../../../models/User";
 import { NextResponse } from "next/server";
 
 export async function POST(request, context) {
@@ -20,26 +21,48 @@ export async function POST(request, context) {
       );
     }
 
-    const project = await Project.findById(id);
+    const project = await Project.findById(id)
+      .populate("leaderId")
+      .populate("coLeaders")
+      .populate("members");
+      
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
     // Verify auth
     const isAuthorized =
-      project.leaderId.toString() === userId ||
-      project.coLeaders.map((lid) => lid.toString()).includes(userId);
+      project.leaderId._id.toString() === userId ||
+      project.coLeaders.map((l) => l._id.toString()).includes(userId);
 
     if (!isAuthorized) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
+    const existingMemberEmails = [];
+    if (project.leaderId?.email) existingMemberEmails.push(project.leaderId.email);
+    project.coLeaders.forEach(u => u.email && existingMemberEmails.push(u.email));
+    project.members.forEach(u => u.email && existingMemberEmails.push(u.email));
+
     const existingMails = project.inviteRequests.map((r) => r.email);
-    const newEmails = emails.filter((email) => !existingMails.includes(email));
+    
+    // Check if ALL provided emails are already in the project
+    const allAlreadyMembers = emails.length > 0 && emails.every(e => existingMemberEmails.includes(e));
+    if (allAlreadyMembers) {
+      return NextResponse.json(
+        { error: "جميع هؤلاء المستخدمين موجودون بالفعل في المشروع" },
+        { status: 400 }
+      );
+    }
+    
+    const newEmails = emails.filter((email) => 
+      !existingMails.includes(email) && 
+      !existingMemberEmails.includes(email)
+    );
 
     if (newEmails.length === 0) {
       return NextResponse.json(
-        { message: "No new emails to invite" },
+        { message: "No new emails to invite", newEmails: [] },
         { status: 200 },
       );
     }
@@ -60,7 +83,7 @@ export async function POST(request, context) {
     });
 
     return NextResponse.json(
-      { message: "Invites sent successfully" },
+      { message: "Invites sent successfully", newEmails },
       { status: 200 },
     );
   } catch (error) {

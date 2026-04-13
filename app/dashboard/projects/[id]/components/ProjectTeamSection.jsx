@@ -215,7 +215,7 @@ export default function ProjectTeamSection({
           className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 rounded-3xl sm:max-w-xs"
         >
           <DialogHeader>
-            <DialogTitle className="font-black">
+            <DialogTitle className="font-black dark:text-white">
               {isRTL ? "تعديل الللقب" : "Assign Title"}
             </DialogTitle>
           </DialogHeader>
@@ -235,7 +235,7 @@ export default function ProjectTeamSection({
               <Button
                 variant="ghost"
                 onClick={() => setDialogOpen(false)}
-                className="rounded-xl flex-1 font-bold"
+                className="rounded-xl flex-1 font-bold "
               >
                 {isRTL ? "إلغاء" : "Cancel"}
               </Button>
