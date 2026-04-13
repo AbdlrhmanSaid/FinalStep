@@ -468,6 +468,7 @@ const ProjectDetailPage = () => {
                 handleEdit={handleEdit}
                 handleReport={handleReport}
                 router={router}
+                userId={userId}
               />
             </aside>
           </div>

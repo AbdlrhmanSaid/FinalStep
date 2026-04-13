@@ -10,7 +10,9 @@ import {
   ShieldAlert,
   Layers,
   ClipboardList,
+  BellRing,
 } from "lucide-react";
+import { useState } from "react";
 import Link from "next/link";
 import ConfirmDeleteDialog from "@/components/dashboard/ConfirmDeleteDialog";
 import { toast } from "react-hot-toast";
@@ -29,7 +31,41 @@ export default function ProjectActions({
   handleEdit,
   handleReport,
   router,
+  userId,
 }) {
+  const [isNotifying, setIsNotifying] = useState(false);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+
+  const handleNotify = async () => {
+    // Find the sender name
+    const uidStr = userId?.toString();
+    const lIdObj = data.leaderId;
+    let computedUserName = "The Project Leader";
+    if (lIdObj && (lIdObj._id?.toString() === uidStr || lIdObj.toString() === uidStr)) {
+        computedUserName = lIdObj.name || computedUserName;
+    } else {
+        const coLeader = data.coLeaders?.find(c => (c._id || c).toString() === uidStr);
+        if (coLeader && coLeader.name) computedUserName = coLeader.name;
+    }
+
+    setIsNotifying(true);
+    try {
+      const res = await fetch(`/api/projects/${data._id}/notify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, userName: computedUserName }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed");
+      toast.success(isRTL ? "تم إرسال التنبيهات بنجاح!" : "Alerts sent successfully!");
+      setIsAlertModalOpen(false);
+    } catch (e) {
+      toast.error(isRTL ? "فشل إرسال التنبيهات: " + e.message : "Failed to send alerts: " + e.message);
+    } finally {
+      setIsNotifying(false);
+    }
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
       {/* Leader: full management panel */}
@@ -109,10 +145,36 @@ export default function ProjectActions({
               className="flex flex-col items-center justify-center p-4 rounded-2xl border border-gray-50 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/40 hover:bg-white dark:hover:bg-gray-700 hover:border-emerald-500/30 transition-all group"
             >
               <Copy className="w-5 h-5 text-emerald-500 mb-2 group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] font-black uppercase text-gray-600 dark:text-gray-300 tracking-tight">
+              <span className="text-[10px] font-black uppercase text-gray-600 dark:text-gray-300 tracking-tight text-center">
                 {isRTL ? "نسخ الرابط" : "Invite Link"}
               </span>
             </button>
+
+            <ConfirmDeleteDialog
+              open={isAlertModalOpen}
+              onOpenChange={setIsAlertModalOpen}
+              loading={isNotifying}
+              trigger={
+                <button
+                  disabled={isNotifying}
+                  className="flex flex-col items-center justify-center p-4 rounded-2xl border border-gray-50 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/40 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:border-rose-500/30 transition-all group disabled:opacity-50 h-full w-full"
+                >
+                  {isNotifying ? (
+                     <div className="w-5 h-5 border-2 border-rose-500/30 border-t-rose-500 rounded-full animate-spin mb-2" />
+                  ) : (
+                     <BellRing className="w-5 h-5 text-rose-500 mb-2 group-hover:scale-110 transition-transform origin-top group-hover:rotate-12" />
+                  )}
+                  <span className="text-[10px] font-black uppercase text-gray-600 dark:text-gray-300 tracking-tight text-center mt-auto">
+                    {isRTL ? "زر التنبيه" : "Alert Members"}
+                  </span>
+                </button>
+              }
+              title={isRTL ? "تأكيد إرسال التنبيه" : "Confirm Sending Alert"}
+              description={isRTL ? "هل أنت متأكد من إرسال تنبيه عبر الإيميل لجميع أعضاء المشروع للتأكيد على مراجعة المهام؟" : "Are you sure you want to send an email alert to all project members to review their tasks?"}
+              onConfirm={handleNotify}
+              cancelText={modal.cancel}
+              confirmText={isRTL ? "نعم، أرسل" : "Yes, Send"}
+            />
           </div>
         )}
 

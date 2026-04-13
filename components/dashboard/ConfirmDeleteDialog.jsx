@@ -36,11 +36,13 @@ export default function ConfirmDeleteDialog({
   confirmText = "Confirm",
   loading = false,
   variant = "destructive",
+  open,
+  onOpenChange,
 }) {
   const isDestructive = variant === "destructive";
 
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogTrigger asChild>
         {trigger}
       </AlertDialogTrigger>
