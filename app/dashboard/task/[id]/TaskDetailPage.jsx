@@ -326,6 +326,7 @@ function MemberSubmissionCard({
           {/* Current user or Leader: submit or resubmit */}
           {(isCurrentUser || isProjectLeader) &&
             (status === "open" ||
+              status === "submitted" ||
               status === "rejected" ||
               status === "completed" ||
               status === "ended") && (
@@ -356,7 +357,7 @@ function MemberSubmissionCard({
                       }}
                     >
                       <Send className="w-4 h-4 mr-1" />
-                      {status === "completed"
+                      {status === "completed" || status === "submitted"
                         ? isRTL
                           ? "تعديل التسليم"
                           : "Edit Submission"

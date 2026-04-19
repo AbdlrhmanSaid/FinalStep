@@ -154,9 +154,10 @@ export async function PUT(request, { params }) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
       }
 
-      // Only allow submit when status is open, rejected, completed, or ended
+      // Only allow submit when status is open, submitted, rejected, completed, or ended
       if (![
         "open",
+        "submitted",
         "rejected",
         "completed",
         "ended",
