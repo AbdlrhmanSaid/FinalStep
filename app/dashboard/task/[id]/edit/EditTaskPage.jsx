@@ -12,6 +12,7 @@ import DatePicker from "../../../../../components/ui/DatePicker";
 import { useGetProject } from "../../../../../hooks/projects/useGetProjects";
 import { useGetSections } from "../../../../../hooks/sections/useGetSections";
 import ProjectPageHeader from "../../../projects/[id]/components/ProjectPageHeader";
+import { TaskDependencySelector } from "../../../../../components/dashboard/TaskDependencySelector";
 
 import {
   ListTodo,
@@ -166,13 +167,17 @@ export default function EditTaskPage() {
     description: "",
     referenceLink: "",
     priority: "medium",
+    durationDays: 0,
     dueDate: "",
     assignedTo: [],
     submissionMethod: "both",
     submissionDescription: "",
     allowLateSubmission: true,
+    dependsOn: [],
     sectionAssignments: [{ sectionId: "", members: [] }],
   });
+
+  const [deadlineMode, setDeadlineMode] = useState("duration"); // "duration" or "date"
 
   const [collapsedSections, setCollapsedSections] = useState([]);
 
@@ -190,22 +195,30 @@ export default function EditTaskPage() {
         description: task.description || "",
         referenceLink: task.referenceLink || "",
         priority: task.priority || "medium",
-        dueDate: task.dueDate
-          ? new Date(task.dueDate).toISOString().split("T")[0]
-          : "",
+        durationDays: task.durationDays || 0,
         assignedTo: (task.assignedTo || []).map((u) =>
           typeof u === "object" ? u._id : u,
         ),
         submissionMethod: task.submissionMethod || "both",
         submissionDescription: task.submissionDescription || "",
         allowLateSubmission: task.allowLateSubmission !== false,
+        dependsOn: Array.isArray(task.dependsOn) 
+          ? task.dependsOn.map(d => typeof d === "object" ? d._id : d) 
+          : (task.dependsOn ? [typeof task.dependsOn === "object" ? task.dependsOn._id : task.dependsOn] : []),
         sectionAssignments: (task.sectionAssignments && task.sectionAssignments.length > 0)
           ? task.sectionAssignments.map(sa => ({
               sectionId: sa.sectionId?._id || sa.sectionId,
               members: sa.members?.map(m => (typeof m === "object" ? m._id : m)) || []
             }))
           : [{ sectionId: "", members: [] }],
+        dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : "",
       });
+
+      if (task.dueDate && (!task.durationDays || task.durationDays === 0)) {
+        setDeadlineMode("date");
+      } else {
+        setDeadlineMode("duration");
+      }
     }
   }, [task]);
 
@@ -254,7 +267,6 @@ export default function EditTaskPage() {
         data: {
           ...form,
           sectionAssignments: finalAssignments,
-          dueDate: form.dueDate || null,
         },
       },
       {
@@ -348,17 +360,66 @@ export default function EditTaskPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{addTaskTranslations.dueDate}</span>
+              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                      {isRTL ? "الموعد النهائي" : "Deadline"}
+                    </span>
+                  </div>
+                  
+                  {/* Mode switcher */}
+                  <div className="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-0.5 scale-90 origin-right">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDeadlineMode("duration");
+                        setField("dueDate", "");
+                      }}
+                      className={`px-3 py-1 text-[10px] font-black rounded-md transition-all ${
+                        deadlineMode === "duration"
+                          ? "bg-white dark:bg-gray-800 text-blue-600 shadow-sm"
+                          : "text-gray-400 dark:text-gray-500 hover:text-gray-600"
+                      }`}
+                    >
+                      {isRTL ? "بالأيام" : "Days"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDeadlineMode("date");
+                        setField("durationDays", 0);
+                      }}
+                      className={`px-3 py-1 text-[10px] font-black rounded-md transition-all ${
+                        deadlineMode === "date"
+                          ? "bg-white dark:bg-gray-800 text-blue-600 shadow-sm"
+                          : "text-gray-400 dark:text-gray-500 hover:text-gray-600"
+                      }`}
+                    >
+                      {isRTL ? "تاريخ" : "Date"}
+                    </button>
+                  </div>
                 </div>
-                <DatePicker
-                  value={form.dueDate}
-                  onChange={(val) => setField("dueDate", val)}
-                  disablePast={false}
-                  locale={isRTL ? "ar" : "en"}
-                />
+
+                {deadlineMode === "duration" ? (
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.durationDays}
+                    onChange={(e) => setField("durationDays", Number(e.target.value))}
+                    placeholder={isRTL ? "مثال: 5" : "e.g: 5"}
+                    className="w-full h-11 px-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                ) : (
+                  <DatePicker
+                    value={form.dueDate}
+                    onChange={(val) => setField("dueDate", val)}
+                    placeholder={isRTL ? "اختر تاريخاً..." : "Pick a date..."}
+                    disablePast={false}
+                    locale={isRTL ? "ar" : "en"}
+                  />
+                )}
               </div>
 
               <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
@@ -532,20 +593,44 @@ export default function EditTaskPage() {
               </div>
             )}
 
-            <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Clock className="w-4 h-4 text-gray-400 shrink-0" />
-                <div>
-                  <p className="text-sm font-bold text-gray-800 dark:text-white">{isRTL ? "السماح بالتسليم المتأخر" : "Allow Late Submission"}</p>
+            {/* ── Settings (Late submission & Depends On) ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* ── Late submission toggle ── */}
+              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-4 h-4 text-gray-400 shrink-0" />
+                  <div>
+                    <p className="text-sm font-bold text-gray-800 dark:text-white">{isRTL ? "السماح بالتسليم المتأخر" : "Allow Late Submission"}</p>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setField("allowLateSubmission", !form.allowLateSubmission)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none ${form.allowLateSubmission ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-600"}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${form.allowLateSubmission ? (isRTL ? "-translate-x-6" : "translate-x-6") : (isRTL ? "-translate-x-1" : "translate-x-1")}`} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setField("allowLateSubmission", !form.allowLateSubmission)}
-                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none ${form.allowLateSubmission ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-600"}`}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${form.allowLateSubmission ? (isRTL ? "-translate-x-6" : "translate-x-6") : (isRTL ? "-translate-x-1" : "translate-x-1")}`} />
-              </button>
+
+              {/* ── Depends On ── */}
+              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
+                <div className="flex items-center gap-2">
+                  <Link2 className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                    {isRTL ? "يعتمد على (مهمة أخرى)" : "Depends On (Task)"}
+                  </span>
+                  <span className="text-xs text-gray-400 font-medium">
+                    ({isRTL ? "اختياري" : "Optional"})
+                  </span>
+                </div>
+                <TaskDependencySelector
+                  tasks={(project?.tasks || []).filter(t => String(t._id) !== String(id))}
+                  value={form.dependsOn}
+                  onChange={(val) => setField("dependsOn", val)}
+                  isRTL={isRTL}
+                  availableSections={availableSections}
+                />
+              </div>
             </div>
 
             <button

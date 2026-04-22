@@ -4,6 +4,7 @@ import Task from "@/models/Task";
 import Project from "@/models/Project";
 import User from "@/models/User";
 import { sendTaskSubmissionEmail, sendTaskReviewEmail } from "@/lib/emailService";
+import { recalculateTaskDates, triggerDependentTasks } from "@/lib/server/taskDates";
 
 export async function GET(request, { params }) {
   try {
@@ -60,6 +61,7 @@ function recomputeTaskStatus(task) {
     task.status = "open";
   }
 }
+
 
 export async function PUT(request, { params }) {
   try {
@@ -154,6 +156,13 @@ export async function PUT(request, { params }) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
       }
 
+      if (task.dependsOn?.length > 0 && !task.startDate) {
+        return NextResponse.json(
+          { error: "لا بمكنك التسليم: هذه المهمة تعتمد على مهام لم تكتمل بعد" },
+          { status: 403 },
+        );
+      }
+
       // Only allow submit when status is open, submitted, rejected, completed, or ended
       if (![
         "open",
@@ -194,9 +203,15 @@ export async function PUT(request, { params }) {
         memberSub.lateDays = 0;
       }
 
+      const previousStatus = task.status;
       recomputeTaskStatus(task);
       task.markModified("memberSubmissions");
+      await recalculateTaskDates(task);
       const updated = await task.save();
+
+      if (previousStatus !== "completed" && updated.status === "completed") {
+        await triggerDependentTasks(updated._id);
+      }
 
       // Send Emails asynchronously
       (async () => {
@@ -284,9 +299,15 @@ export async function PUT(request, { params }) {
         note: reviewNote || "",
       };
 
+      const previousStatus = task.status;
       recomputeTaskStatus(task);
       task.markModified("memberSubmissions");
+      await recalculateTaskDates(task);
       const updated = await task.save();
+
+      if (previousStatus !== "completed" && updated.status === "completed") {
+        await triggerDependentTasks(updated._id);
+      }
 
       // Send Emails asynchronously
       (async () => {
@@ -355,17 +376,28 @@ export async function PUT(request, { params }) {
         "title",
         "description",
         "priority",
-        "dueDate",
+        "durationDays",
         "referenceLink",
         "submissionMethod",
         "submissionDescription",
         "allowLateSubmission",
+        "dependsOn",
+        "dueDate"
       ];
       allowedFields.forEach((f) => {
-        if (body[f] !== undefined) task[f] = body[f];
+        if (body[f] !== undefined) {
+          if (f === "dueDate" && body[f] === "") {
+            task[f] = null;
+          } else if (f === "dependsOn" && (!body[f] || (Array.isArray(body[f]) && body[f].length === 0))) {
+            task[f] = [];
+          } else {
+            task[f] = body[f];
+          }
+        }
       });
 
       recomputeTaskStatus(task);
+      await recalculateTaskDates(task);
       const updated = await task.save();
       return NextResponse.json(updated);
     }
@@ -391,14 +423,24 @@ export async function PUT(request, { params }) {
       "title",
       "description",
       "priority",
-      "dueDate",
+      "durationDays",
       "referenceLink",
       "submissionMethod",
       "submissionDescription",
       "allowLateSubmission",
+      "dependsOn",
+      "dueDate"
     ];
     allowedFields.forEach((f) => {
-      if (body[f] !== undefined) task[f] = body[f];
+      if (body[f] !== undefined) {
+        if (f === "dueDate" && body[f] === "") {
+          task[f] = null;
+        } else if (f === "dependsOn" && (!body[f] || (Array.isArray(body[f]) && body[f].length === 0))) {
+          task[f] = [];
+        } else {
+          task[f] = body[f];
+        }
+      }
     });
 
     if (body.sectionAssignments) {
@@ -407,6 +449,7 @@ export async function PUT(request, { params }) {
         task.markModified("sectionAssignments");
     }
 
+    await recalculateTaskDates(task);
     const updated = await task.save();
     return NextResponse.json(updated);
   } catch (error) {

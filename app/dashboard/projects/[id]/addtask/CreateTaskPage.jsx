@@ -12,6 +12,7 @@ import Loading from "@/components/Loading";
 import DatePicker from "@/components/ui/DatePicker";
 import toast from "react-hot-toast";
 import ProjectPageHeader from "../components/ProjectPageHeader";
+import { TaskDependencySelector } from "@/components/dashboard/TaskDependencySelector";
 
 import {
   ArrowLeft,
@@ -192,14 +193,18 @@ export default function CreateTaskPage() {
     title: "",
     description: "",
     priority: "medium",
+    durationDays: 0,
     dueDate: "",
     referenceLink: "",
     assignedTo: [],
     submissionMethod: "both",
     submissionDescription: "",
     allowLateSubmission: true,
+    dependsOn: [],
     sectionAssignments: [{ sectionId: "", members: [] }],
   });
+
+  const [deadlineMode, setDeadlineMode] = useState("duration"); // "duration" or "date"
 
   const [collapsedSections, setCollapsedSections] = useState([]);
 
@@ -335,7 +340,6 @@ export default function CreateTaskPage() {
       {
         ...form,
         sectionAssignments: finalAssignments,
-        dueDate: form.dueDate || null,
         projectId,
         createdBy: userId,
       },
@@ -455,28 +459,68 @@ export default function CreateTaskPage() {
               </div>
             </div>
 
-            {/* Due date + Reference link */}
+            {/* Deadline + Reference link */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
-                    {content.dueDate}
-                  </span>
-                  <span className="text-xs text-gray-400 font-medium">
-                    ({isRTL ? "اختياري" : "Optional"})
-                  </span>
+              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                      {isRTL ? "الموعد النهائي" : "Deadline"}
+                    </span>
+                  </div>
+                  
+                  {/* Mode switcher */}
+                  <div className="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-0.5 scale-90 origin-right">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDeadlineMode("duration");
+                        setField("dueDate", "");
+                      }}
+                      className={`px-3 py-1 text-[10px] font-black rounded-md transition-all ${
+                        deadlineMode === "duration"
+                          ? "bg-white dark:bg-gray-800 text-blue-600 shadow-sm"
+                          : "text-gray-400 dark:text-gray-500 hover:text-gray-600"
+                      }`}
+                    >
+                      {isRTL ? "بالأيام" : "Days"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDeadlineMode("date");
+                        setField("durationDays", 0);
+                      }}
+                      className={`px-3 py-1 text-[10px] font-black rounded-md transition-all ${
+                        deadlineMode === "date"
+                          ? "bg-white dark:bg-gray-800 text-blue-600 shadow-sm"
+                          : "text-gray-400 dark:text-gray-500 hover:text-gray-600"
+                      }`}
+                    >
+                      {isRTL ? "تاريخ" : "Date"}
+                    </button>
+                  </div>
                 </div>
-                <DatePicker
-                  value={form.dueDate}
-                  onChange={(val) => setField("dueDate", val)}
-                  placeholder={
-                    content.dueDatePlaceholder ||
-                    (isRTL ? "اختر تاريخاً..." : "Pick a date...")
-                  }
-                  disablePast
-                  locale={isRTL ? "ar" : "en"}
-                />
+
+                {deadlineMode === "duration" ? (
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.durationDays}
+                    onChange={(e) => setField("durationDays", Number(e.target.value))}
+                    placeholder={isRTL ? "مثال: 5" : "e.g: 5"}
+                    className="w-full h-11 px-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                ) : (
+                  <DatePicker
+                    value={form.dueDate}
+                    onChange={(val) => setField("dueDate", val)}
+                    placeholder={isRTL ? "اختر تاريخاً..." : "Pick a date..."}
+                    disablePast
+                    locale={isRTL ? "ar" : "en"}
+                  />
+                )}
               </div>
 
               <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
@@ -737,50 +781,73 @@ export default function CreateTaskPage() {
             )}
 
 
-            {/* ── Late submission toggle ── */}
-            <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Clock className="w-4 h-4 text-gray-400 shrink-0" />
-                <div>
-                  <p className="text-sm font-bold text-gray-800 dark:text-white">
-                    {isRTL
-                      ? "السماح بالتسليم المتأخر"
-                      : "Allow Late Submission"}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {form.allowLateSubmission
-                      ? isRTL
-                        ? "يُسمح بالتسليم بعد الـ deadline"
-                        : "Submissions allowed after deadline"
-                      : isRTL
-                        ? "لا يُسمح بالتسليم بعد الـ deadline"
-                        : "Submissions blocked after deadline"}
-                  </p>
+            {/* ── Settings (Late submission & Depends On) ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* ── Late submission toggle ── */}
+              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-4 h-4 text-gray-400 shrink-0" />
+                  <div>
+                    <p className="text-sm font-bold text-gray-800 dark:text-white">
+                      {isRTL
+                        ? "السماح بالتسليم المتأخر"
+                        : "Allow Late Submission"}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {form.allowLateSubmission
+                        ? isRTL
+                          ? "يُسمح بالتسليم بعد الـ deadline"
+                          : "Submissions allowed after deadline"
+                        : isRTL
+                          ? "لا يُسمح بالتسليم بعد الـ deadline"
+                          : "Submissions blocked after deadline"}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setField("allowLateSubmission", !form.allowLateSubmission)
-                }
-                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none ${
-                  form.allowLateSubmission
-                    ? "bg-blue-600"
-                    : "bg-gray-200 dark:bg-gray-600"
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                <button
+                  type="button"
+                  onClick={() =>
+                    setField("allowLateSubmission", !form.allowLateSubmission)
+                  }
+                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none ${
                     form.allowLateSubmission
-                      ? isRTL
-                        ? "-translate-x-6"
-                        : "translate-x-6"
-                      : isRTL
-                        ? "-translate-x-1"
-                        : "translate-x-1"
+                      ? "bg-blue-600"
+                      : "bg-gray-200 dark:bg-gray-600"
                   }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                      form.allowLateSubmission
+                        ? isRTL
+                          ? "-translate-x-6"
+                          : "translate-x-6"
+                        : isRTL
+                          ? "-translate-x-1"
+                          : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* ── Depends On ── */}
+              <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm space-y-3">
+                <div className="flex items-center gap-2">
+                  <Link2 className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                    {isRTL ? "يعتمد على (مهمة أخرى)" : "Depends On (Task)"}
+                  </span>
+                  <span className="text-xs text-gray-400 font-medium">
+                    ({isRTL ? "اختياري" : "Optional"})
+                  </span>
+                </div>
+                <TaskDependencySelector
+                  tasks={project?.tasks || []}
+                  value={form.dependsOn}
+                  onChange={(val) => setField("dependsOn", val)}
+                  isRTL={isRTL}
+                  availableSections={availableSections}
                 />
-              </button>
+              </div>
             </div>
 
             {/* ── Submit ── */}

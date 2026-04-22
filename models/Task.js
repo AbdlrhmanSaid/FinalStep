@@ -139,6 +139,19 @@ const TaskSchema = new Schema(
       type: Boolean,
       default: true, // Task creator decides — true by default (open)
     },
+    dependsOn: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Task",
+      default: [],
+    },
+    durationDays: {
+      type: Number,
+      default: 0,
+    },
+    startDate: {
+      type: Date,
+      default: null,
+    },
     // Per-member submissions (replaces the single submission/review fields)
     memberSubmissions: [MemberSubmissionSchema],
     // Legacy single submission kept for backward compatibility
@@ -262,5 +275,11 @@ TaskSchema.virtual("section", {
   justOne: true,
 });
 
-const Task = models.Task || model("Task", TaskSchema);
+// For Next.js hot-reloading: delete the model if it already exists to ensure schema updates are applied
+if (process.env.NODE_ENV === "development") {
+  delete mongoose.models.Task;
+}
+
+const Task = mongoose.models.Task || mongoose.model("Task", TaskSchema);
 export default Task;
+
