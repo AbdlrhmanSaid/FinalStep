@@ -49,6 +49,10 @@ const UserSchema = new Schema(
       showProjects: { type: Boolean, default: true },
       showTasks: { type: Boolean, default: true },
     },
+    aiUsage: {
+      count: { type: Number, default: 0 },
+      lastReset: { type: Date, default: Date.now },
+    },
     links: {
       linkedin: { type: String, default: "", trim: true },
       github: { type: String, default: "", trim: true },

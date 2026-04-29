@@ -19,12 +19,21 @@ export default function AIChatPopup() {
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [rateLimitTimer, setRateLimitTimer] = useState(0);
   const messagesEndRef = useRef(null);
 
   // Auto scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isOpen]);
+
+  // Rate limit countdown
+  useEffect(() => {
+    if (rateLimitTimer > 0) {
+      const timer = setTimeout(() => setRateLimitTimer((prev) => prev - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [rateLimitTimer]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -41,6 +50,11 @@ export default function AIChatPopup() {
         userId: currentUser?._id,
         userName: currentUser?.name,
       });
+
+      if (response.data.isRateLimited) {
+        setRateLimitTimer(60);
+      }
+
       setMessages((prev) => [
         ...prev,
         { role: "ai", content: response.data.reply },
@@ -184,13 +198,20 @@ export default function AIChatPopup() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={
-                isRTL ? "اكتب رسالتك هنا..." : "Type your message..."
+                rateLimitTimer > 0
+                  ? isRTL
+                    ? `يرجى الانتظار ${rateLimitTimer} ثانية...`
+                    : `Please wait ${rateLimitTimer}s...`
+                  : isRTL
+                    ? "اكتب رسالتك هنا..."
+                    : "Type your message..."
               }
-              className="flex-1 bg-gray-100 dark:bg-gray-900 border-none rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 dark:text-white"
+              disabled={rateLimitTimer > 0 || isLoading}
+              className={`flex-1 bg-gray-100 dark:bg-gray-900 border-none rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 dark:text-white ${rateLimitTimer > 0 ? "opacity-50 cursor-not-allowed" : ""}`}
             />
             <button
               type="submit"
-              disabled={!message.trim() || isLoading}
+              disabled={!message.trim() || isLoading || rateLimitTimer > 0}
               className="w-10 h-10 flex items-center justify-center bg-violet-600 hover:bg-violet-700 text-white rounded-xl disabled:opacity-50 transition-colors"
             >
               <Send className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`} />
