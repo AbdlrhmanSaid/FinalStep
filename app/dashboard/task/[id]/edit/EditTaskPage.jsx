@@ -233,7 +233,11 @@ export default function EditTaskPage() {
     );
   }
 
-  const allUsers = [...(project.coLeaders ?? []), ...(project.members ?? [])];
+  const allUsers = [
+    ...(project.leaderId ? [project.leaderId] : []),
+    ...(project.coLeaders ?? []),
+    ...(project.members ?? [])
+  ];
   const teamMembers = Array.from(new Map(allUsers.map((u) => [u._id, u])).values());
 
   const setField = (key, val) => setForm((p) => ({ ...p, [key]: val }));

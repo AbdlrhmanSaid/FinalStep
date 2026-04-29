@@ -204,6 +204,9 @@ ${userContext}`;
     if (userId) {
       const user = await User.findById(userId);
       if (user) {
+        if (!user.aiUsage) {
+          user.aiUsage = { count: 0, lastReset: new Date() };
+        }
         user.aiUsage.count = (user.aiUsage.count || 0) + 1;
         await user.save();
       }

@@ -5,6 +5,8 @@ import { MessageCircle, X, Send, User, Loader2 } from "lucide-react";
 import axios from "axios";
 import { useAppContext } from "@/contexts/AppContext";
 import Image from "next/image";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function AIChatPopup() {
   const { isRTL, currentUser } = useAppContext();
@@ -153,14 +155,41 @@ export default function AIChatPopup() {
                   )}
                 </div>
                 <div
-                  className={`p-3 rounded-2xl text-sm ${
+                  className={`p-3 rounded-2xl text-sm leading-relaxed ${
                     msg.role === "user"
                       ? `bg-blue-600 text-white ${isRTL ? "rounded-tl-none" : "rounded-tr-none"}`
                       : `bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700 ${isRTL ? "rounded-tr-none" : "rounded-tl-none"}`
                   } ${msg.isError ? "border-red-500 text-red-600" : ""}`}
-                  style={{ whiteSpace: "pre-wrap" }}
+                  dir={msg.role === "user" ? (isRTL ? "rtl" : "ltr") : "auto"}
                 >
-                  {msg.content}
+                  {msg.role === "user" ? (
+                    <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{msg.content}</div>
+                  ) : (
+                    <div className="markdown-content">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                          ul: ({ node, ...props }) => <ul className="list-disc ms-5 mb-2 space-y-1" {...props} />,
+                          ol: ({ node, ...props }) => <ol className="list-decimal ms-5 mb-2 space-y-1" {...props} />,
+                          li: ({ node, ...props }) => <li className="" {...props} />,
+                          h1: ({ node, ...props }) => <h1 className="text-lg font-bold mb-2 text-violet-700 dark:text-violet-400" {...props} />,
+                          h2: ({ node, ...props }) => <h2 className="text-base font-bold mb-2 text-violet-700 dark:text-violet-400" {...props} />,
+                          h3: ({ node, ...props }) => <h3 className="text-sm font-bold mb-2 text-violet-700 dark:text-violet-400" {...props} />,
+                          strong: ({ node, ...props }) => <strong className="font-bold text-violet-700 dark:text-violet-400" {...props} />,
+                          a: ({ node, ...props }) => <a className="text-blue-500 hover:underline" target="_blank" rel="noreferrer" {...props} />,
+                          code: ({ node, inline, ...props }) =>
+                            inline ? (
+                              <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-rose-500 font-mono text-xs" {...props} />
+                            ) : (
+                              <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg overflow-x-auto text-xs my-2 font-mono" dir="ltr"><code {...props} /></pre>
+                            ),
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -193,10 +222,18 @@ export default function AIChatPopup() {
             onSubmit={handleSendMessage}
             className="p-3 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex gap-2"
           >
-            <input
-              type="text"
+            <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  if (message.trim() && !isLoading && rateLimitTimer === 0) {
+                    handleSendMessage(e);
+                  }
+                }
+              }}
+              rows={message.split('\n').length > 1 ? Math.min(message.split('\n').length, 4) : 1}
               placeholder={
                 rateLimitTimer > 0
                   ? isRTL
@@ -207,12 +244,12 @@ export default function AIChatPopup() {
                     : "Type your message..."
               }
               disabled={rateLimitTimer > 0 || isLoading}
-              className={`flex-1 bg-gray-100 dark:bg-gray-900 border-none rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 dark:text-white ${rateLimitTimer > 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`flex-1 bg-gray-100 dark:bg-gray-900 border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 dark:text-white resize-none ${rateLimitTimer > 0 ? "opacity-50 cursor-not-allowed" : ""}`}
             />
             <button
               type="submit"
               disabled={!message.trim() || isLoading || rateLimitTimer > 0}
-              className="w-10 h-10 flex items-center justify-center bg-violet-600 hover:bg-violet-700 text-white rounded-xl disabled:opacity-50 transition-colors"
+              className="w-10 h-10 shrink-0 flex items-center justify-center bg-violet-600 hover:bg-violet-700 text-white rounded-xl disabled:opacity-50 transition-colors self-end"
             >
               <Send className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`} />
             </button>
