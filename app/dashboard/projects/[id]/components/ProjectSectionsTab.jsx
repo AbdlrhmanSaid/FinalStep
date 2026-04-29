@@ -10,6 +10,7 @@ import {
   Clock,
   Trash2,
   AlertCircle,
+  ChevronDown,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,14 @@ export default function ProjectSectionsTab({
 }) {
   const queryClient = useQueryClient();
   const [loadingAction, setLoadingAction] = useState(null);
+  const [expandedSections, setExpandedSections] = useState({});
+
+  const toggleMembers = (sectionId) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [sectionId]: !prev[sectionId],
+    }));
+  };
 
   const handleAction = async (sectionId, action, targetUserId = null) => {
     setLoadingAction(`${sectionId}-${action}-${targetUserId || "self"}`);
@@ -189,33 +198,46 @@ export default function ProjectSectionsTab({
               </p>
 
               <div className="flex items-center justify-between pt-4 border-t border-gray-50 dark:border-gray-700/50">
-                <div className="flex -space-x-2 rtl:space-x-reverse">
-                  {(section.members || []).slice(0, 4).map((m, i) => (
-                    <div
-                      key={m._id || i}
-                      className="w-7 h-7 rounded-full border-2 border-white dark:border-gray-800 bg-gray-100 dark:bg-gray-900 flex items-center justify-center overflow-hidden"
-                    >
-                      {m.image ? (
-                        <img
-                          src={m.image}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-[10px] font-bold text-gray-400">
-                          {m.name?.charAt(0)}
+                <button
+                  onClick={() => toggleMembers(section._id)}
+                  className="flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 p-1.5 -ml-1.5 rounded-xl transition-colors cursor-pointer"
+                  disabled={memberCount === 0}
+                >
+                  <div className="flex -space-x-2 rtl:space-x-reverse">
+                    {(section.members || []).slice(0, 4).map((m, i) => (
+                      <div
+                        key={m._id || i}
+                        className="w-7 h-7 rounded-full border-2 border-white dark:border-gray-800 bg-gray-100 dark:bg-gray-900 flex items-center justify-center overflow-hidden"
+                      >
+                        {m.image ? (
+                          <img
+                            src={m.image}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-[10px] font-bold text-gray-400">
+                            {m.name?.charAt(0)}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                    {memberCount > 4 && (
+                      <div className="w-7 h-7 rounded-full border-2 border-white dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+                        <span className="text-[9px] font-black text-gray-400">
+                          +{memberCount - 4}
                         </span>
-                      )}
-                    </div>
-                  ))}
-                  {memberCount > 4 && (
-                    <div className="w-7 h-7 rounded-full border-2 border-white dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-                      <span className="text-[9px] font-black text-gray-400">
-                        +{memberCount - 4}
-                      </span>
-                    </div>
+                      </div>
+                    )}
+                  </div>
+                  {memberCount > 0 && (
+                    <ChevronDown
+                      className={`w-4 h-4 text-gray-400 transition-transform ${
+                        expandedSections[section._id] ? "rotate-180" : ""
+                      }`}
+                    />
                   )}
-                </div>
+                </button>
 
                 <div className="flex gap-2">
                   {!isMember && !isPending && !isLeader && (
@@ -263,6 +285,47 @@ export default function ProjectSectionsTab({
                   )}
                 </div>
               </div>
+
+              {/* Expanded Members List */}
+              {expandedSections[section._id] && memberCount > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700/50 flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 px-1">
+                    {isRTL ? "أعضاء القسم" : "Section Members"}
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {section.members.map((m, i) => (
+                      <div
+                        key={m._id || i}
+                        className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-800"
+                      >
+                        <div className="w-7 h-7 rounded-full overflow-hidden bg-white dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-200 dark:border-gray-700">
+                          {m.image ? (
+                            <img
+                              src={m.image}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-[10px] font-bold text-gray-400">
+                              {m.name?.charAt(0) || "?"}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-xs font-bold text-gray-700 dark:text-gray-300 truncate">
+                            {m.name || (isRTL ? "مستخدم" : "User")}
+                          </span>
+                          {m.title && (
+                            <span className="text-[9px] text-gray-400 truncate">
+                              {m.title}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Admin Area for this section */}
               {isLeader && pendingCount > 0 && (

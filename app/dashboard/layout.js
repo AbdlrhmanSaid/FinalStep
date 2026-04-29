@@ -4,6 +4,7 @@ import QueryProvider from "@/lib/queryProvider";
 import { AppProvider } from "@/contexts/AppContext";
 import Navbar from "@/app/dashboard/components/Navbar";
 import DashboardFooter from "@/app/dashboard/components/DashboardFooter";
+import AIChatPopup from "@/components/dashboard/AIChatPopup";
 
 export const metadata = {
   title: "Dashboard",
@@ -26,6 +27,7 @@ const layout = async ({ children }) => {
           <footer>
             <DashboardFooter />
           </footer>
+          <AIChatPopup />
         </div>
       </AppProvider>
     </QueryProvider>
