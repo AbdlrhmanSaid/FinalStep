@@ -15,43 +15,59 @@ export async function POST(req) {
     }
 
     let userContext = `اسم المستخدم الحالي هو: ${userName || "غير معروف"}.`;
-    
+
     if (userId) {
       try {
         const projects = await getUserProjects(userId);
         const tasks = await getUserTasks(userId);
-        
+
         userContext += `\nالمشاريع التي ينتمي إليها أو يديرها (عددها ${projects.length}):\n`;
-        projects.forEach(p => {
+        projects.forEach((p) => {
           userContext += `- مشروع "${p.title}" (حالته: ${p.status}).\n`;
         });
 
-        const activeTasks = tasks.filter(t => t.status !== "completed" && t.status !== "finished" && t.status !== "ended");
-        
-        const assignedTasks = activeTasks.filter(t => 
-          t.assignedTo && t.assignedTo.some(u => (u._id || u).toString() === userId.toString())
+        const activeTasks = tasks.filter(
+          (t) =>
+            t.status !== "completed" &&
+            t.status !== "finished" &&
+            t.status !== "ended",
         );
-        
-        const createdTasks = activeTasks.filter(t => 
-          t.createdBy && (t.createdBy._id || t.createdBy).toString() === userId.toString() &&
-          !(t.assignedTo && t.assignedTo.some(u => (u._id || u).toString() === userId.toString()))
+
+        const assignedTasks = activeTasks.filter(
+          (t) =>
+            t.assignedTo &&
+            t.assignedTo.some(
+              (u) => (u._id || u).toString() === userId.toString(),
+            ),
+        );
+
+        const createdTasks = activeTasks.filter(
+          (t) =>
+            t.createdBy &&
+            (t.createdBy._id || t.createdBy).toString() === userId.toString() &&
+            !(
+              t.assignedTo &&
+              t.assignedTo.some(
+                (u) => (u._id || u).toString() === userId.toString(),
+              )
+            ),
         );
 
         if (assignedTasks.length > 0) {
           userContext += `\nالمهام التي هو مكلف شخصياً بتنفيذها (عددها: ${assignedTasks.length}):\n`;
-          assignedTasks.forEach(t => {
+          assignedTasks.forEach((t) => {
             userContext += `- مهمة "${t.title}" (حالتها: ${t.status}, الأولوية: ${t.priority || "عادية"}).\n`;
           });
         }
 
         if (createdTasks.length > 0) {
           userContext += `\nالمهام التي يقوم هو بالإشراف عليها وإدارتها (وتم توكيلها لآخرين) (عددها: ${createdTasks.length}):\n`;
-          createdTasks.forEach(t => {
+          createdTasks.forEach((t) => {
             userContext += `- مهمة "${t.title}" (حالتها: ${t.status}, الأولوية: ${t.priority || "عادية"}).\n`;
           });
         }
-      } catch(e) {
-         console.error("Failed to fetch user context for AI", e);
+      } catch (e) {
+        console.error("Failed to fetch user context for AI", e);
       }
     }
 
@@ -71,7 +87,7 @@ export async function POST(req) {
 قواعدك:
 - أجب بلغة ودودة، احترافية، وطبيعية جداً، وابتعد عن الترجمة الحرفية والمصطلحات الآلية.
 - لا تستخدم مصطلحات مثل "كـ قائد Leader" أو "كعضو Member" بصيغة جافة. بدلاً من ذلك، استخدم صياغات طبيعية مثل "أنت تشرف على هذه المهام وتديرها" أو "هذه المهام موكلة إليك لتنفيذها".
-- إذا سألك المستخدم عن اسمك، قل له أنك 'Stipy' المساعد الذكي لـ FinalStep.
+- إذا سألك المستخدم عن اسمك، قل له أنك 'Steppi ' المساعد الذكي لـ FinalStep.
 - استخدم الـ Emojis في ردودك لتكون جذابة.
 - اجعل إجاباتك تتمحور حول مساعدة المستخدم في إدارة مشاريعه وتوضيح ميزات المنصة.
 - التوجيه والمساعدة في المهام (هام جداً): عندما يطلب المستخدم مساعدة في تنفيذ مهمة، لا تقم بإعطائه الحل النهائي الكامل أو إنجاز العمل نيابة عنه! بل تصرف كموجه (Mentor)، واشرح له كيفية حل المهمة عن طريق إعطائه خطوات عملية ومرتبة يمشي عليها، مع بعض التلميحات الذكية ليتمكن من إنجازها بنفسه.

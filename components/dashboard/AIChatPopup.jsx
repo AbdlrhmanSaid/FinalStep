@@ -13,7 +13,7 @@ export default function AIChatPopup() {
   const [messages, setMessages] = useState([
     {
       role: "ai",
-      content: isRTL 
+      content: isRTL
         ? "مرحباً! أنا المساعد الذكي، كيف يمكنني مساعدتك اليوم؟"
         : "Hello! I'm your AI assistant. How can I help you today?",
     },
@@ -36,10 +36,10 @@ export default function AIChatPopup() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post("/api/chat", { 
+      const response = await axios.post("/api/chat", {
         message: userMessage.content,
         userId: currentUser?._id,
-        userName: currentUser?.name
+        userName: currentUser?.name,
       });
       setMessages((prev) => [
         ...prev,
@@ -68,7 +68,13 @@ export default function AIChatPopup() {
         onClick={() => setIsOpen(true)}
         className={`fixed bottom-6 ${isRTL ? "left-6" : "right-6"} w-14 h-14 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-white rounded-full shadow-xl shadow-violet-500/20 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 z-[999] ${isOpen ? "hidden" : "flex"} overflow-hidden border-2 border-violet-500/50`}
       >
-        <Image src="/assets/images/Steppi.png" alt="Stipy" width={56} height={56} className="w-full h-full object-contain p-1" />
+        <Image
+          src="/assets/images/Steppi.png"
+          alt="Steppi "
+          width={56}
+          height={56}
+          className="w-full h-full object-contain p-1"
+        />
       </button>
 
       {/* Chat Window */}
@@ -81,10 +87,16 @@ export default function AIChatPopup() {
           <div className="flex items-center justify-between p-4 bg-linear-to-r from-violet-600 to-indigo-600 text-white">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center overflow-hidden border-2 border-white/20 shrink-0">
-                <Image src="/assets/images/Steppi.png" alt="Stipy" width={40} height={40} className="w-full h-full object-contain p-1" />
+                <Image
+                  src="/assets/images/Steppi.png"
+                  alt="Steppi "
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-contain p-1"
+                />
               </div>
               <div>
-                <h3 className="font-bold text-sm">Stipy</h3>
+                <h3 className="font-bold text-sm">Steppi </h3>
                 <p className="text-xs text-white/70">
                   {isRTL ? "متصل الآن" : "Online"}
                 </p>
@@ -117,7 +129,13 @@ export default function AIChatPopup() {
                   {msg.role === "user" ? (
                     <User className="w-4 h-4" />
                   ) : (
-                    <Image src="/assets/images/Steppi.png" alt="Stipy" width={32} height={32} className="w-full h-full object-contain p-1" />
+                    <Image
+                      src="/assets/images/Steppi.png"
+                      alt="Steppi "
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-contain p-1"
+                    />
                   )}
                 </div>
                 <div
@@ -135,9 +153,17 @@ export default function AIChatPopup() {
             {isLoading && (
               <div className="flex gap-3 max-w-[85%]">
                 <div className="w-8 h-8 rounded-full bg-transparent border border-violet-500/30 shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
-                  <Image src="/assets/images/Steppi.png" alt="Stipy" width={32} height={32} className="w-full h-full object-contain p-1" />
+                  <Image
+                    src="/assets/images/Steppi.png"
+                    alt="Steppi "
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-contain p-1"
+                  />
                 </div>
-                <div className={`p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 ${isRTL ? "rounded-tr-none" : "rounded-tl-none"} flex items-center gap-2`}>
+                <div
+                  className={`p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 ${isRTL ? "rounded-tr-none" : "rounded-tl-none"} flex items-center gap-2`}
+                >
                   <Loader2 className="w-4 h-4 animate-spin text-violet-500" />
                   <span className="text-xs text-gray-500">
                     {isRTL ? "جاري التفكير..." : "Thinking..."}
