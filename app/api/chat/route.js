@@ -189,7 +189,7 @@ ${userContext}`;
       const errorMessage = lastError?.message || "";
       if (errorMessage.includes("429") || errorMessage.includes("RESOURCE_EXHAUSTED")) {
         return NextResponse.json({ 
-          reply: "عذراً، لقد استهلكت جميع مفاتيح الاستخدام الحد الأقصى للرسائل. يرجى الانتظار لمدة دقيقة ثم المحاولة مرة أخرى! ⏳",
+          reply: "عذراً، لقد تم بلوغ الحد الأقصى للاستهلاك اليومي المخصص للخدمة في الوقت الحالي. يرجى معاودة المحاولة لاحقاً! ⏳",
           isRateLimited: true
         });
       }

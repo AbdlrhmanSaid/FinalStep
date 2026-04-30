@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, User, Loader2 } from "lucide-react";
+import { X, Send, User, Loader2, Expand, Minimize } from "lucide-react";
 import axios from "axios";
 import { useAppContext } from "@/contexts/AppContext";
 import Image from "next/image";
@@ -12,6 +12,7 @@ export default function AIChatPopup() {
   const { isRTL, currentUser } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [isExpand, setIsExpand] = useState(false);
   const [messages, setMessages] = useState([
     {
       role: "ai",
@@ -32,7 +33,10 @@ export default function AIChatPopup() {
   // Rate limit countdown
   useEffect(() => {
     if (rateLimitTimer > 0) {
-      const timer = setTimeout(() => setRateLimitTimer((prev) => prev - 1), 1000);
+      const timer = setTimeout(
+        () => setRateLimitTimer((prev) => prev - 1),
+        1000,
+      );
       return () => clearTimeout(timer);
     }
   }, [rateLimitTimer]);
@@ -82,7 +86,7 @@ export default function AIChatPopup() {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 ${isRTL ? "left-6" : "right-6"} w-14 h-14 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-white rounded-full shadow-xl shadow-violet-500/20 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 z-[999] ${isOpen ? "hidden" : "flex"} overflow-hidden border-2 border-violet-500/50`}
+        className={`fixed bottom-6 ${isRTL ? "left-6" : "right-6"} w-14 h-14 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-white rounded-full shadow-xl shadow-violet-500/20 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 z-999 ${isOpen ? "hidden" : "flex"} overflow-hidden border-2 border-violet-500/50`}
       >
         <Image
           src="/assets/images/Steppi.png"
@@ -96,7 +100,13 @@ export default function AIChatPopup() {
       {/* Chat Window */}
       {isOpen && (
         <div
-          className={`fixed inset-0 sm:inset-auto sm:bottom-6 ${isRTL ? "sm:left-6" : "sm:right-6"} w-full sm:w-[400px] h-[100dvh] sm:h-[500px] sm:max-h-[80vh] bg-white dark:bg-gray-900 rounded-none sm:rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 flex flex-col overflow-hidden z-[999] animate-in slide-in-from-bottom-5`}
+          className={`fixed z-999 transition-all duration-300 ease-in-out flex flex-col overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 
+      ${
+        isExpand
+          ? "inset-0 sm:inset-4 sm:w-[calc(100%-32px)] sm:h-[calc(100%-32px)] sm:max-h-none rounded-none sm:rounded-3xl"
+          : `inset-0 sm:inset-auto sm:bottom-6 ${isRTL ? "sm:left-6" : "sm:right-6"} w-full sm:w-[400px] h-dvh sm:h-[500px] sm:max-h-[80vh] rounded-none sm:rounded-3xl`
+      } 
+      animate-in slide-in-from-bottom-5`}
           dir={isRTL ? "rtl" : "ltr"}
         >
           {/* Header */}
@@ -118,12 +128,24 @@ export default function AIChatPopup() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex">
+              <button
+                onClick={() => setIsExpand(!isExpand)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+              >
+                {isExpand ? (
+                  <Minimize className="w-5 h-5" />
+                ) : (
+                  <Expand className="w-5 h-5" />
+                )}
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Messages Area */}
@@ -163,26 +185,82 @@ export default function AIChatPopup() {
                   dir={msg.role === "user" ? (isRTL ? "rtl" : "ltr") : "auto"}
                 >
                   {msg.role === "user" ? (
-                    <div style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{msg.content}</div>
+                    <div
+                      style={{
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {msg.content}
+                    </div>
                   ) : (
                     <div className="markdown-content">
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         components={{
-                          p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
-                          ul: ({ node, ...props }) => <ul className="list-disc ms-5 mb-2 space-y-1" {...props} />,
-                          ol: ({ node, ...props }) => <ol className="list-decimal ms-5 mb-2 space-y-1" {...props} />,
-                          li: ({ node, ...props }) => <li className="" {...props} />,
-                          h1: ({ node, ...props }) => <h1 className="text-lg font-bold mb-2 text-violet-700 dark:text-violet-400" {...props} />,
-                          h2: ({ node, ...props }) => <h2 className="text-base font-bold mb-2 text-violet-700 dark:text-violet-400" {...props} />,
-                          h3: ({ node, ...props }) => <h3 className="text-sm font-bold mb-2 text-violet-700 dark:text-violet-400" {...props} />,
-                          strong: ({ node, ...props }) => <strong className="font-bold text-violet-700 dark:text-violet-400" {...props} />,
-                          a: ({ node, ...props }) => <a className="text-blue-500 hover:underline" target="_blank" rel="noreferrer" {...props} />,
+                          p: ({ node, ...props }) => (
+                            <p className="mb-2 last:mb-0" {...props} />
+                          ),
+                          ul: ({ node, ...props }) => (
+                            <ul
+                              className="list-disc ms-5 mb-2 space-y-1"
+                              {...props}
+                            />
+                          ),
+                          ol: ({ node, ...props }) => (
+                            <ol
+                              className="list-decimal ms-5 mb-2 space-y-1"
+                              {...props}
+                            />
+                          ),
+                          li: ({ node, ...props }) => (
+                            <li className="" {...props} />
+                          ),
+                          h1: ({ node, ...props }) => (
+                            <h1
+                              className="text-lg font-bold mb-2 text-violet-700 dark:text-violet-400"
+                              {...props}
+                            />
+                          ),
+                          h2: ({ node, ...props }) => (
+                            <h2
+                              className="text-base font-bold mb-2 text-violet-700 dark:text-violet-400"
+                              {...props}
+                            />
+                          ),
+                          h3: ({ node, ...props }) => (
+                            <h3
+                              className="text-sm font-bold mb-2 text-violet-700 dark:text-violet-400"
+                              {...props}
+                            />
+                          ),
+                          strong: ({ node, ...props }) => (
+                            <strong
+                              className="font-bold text-violet-700 dark:text-violet-400"
+                              {...props}
+                            />
+                          ),
+                          a: ({ node, ...props }) => (
+                            <a
+                              className="text-blue-500 hover:underline"
+                              target="_blank"
+                              rel="noreferrer"
+                              {...props}
+                            />
+                          ),
                           code: ({ node, inline, ...props }) =>
                             inline ? (
-                              <code className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-rose-500 font-mono text-xs" {...props} />
+                              <code
+                                className="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-rose-500 font-mono text-xs"
+                                {...props}
+                              />
                             ) : (
-                              <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg overflow-x-auto text-xs my-2 font-mono" dir="ltr"><code {...props} /></pre>
+                              <pre
+                                className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg overflow-x-auto text-xs my-2 font-mono"
+                                dir="ltr"
+                              >
+                                <code {...props} />
+                              </pre>
                             ),
                         }}
                       >
@@ -233,15 +311,19 @@ export default function AIChatPopup() {
                   }
                 }
               }}
-              rows={message.split('\n').length > 1 ? Math.min(message.split('\n').length, 4) : 1}
+              rows={
+                message.split("\n").length > 1
+                  ? Math.min(message.split("\n").length, 4)
+                  : 1
+              }
               placeholder={
                 rateLimitTimer > 0
-                  ? isRTL
+                  ? (isRTL
                     ? `يرجى الانتظار ${rateLimitTimer} ثانية...`
-                    : `Please wait ${rateLimitTimer}s...`
-                  : isRTL
+                    : `Please wait ${rateLimitTimer}s...`)
+                  : (isRTL
                     ? "اكتب رسالتك هنا..."
-                    : "Type your message..."
+                    : "Type your message...")
               }
               disabled={rateLimitTimer > 0 || isLoading}
               className={`flex-1 bg-gray-100 dark:bg-gray-900 border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 dark:text-white resize-none ${rateLimitTimer > 0 ? "opacity-50 cursor-not-allowed" : ""}`}
