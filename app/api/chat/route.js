@@ -53,7 +53,7 @@ export async function POST(req) {
 
         userContext += `\nالمشاريع التي ينتمي إليها أو يديرها (عددها ${projects.length}):\n`;
         projects.forEach((p) => {
-          userContext += `- مشروع "${p.title}" (حالته: ${p.status}).\n`;
+          userContext += `- مشروع "${p.title}" (رابط المشروع: /dashboard/projects/${p._id}, حالته: ${p.status}).\n`;
         });
 
         const activeTasks = tasks.filter(
@@ -87,7 +87,7 @@ export async function POST(req) {
           userContext += `\nالمهام التي هو مكلف شخصياً بتنفيذها (عددها: ${assignedTasks.length}):\n`;
           assignedTasks.forEach((t) => {
             const projectName = t.projectId?.title ? ` (مشروع: ${t.projectId.title})` : "";
-            userContext += `- مهمة "${t.title}"${projectName} (حالتها: ${t.status}, الأولوية: ${t.priority || "عادية"}).\n`;
+            userContext += `- مهمة "${t.title}"${projectName} (رابط المهمة: /dashboard/task/${t._id}, حالتها: ${t.status}, الأولوية: ${t.priority || "عادية"}).\n`;
           });
         }
 
@@ -95,7 +95,7 @@ export async function POST(req) {
           userContext += `\nالمهام التي يقوم هو بالإشراف عليها وإدارتها (وتم توكيلها لآخرين) (عددها: ${createdTasks.length}):\n`;
           createdTasks.forEach((t) => {
             const projectName = t.projectId?.title ? ` (مشروع: ${t.projectId.title})` : "";
-            userContext += `- مهمة "${t.title}"${projectName} (حالتها: ${t.status}, الأولوية: ${t.priority || "عادية"}).\n`;
+            userContext += `- مهمة "${t.title}"${projectName} (رابط المهمة: /dashboard/task/${t._id}, حالتها: ${t.status}, الأولوية: ${t.priority || "عادية"}).\n`;
           });
         }
       } catch (e) {
@@ -124,6 +124,22 @@ export async function POST(req) {
 - عند تحليل بيانات المستخدم (المشاريع والمهام)، كن دقيقاً جداً واعتمد فقط على البيانات الموجودة في السياق ولا تخمن معلومات غير موجودة.
 - التوجيه والمساعدة في المهام: عندما يطلب المستخدم مساعدة في تنفيذ مهمة، لا تقم بإعطائه الحل النهائي الكامل بل تصرف كموجه (Mentor)، واشرح له كيفية حل المهمة عن طريق إعطائه خطوات عملية.
 - الذكاء في التعامل مع تعدد المهام: إذا سأل المستخدم عن مهامه، اقرأ قائمة المهام (في سياقك) واسأله عن المهمة المقصودة أو استنتجها من كلامه، واربط المهام بمشاريعها.
+
+هيكلة الصفحات والتوجيه في المنصة (Routing):
+لتوجيه المستخدم بسهولة، استخدم الروابط التالية داخل ردودك بصيغة Markdown، مثال: [صفحة المشاريع](/dashboard/projects)
+- الصفحة الرئيسية (Overview/Home): \`/dashboard\`
+- صفحة المشاريع (Projects): \`/dashboard/projects\`
+- صفحة المهام (Tasks): \`/dashboard/tasks\`
+- صفحة تقارير الفريق (Team Report): \`/dashboard/team-report\`
+- صفحة التقرير الشخصي (Personal Report): \`/dashboard/report\`
+- صفحة الدعوات (Invitations): \`/dashboard/invitations\`
+- صفحة الملف الشخصي (Profile): \`/dashboard/profile\`
+- صفحة الإعدادات (Settings): \`/dashboard/settings\`
+- صفحة شرح كيفية عمل المنصة (How it works): \`/dashboard/how-it-works\`
+- صفحة البحث الشامل (Search): \`/dashboard/search\`
+
+**توجيه هام جداً للمشاريع والمهام المحددة**: 
+لا تقم أبداً بكتابة اسم المشروع أو المهمة في رابط الـ URL (مثل /dashboard/projects/اسم_المشروع). بدلاً من ذلك، استخدم **الرابط الدقيق** (الذي يحتوي على معرف ID) المرفق بجانب كل مشروع وكل مهمة في قسم (معلومات المستخدم الحالي) أدناه. مثال صحيح: [مشروع التسويق](/dashboard/projects/60d5ecb8b392).
 
 معلومات المستخدم الحالي الذي يتحدث معك الآن:
 ${userContext}`;
