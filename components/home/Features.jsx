@@ -1,7 +1,7 @@
-import { Route, Users, CircleCheck, ShieldCheck } from "lucide-react";
+import { Route, Users, CircleCheck, ShieldCheck, Bot } from "lucide-react";
 
 export default function Features({ t, isRTL }) {
-  const featureIcons = [Route, Users, CircleCheck, ShieldCheck];
+  const featureIcons = [Route, Users, CircleCheck, ShieldCheck, Bot];
 
   return (
     <>

@@ -55,12 +55,12 @@ export default function DashboardNav() {
   const myPendingTasksCount =
     tasks?.filter((task) => {
       const isAssignedToMe = task.assignedTo?.some(
-        (u) => (u._id || u).toString() === userId
+        (u) => (u._id || u).toString() === userId,
       );
       if (!isAssignedToMe) return false;
       // Check my personal submission status
       const mySub = task.memberSubmissions?.find(
-        (s) => (s.userId?._id || s.userId)?.toString() === userId
+        (s) => (s.userId?._id || s.userId)?.toString() === userId,
       );
       const myStatus = mySub ? mySub.status : task.status;
       return myStatus === "open" || myStatus === "rejected";
@@ -168,7 +168,7 @@ export default function DashboardNav() {
               >
                 <div className="relative overflow-hidden rounded-xl w-10 h-10 shadow-sm shadow-blue-500/20 transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3 group-hover:shadow-blue-500/40">
                   <img
-                    src={"/assets/images/favicon_white.png"}
+                    src={"/assets/images/icon.png"}
                     alt="FinalStep Logo"
                     className=" object-cover h-[36px] w-[36px] m-auto"
                   />
@@ -225,7 +225,9 @@ export default function DashboardNav() {
                 {content.dashboardNav.team}
                 {tasksNotificationCount > 0 && (
                   <span className="absolute -top-1.5 -end-1.5 min-w-[20px] h-[20px] px-1 flex items-center justify-center rounded-full bg-linear-to-r from-orange-400 to-amber-500 text-white text-[10px] font-bold shadow-sm shadow-orange-500/30 border border-white dark:border-gray-900">
-                    {tasksNotificationCount > 99 ? "99+" : tasksNotificationCount}
+                    {tasksNotificationCount > 99
+                      ? "99+"
+                      : tasksNotificationCount}
                   </span>
                 )}
               </Link>
@@ -379,7 +381,9 @@ export default function DashboardNav() {
                 <span className="flex-1">{content.dashboardNav.team}</span>
                 {tasksNotificationCount > 0 && (
                   <span className="min-w-[24px] h-[24px] px-2 flex items-center justify-center rounded-full bg-orange-500 text-white text-xs font-bold shadow-sm shadow-orange-500/20">
-                    {tasksNotificationCount > 99 ? "99+" : tasksNotificationCount}
+                    {tasksNotificationCount > 99
+                      ? "99+"
+                      : tasksNotificationCount}
                   </span>
                 )}
               </Link>
