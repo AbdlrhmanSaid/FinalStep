@@ -41,6 +41,17 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f4f4f5;
+  --color-gray-200: #e4e4e7;
+  --color-gray-300: #d4d4d8;
+  --color-gray-400: #a1a1aa;
+  --color-gray-500: #71717a;
+  --color-gray-600: #52525b;
+  --color-gray-700: #3f3f46;
+  --color-gray-800: #27272a;
+  --color-gray-900: #18181b;
+  --color-gray-950: #09090b;
 }
 
 html {
@@ -152,11 +163,11 @@ html {
 [data-theme="dark"] {
   --primary: #6366f1;
   --primary-foreground: #e0e7ff;
-  --background: #111827;
-  --foreground: #f9fafb;
-  --muted: #1f2937;
-  --border: #374151;
-  --card: #1f2937;
+  --background: #18181b;
+  --foreground: #f4f4f5;
+  --muted: #27272a;
+  --border: #3f3f46;
+  --card: #18181b;
 }
 
 button:hover {
@@ -193,4 +204,20 @@ button:hover {
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(107, 114, 128, 0.6);
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
 }

@@ -26,7 +26,8 @@ export async function GET(request, { params }) {
       .populate("createdBy")
       .populate("review.reviewedBy")
       .populate("memberSubmissions.userId")
-      .populate("memberSubmissions.review.reviewedBy");
+      .populate("memberSubmissions.review.reviewedBy")
+      .populate("dependsOn", "title status");
 
     if (!task) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });

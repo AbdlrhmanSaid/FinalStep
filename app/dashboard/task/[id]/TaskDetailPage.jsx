@@ -731,6 +731,31 @@ const TaskDetailPage = () => {
                     </div>
                   </div>
                 )}
+
+                {task.dependsOn?.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                    <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                      {content.blockedByTasks || content.dependsOn}:
+                    </h4>
+                    <div className="flex flex-col gap-2">
+                      {task.dependsOn.map((depTask) => (
+                        <div
+                          key={depTask._id}
+                          className="flex items-center justify-between p-2 rounded-lg bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30"
+                        >
+                          <span className="text-sm font-medium text-red-700 dark:text-red-400 truncate pr-2">
+                            {depTask.title}
+                          </span>
+                          <span
+                            className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap ${getStatusStyle(depTask.status)}`}
+                          >
+                            {content.status?.[depTask.status] || depTask.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">

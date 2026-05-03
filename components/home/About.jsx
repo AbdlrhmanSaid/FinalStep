@@ -1,4 +1,5 @@
 import { GraduationCap } from "lucide-react";
+import Image from "next/image";
 
 export default function About({ t, isRTL }) {
   return (
@@ -14,7 +15,13 @@ export default function About({ t, isRTL }) {
               {t.description}
             </p>
             <div className="about-icon">
-              <GraduationCap className="h-32 w-32 text-blue-600 dark:text-blue-400" />
+              <Image
+                src="/assets/images/icon.png"
+                alt="Steppi"
+                width={128}
+                height={128}
+                className="w-full h-full object-contain"
+              />
             </div>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import Hero from "./Hero";
 import Features from "./Features";
+import AIAssistantSection from "./AIAssistantSection";
 import CTA from "./CTA";
 import About from "./About";
 import Contact from "./Contact";
@@ -79,6 +80,7 @@ export default function LandingPage() {
       />
       <Hero t={t.hero} isRTL={isRTL} />
       <Features t={t.features} isRTL={isRTL} />
+      <AIAssistantSection t={t.aiSection} isRTL={isRTL} />
       <CTA t={t.cta} isRTL={isRTL} />
       <About t={t.about} isRTL={isRTL} />
       <Contact t={t.contact} isRTL={isRTL} />

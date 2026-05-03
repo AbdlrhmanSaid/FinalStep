@@ -131,13 +131,13 @@ export default function AIChatPopup() {
           {/* Header */}
           <div className="flex items-center justify-between p-4 bg-linear-to-r from-violet-600 to-indigo-600 text-white">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center overflow-hidden border-2 border-white/20 shrink-0">
+              <div className="w-10 h-10 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-900/50 shadow-md shrink-0">
                 <Image
                   src="/assets/images/Steppi.png"
-                  alt="Steppi "
+                  alt="Steppi"
                   width={40}
                   height={40}
-                  className="w-full h-full object-contain p-1"
+                  className="w-full h-full object-contain p-0.5"
                 />
               </div>
               <div>
@@ -150,7 +150,7 @@ export default function AIChatPopup() {
             <div className=" flex">
               <button
                 onClick={() => setIsExpand(!isExpand)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors hidden md:flex"
+                className="w-8 h-8  items-center justify-center rounded-full hover:bg-white/20 transition-colors hidden md:flex"
               >
                 {isExpand ? (
                   <Minimize className="w-5 h-5" />
