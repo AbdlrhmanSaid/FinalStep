@@ -10,7 +10,7 @@ export default function About({ t, isRTL }) {
             <h2 className="text-gray-900 dark:text-white">{t.title}</h2>
             <p className="text-gray-600 dark:text-gray-300">{t.subtitle}</p>
           </div>
-          <div className="about-content bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+          <div className="about-content bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
             <p className="about-text text-gray-600 dark:text-gray-300">
               {t.description}
             </p>

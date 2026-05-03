@@ -16,7 +16,8 @@ export default function AIAssistantSection({ t, isRTL }) {
             <div
               className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-sm font-medium mb-6 ${isRTL ? "flex-row-reverse" : ""}`}
             >
-              <Sparkles className="w-4 h-4" />ب<span>{t.badge}</span>
+              <Sparkles className="w-4 h-4" />
+              <span>{t.badge}</span>
             </div>
 
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">

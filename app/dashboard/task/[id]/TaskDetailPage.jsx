@@ -318,7 +318,10 @@ function MemberSubmissionCard({
           {memberSub?.isLateSubmission && (
             <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 px-3 py-2 rounded-lg">
               <span className="text-amber-600 dark:text-amber-400 text-sm font-semibold">
-                ⚠️ {isRTL ? `تم التسليم متأخراً${memberSub.lateDays > 0 ? ` (بعد ${memberSub.lateDays} يوم)` : ""}` : `Late submission${memberSub.lateDays > 0 ? ` (${memberSub.lateDays} day${memberSub.lateDays > 1 ? "s" : ""} late)` : ""}`}
+                ⚠️{" "}
+                {isRTL
+                  ? `تم التسليم متأخراً${memberSub.lateDays > 0 ? ` (بعد ${memberSub.lateDays} يوم)` : ""}`
+                  : `Late submission${memberSub.lateDays > 0 ? ` (${memberSub.lateDays} day${memberSub.lateDays > 1 ? "s" : ""} late)` : ""}`}
               </span>
             </div>
           )}
@@ -735,7 +738,7 @@ const TaskDetailPage = () => {
                 {task.dependsOn?.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                     <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                      {content.blockedByTasks || content.dependsOn}:
+                      {content.blockedByTasks || content.dependsOn}
                     </h4>
                     <div className="flex flex-col gap-2">
                       {task.dependsOn.map((depTask) => (
