@@ -210,7 +210,7 @@ function MemberSubmissionCard({
         onClick={() => setExpanded((v) => !v)}
       >
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-full bg-linear-to-br from-blue-400 to-cyan-500 flex items-center justify-center shrink-0">
             <User className="w-4 h-4 text-white" />
           </div>
           <div className="text-start min-w-0">
@@ -252,7 +252,7 @@ function MemberSubmissionCard({
                   <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                     {content.submissionDescription}
                   </h4>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap wrap-break-word">
                     {memberSub.description}
                   </p>
                 </>
@@ -612,7 +612,7 @@ const TaskDetailPage = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
               <div className="w-full sm:w-auto">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-1 flex items-center gap-2 flex-wrap">
-                  <span className="break-words">{task.title}</span>
+                  <span className="wrap-break-word">{task.title}</span>
                   <button
                     onClick={() => refetch()}
                     disabled={isFetching}
@@ -645,7 +645,7 @@ const TaskDetailPage = () => {
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
                 {content.description}
               </h3>
-              <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 pl-2 whitespace-pre-wrap break-words">
+              <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 pl-2 whitespace-pre-wrap wrap-break-word">
                 {task.description || (
                   <span className="italic text-gray-500">
                     {content.noDescription}
@@ -703,7 +703,7 @@ const TaskDetailPage = () => {
                     <h4 className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-1">
                       {content.submissionInstructions}
                     </h4>
-                    <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
+                    <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap wrap-break-word">
                       {task.submissionDescription}
                     </p>
                   </div>

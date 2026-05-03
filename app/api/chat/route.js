@@ -4,6 +4,9 @@ import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import { getUserProjects } from "@/lib/server/projects";
 import { getUserTasks } from "@/lib/server/tasks";
+import Project from "@/models/Project";
+import Section from "@/models/Section";
+import Task from "@/models/Task";
 
 export async function POST(req) {
   try {
@@ -22,7 +25,7 @@ export async function POST(req) {
     if (userId) {
       await dbConnect();
       const user = await User.findById(userId);
-      
+
       if (user) {
         // Initialize aiUsage if it doesn't exist
         if (!user.aiUsage) {
@@ -86,7 +89,9 @@ export async function POST(req) {
         if (assignedTasks.length > 0) {
           userContext += `\nالمهام التي هو مكلف شخصياً بتنفيذها (عددها: ${assignedTasks.length}):\n`;
           assignedTasks.forEach((t) => {
-            const projectName = t.projectId?.title ? ` (مشروع: ${t.projectId.title})` : "";
+            const projectName = t.projectId?.title
+              ? ` (مشروع: ${t.projectId.title})`
+              : "";
             userContext += `- مهمة "${t.title}"${projectName} (رابط المهمة: /dashboard/task/${t._id}, حالتها: ${t.status}, الأولوية: ${t.priority || "عادية"}).\n`;
           });
         }
@@ -94,7 +99,9 @@ export async function POST(req) {
         if (createdTasks.length > 0) {
           userContext += `\nالمهام التي يقوم هو بالإشراف عليها وإدارتها (وتم توكيلها لآخرين) (عددها: ${createdTasks.length}):\n`;
           createdTasks.forEach((t) => {
-            const projectName = t.projectId?.title ? ` (مشروع: ${t.projectId.title})` : "";
+            const projectName = t.projectId?.title
+              ? ` (مشروع: ${t.projectId.title})`
+              : "";
             userContext += `- مهمة "${t.title}"${projectName} (رابط المهمة: /dashboard/task/${t._id}, حالتها: ${t.status}, الأولوية: ${t.priority || "عادية"}).\n`;
           });
         }
@@ -141,6 +148,31 @@ export async function POST(req) {
 **توجيه هام جداً للمشاريع والمهام المحددة**: 
 لا تقم أبداً بكتابة اسم المشروع أو المهمة في رابط الـ URL (مثل /dashboard/projects/اسم_المشروع). بدلاً من ذلك، استخدم **الرابط الدقيق** (الذي يحتوي على معرف ID) المرفق بجانب كل مشروع وكل مهمة في قسم (معلومات المستخدم الحالي) أدناه. مثال صحيح: [مشروع التسويق](/dashboard/projects/60d5ecb8b392).
 
+**إنشاء المشاريع آلياً (ميزة هامة جداً):**
+- أنت تملك الصلاحية لإنشاء مشاريع كاملة بالنيابة عن المستخدم مباشرة!
+- إذا طلب المستخدم مساعدتك في إنشاء مشروع، تفاعل معه أولاً واسأله أسئلة لفهم المشروع (مثال: "ما هو اسم المشروع؟ وما هي فكرته العامة؟ هل تحب أن نقسم المشروع إلى أقسام محددة مثل (تطوير، تسويق، تصميم)؟").
+- بعد أن يجيبك المستخدم وتفهم مشروعه بالكامل، قم ببناء خطة عمل (Roadmap) تحتوي على المهام والأقسام.
+- **لكي تقوم بتنفيذ المشروع فعلياً في قاعدة البيانات**، يجب أن تُرفق في نهاية ردك (بعد أن تخبره بأنك قمت بالإنشاء) كود JSON يحمل هذا التنسيق بالضبط:
+\`\`\`json
+{
+  "action": "CREATE_PROJECT",
+  "payload": {
+    "title": "اسم المشروع",
+    "description": "وصف المشروع",
+    "sections": ["اسم القسم الأول", "اسم القسم الثاني"],
+    "tasks": [
+      {
+        "title": "اسم المهمة",
+        "description": "وصف المهمة",
+        "sectionIndex": 0
+      }
+    ]
+  }
+}
+\`\`\`
+ملاحظة: \`sectionIndex\` هو ترتيب القسم في مصفوفة \`sections\` (يبدأ من 0). إذا لم يكن هناك أقسام، اترك المصفوفة فارغة ولا ترسل \`sectionIndex\` للمهام.
+إذا قمت بإرسال هذا الـ JSON، سيقوم النظام تلقائياً بإنشاء المشروع وإخفاء هذا الـ JSON عن المستخدم وعرض رابط المشروع له مكانه.
+
 معلومات المستخدم الحالي الذي يتحدث معك الآن:
 ${userContext}`;
 
@@ -164,10 +196,16 @@ ${userContext}`;
       } catch (error) {
         lastError = error;
         const errorMessage = error.message || "";
-        console.error(`Gemini Chat Error (Attempt ${attempt + 1}):`, errorMessage);
+        console.error(
+          `Gemini Chat Error (Attempt ${attempt + 1}):`,
+          errorMessage,
+        );
 
         // Handle rate limit/quota by switching keys
-        if (errorMessage.includes("429") || errorMessage.includes("RESOURCE_EXHAUSTED")) {
+        if (
+          errorMessage.includes("429") ||
+          errorMessage.includes("RESOURCE_EXHAUSTED")
+        ) {
           console.log("Rate limit exceeded, rotating to next API key...");
           rotateKey();
           // Continue to next attempt
@@ -189,11 +227,16 @@ ${userContext}`;
             lastError = fallbackError;
             console.error("Fallback Error:", fallbackError.message);
             // If fallback also hits rate limit, rotate key
-            if (fallbackError.message?.includes("429") || fallbackError.message?.includes("RESOURCE_EXHAUSTED")) {
-               console.log("Fallback rate limit exceeded, rotating to next API key...");
-               rotateKey();
+            if (
+              fallbackError.message?.includes("429") ||
+              fallbackError.message?.includes("RESOURCE_EXHAUSTED")
+            ) {
+              console.log(
+                "Fallback rate limit exceeded, rotating to next API key...",
+              );
+              rotateKey();
             } else {
-               break; // Unknown error, stop trying
+              break; // Unknown error, stop trying
             }
           }
         }
@@ -203,10 +246,14 @@ ${userContext}`;
     if (!success) {
       // If all attempts failed
       const errorMessage = lastError?.message || "";
-      if (errorMessage.includes("429") || errorMessage.includes("RESOURCE_EXHAUSTED")) {
-        return NextResponse.json({ 
-          reply: "عذراً، لقد تم بلوغ الحد الأقصى للاستهلاك اليومي المخصص للخدمة في الوقت الحالي. يرجى معاودة المحاولة لاحقاً! ⏳",
-          isRateLimited: true
+      if (
+        errorMessage.includes("429") ||
+        errorMessage.includes("RESOURCE_EXHAUSTED")
+      ) {
+        return NextResponse.json({
+          reply:
+            "عذراً، لقد تم بلوغ الحد الأقصى للاستهلاك اليومي المخصص للخدمة في الوقت الحالي. يرجى معاودة المحاولة لاحقاً! ⏳",
+          isRateLimited: true,
         });
       }
 
@@ -228,7 +275,94 @@ ${userContext}`;
       }
     }
 
-    return NextResponse.json({ reply: response.text });
+    let replyText = response.text;
+
+    // Check if the AI wants to create a project
+    const jsonMatch = replyText.match(/```json\n([\s\S]*?)\n```/);
+    if (jsonMatch && userId) {
+      try {
+        const parsed = JSON.parse(jsonMatch[1]);
+        if (parsed.action === "CREATE_PROJECT" && parsed.payload) {
+          const {
+            title,
+            description,
+            sections = [],
+            tasks = [],
+          } = parsed.payload;
+
+          // Create the Project
+          const newProject = await Project.create({
+            title,
+            description,
+            leaderId: userId,
+            status: "active",
+          });
+
+          // Create Sections
+          const createdSections = [];
+          if (sections && sections.length > 0) {
+            for (const secTitle of sections) {
+              const newSec = await Section.create({
+                title: secTitle,
+                projectId: newProject._id,
+              });
+              createdSections.push(newSec);
+            }
+          }
+
+          // Create Tasks
+          const taskIds = [];
+          for (const t of tasks) {
+            const taskData = {
+              title: t.title,
+              description: t.description || "",
+              projectId: newProject._id,
+              createdBy: userId,
+              status: "open",
+              assignedTo: [],
+            };
+
+            // Assign to section if specified
+            if (
+              t.sectionIndex !== undefined &&
+              createdSections[t.sectionIndex]
+            ) {
+              const secId = createdSections[t.sectionIndex]._id;
+              taskData.sectionId = secId;
+              taskData.sectionAssignments = [
+                {
+                  sectionId: secId,
+                  members: [],
+                },
+              ];
+            }
+
+            const newTask = await Task.create(taskData);
+            taskIds.push(newTask._id);
+          }
+
+          // Update Project with tasks
+          newProject.tasks = taskIds;
+          await newProject.save();
+
+          // Replace the JSON block with the actual project link
+          const projectLink = `\n\n🎉 **تم إنشاء المشروع بنجاح!**\nيمكنك البدء في إدارته من هنا: [${title}](/dashboard/projects/${newProject._id})`;
+          replyText = replyText.replace(jsonMatch[0], projectLink);
+        }
+      } catch (parseError) {
+        console.error(
+          "Failed to parse or create project from AI JSON",
+          parseError,
+        );
+        // If it fails, just remove the json block so the user doesn't see raw JSON
+        replyText = replyText.replace(
+          jsonMatch[0],
+          "\n*(حدث خطأ أثناء محاولة إنشاء المشروع تلقائياً)*\n",
+        );
+      }
+    }
+
+    return NextResponse.json({ reply: replyText });
   } catch (globalError) {
     console.error("Global API Error:", globalError);
     return NextResponse.json(
