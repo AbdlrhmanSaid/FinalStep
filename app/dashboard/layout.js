@@ -9,6 +9,10 @@ import AIChatPopup from "@/components/dashboard/AIChatPopup";
 export const metadata = {
   title: "Dashboard",
   description: "Modern bilingual project management dashboard",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 const layout = async ({ children }) => {
