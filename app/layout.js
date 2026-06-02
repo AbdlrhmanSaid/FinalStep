@@ -22,7 +22,10 @@ const cairo = Cairo({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://final-step.vercel.app"),
+  metadataBase: new URL("https://www.finalstep.site"),
+  alternates: {
+    canonical: "/",
+  },
   title: {
     default: "Final Step | Project Management Platform",
     template: "%s | Final Step",
@@ -56,7 +59,7 @@ export const metadata = {
   openGraph: {
     title: "Final Step | Project Management Platform",
     description: "Simplify your project management workflow.",
-    url: "https://final-step.vercel.app",
+    url: "https://www.finalstep.site",
     siteName: "Final Step",
     images: [
       {
