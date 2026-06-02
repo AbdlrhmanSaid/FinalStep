@@ -38,7 +38,7 @@ export default function Navbar({
                   }
                   ${isRTL ? "rtl" : "ltr"}`}
       >
-        <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center gap-1 shrink-0 group">
@@ -65,7 +65,7 @@ export default function Navbar({
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-1 p-2 flex-1 justify-center px-4 overflow-x-auto">
               <a
-                href="/"
+                href="/#"
                 className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {t.Home}

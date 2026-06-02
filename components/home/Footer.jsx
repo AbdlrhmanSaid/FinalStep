@@ -14,7 +14,7 @@ export default function Footer({ t, isRTL }) {
           <div className="col-span-1 md:col-span-2 space-y-6">
             <Link
               href="/"
-              className="flex items-center gap-2 group transition-transform duration-300 inline-flex w-fit"
+              className=" items-center gap-2 group transition-transform duration-300 inline-flex w-fit"
             >
               <div className="relative overflow-hidden rounded-lg w-10 h-10 transition-transform duration-300 shadow-md group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-blue-500/20">
                 <img

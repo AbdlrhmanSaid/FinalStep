@@ -129,9 +129,9 @@ export default function AIChatPopup() {
           dir={isRTL ? "rtl" : "ltr"}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 bg-linear-to-r from-violet-600 to-indigo-600 text-white">
+          <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-900/50 shadow-md shrink-0">
+              <div className="w-10 h-10 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm shrink-0">
                 <Image
                   src="/assets/images/Steppi.png"
                   alt="Steppi"
@@ -142,7 +142,7 @@ export default function AIChatPopup() {
               </div>
               <div>
                 <h3 className="font-bold text-sm">Steppi </h3>
-                <p className="text-xs text-white/70">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {isRTL ? "متصل الآن" : "Online"}
                 </p>
               </div>
@@ -150,19 +150,19 @@ export default function AIChatPopup() {
             <div className=" flex">
               <button
                 onClick={() => setIsExpand(!isExpand)}
-                className="w-8 h-8  items-center justify-center rounded-full hover:bg-white/20 transition-colors hidden md:flex"
+                className="w-8 h-8 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors hidden md:flex"
               >
                 {isExpand ? (
-                  <Minimize className="w-5 h-5" />
+                  <Minimize className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                 ) : (
-                  <Expand className="w-5 h-5" />
+                  <Expand className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                 )}
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               </button>
             </div>
           </div>
@@ -182,8 +182,8 @@ export default function AIChatPopup() {
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden ${
                       msg.role === "user"
-                        ? "bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400"
-                        : "bg-transparent border border-violet-500/30 shadow-sm mt-1"
+                        ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400"
+                        : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm mt-1"
                     }`}
                   >
                     {msg.role === "user" ? (
@@ -201,7 +201,7 @@ export default function AIChatPopup() {
                   <div
                     className={`${
                       msg.role === "user"
-                        ? `p-3.5 rounded-2xl text-sm md:text-base leading-relaxed bg-blue-600 text-white shadow-sm ${isRTL ? "rounded-tl-none" : "rounded-tr-none"}`
+                        ? `p-3.5 rounded-2xl text-sm md:text-base leading-relaxed bg-indigo-600 text-white shadow-sm ${isRTL ? "rounded-tl-none" : "rounded-tr-none"}`
                         : "py-1.5 px-1 text-sm md:text-base leading-relaxed text-gray-800 dark:text-gray-200 w-full overflow-hidden"
                     } ${msg.isError ? "text-red-600" : ""}`}
                     dir={msg.role === "user" ? (isRTL ? "rtl" : "ltr") : "auto"}
@@ -240,31 +240,31 @@ export default function AIChatPopup() {
                             ),
                             h1: ({ node, ...props }) => (
                               <h1
-                                className="text-xl md:text-2xl font-bold mb-3 text-violet-700 dark:text-violet-400"
+                                className="text-xl md:text-2xl font-bold mb-3 text-gray-900 dark:text-white"
                                 {...props}
                               />
                             ),
                             h2: ({ node, ...props }) => (
                               <h2
-                                className="text-lg md:text-xl font-bold mb-3 text-violet-700 dark:text-violet-400"
+                                className="text-lg md:text-xl font-bold mb-3 text-gray-900 dark:text-white"
                                 {...props}
                               />
                             ),
                             h3: ({ node, ...props }) => (
                               <h3
-                                className="text-base md:text-lg font-bold mb-3 text-violet-700 dark:text-violet-400"
+                                className="text-base md:text-lg font-bold mb-3 text-gray-900 dark:text-white"
                                 {...props}
                               />
                             ),
                             strong: ({ node, ...props }) => (
                               <strong
-                                className="font-bold text-violet-700 dark:text-violet-400"
+                                className="font-bold text-gray-900 dark:text-white"
                                 {...props}
                               />
                             ),
                             a: ({ node, ...props }) => (
                               <a
-                                className="text-blue-500 hover:underline"
+                                className="text-indigo-600 dark:text-indigo-400 hover:underline"
                                 target="_blank"
                                 rel="noreferrer"
                                 {...props}
@@ -295,7 +295,7 @@ export default function AIChatPopup() {
               ))}
               {isLoading && (
                 <div className="flex gap-3 w-full">
-                  <div className="w-8 h-8 rounded-full bg-transparent border border-violet-500/30 shadow-sm flex items-center justify-center shrink-0 overflow-hidden mt-1">
+                  <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-center shrink-0 overflow-hidden mt-1">
                     <Image
                       src="/assets/images/Steppi.png"
                       alt="Steppi "
@@ -304,11 +304,12 @@ export default function AIChatPopup() {
                       className="w-full h-full object-contain p-1"
                     />
                   </div>
-                  <div className="py-2 px-1 flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin text-violet-500" />
-                    <span className="text-sm md:text-base text-gray-500">
-                      {isRTL ? "جاري التفكير..." : "Thinking..."}
-                    </span>
+                  <div className="py-2 px-1 flex items-center gap-3">
+                    <div className="flex gap-1.5 items-center justify-center mt-1">
+                      <div className="w-2 h-2 bg-violet-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 bg-violet-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-violet-500 rounded-full animate-bounce"></div>
+                    </div>
                   </div>
                 </div>
               )}
