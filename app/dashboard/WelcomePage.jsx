@@ -108,7 +108,7 @@ export default function WelcomePage() {
   const ut = content.stats || {};
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 p-4 md:p-6 lg:p-8 transition-colors">
+    <div className="min-h-screen   p-4 md:p-6 lg:p-8 transition-colors">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header / Top Toolbar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
@@ -170,23 +170,25 @@ export default function WelcomePage() {
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-1">
                 <div className="p-1.5 rounded-lg bg-white/20">
-                    <Award className="w-5 h-5 text-white" />
+                  <Award className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-white/80 font-black text-xs uppercase tracking-widest leading-none">
                   {isRTL ? "معدل الإنجاز العام" : "Overall Progress"}
                 </span>
               </div>
               <div className="flex items-baseline gap-1 mt-4">
-                <span className="text-6xl font-black tracking-tighter leading-none">{completionRate}</span>
+                <span className="text-6xl font-black tracking-tighter leading-none">
+                  {completionRate}
+                </span>
                 <span className="text-2xl text-white/60 font-bold">%</span>
               </div>
               <div className="mt-6 flex flex-wrap gap-2">
-                 <div className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[10px] font-black uppercase tracking-wider">
-                    {isRTL ? "مشاريعك:" : "Projects:"} {data?.projectsCount || 0}
-                 </div>
-                 <div className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[10px] font-black uppercase tracking-wider">
-                    {isRTL ? "مهامك:" : "Tasks:"} {data?.tasksCount || 0}
-                 </div>
+                <div className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[10px] font-black uppercase tracking-wider">
+                  {isRTL ? "مشاريعك:" : "Projects:"} {data?.projectsCount || 0}
+                </div>
+                <div className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-[10px] font-black uppercase tracking-wider">
+                  {isRTL ? "مهامك:" : "Tasks:"} {data?.tasksCount || 0}
+                </div>
               </div>
             </div>
           </div>
@@ -207,13 +209,18 @@ export default function WelcomePage() {
                 </p>
               </div>
               <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700/50 flex items-center justify-between">
-                 <span className="text-[10px] font-black text-emerald-500">{projectsPercentage}%</span>
-                 <div className="h-1 flex-1 mx-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div className="h-full bg-emerald-500 transition-all duration-1000" style={{ width: `${projectsPercentage}%` }} />
-                 </div>
+                <span className="text-[10px] font-black text-emerald-500">
+                  {projectsPercentage}%
+                </span>
+                <div className="h-1 flex-1 mx-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-500 transition-all duration-1000"
+                    style={{ width: `${projectsPercentage}%` }}
+                  />
+                </div>
               </div>
               <div className="absolute top-0 right-0 p-2 opacity-5 scale-150 rotate-12 -translate-x-2 translate-y-2">
-                 <Briefcase className="w-16 h-16 text-gray-900 dark:text-white" />
+                <Briefcase className="w-16 h-16 text-gray-900 dark:text-white" />
               </div>
             </div>
 
@@ -231,13 +238,18 @@ export default function WelcomePage() {
                 </p>
               </div>
               <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700/50 flex items-center justify-between">
-                 <span className="text-[10px] font-black text-indigo-500">{tasksPercentage}%</span>
-                 <div className="h-1 flex-1 mx-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-500 transition-all duration-1000" style={{ width: `${tasksPercentage}%` }} />
-                 </div>
+                <span className="text-[10px] font-black text-indigo-500">
+                  {tasksPercentage}%
+                </span>
+                <div className="h-1 flex-1 mx-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-indigo-500 transition-all duration-1000"
+                    style={{ width: `${tasksPercentage}%` }}
+                  />
+                </div>
               </div>
               <div className="absolute top-0 right-0 p-2 opacity-5 scale-150 rotate-12 -translate-x-2 translate-y-2">
-                 <ListChecks className="w-16 h-16 text-gray-900 dark:text-white" />
+                <ListChecks className="w-16 h-16 text-gray-900 dark:text-white" />
               </div>
             </div>
 
@@ -255,39 +267,50 @@ export default function WelcomePage() {
                 </p>
               </div>
               <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700/50 flex items-center gap-1.5">
-                 <Zap className="w-3 h-3 text-orange-500" />
-                 <span className="text-[9px] font-black text-orange-500 uppercase tracking-tight">{isRTL ? "صلاحيات كاملة" : "Leader Role"}</span>
+                <Zap className="w-3 h-3 text-orange-500" />
+                <span className="text-[9px] font-black text-orange-500 uppercase tracking-tight">
+                  {isRTL ? "صلاحيات كاملة" : "Leader Role"}
+                </span>
               </div>
               <div className="absolute top-0 right-0 p-2 opacity-5 scale-150 rotate-12 -translate-x-2 translate-y-2">
-                 <TrendingUp className="w-16 h-16 text-gray-900 dark:text-white" />
+                <TrendingUp className="w-16 h-16 text-gray-900 dark:text-white" />
               </div>
             </div>
 
             {/* Join Requests - CRITICAL FOR LEADERS */}
             {data?.managedProjectsCount > 0 && (
-                <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group overflow-hidden relative ring-2 ring-transparent hover:ring-rose-500/10">
+              <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group overflow-hidden relative ring-2 ring-transparent hover:ring-rose-500/10">
                 <div className="relative z-10">
-                    <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400 mb-4 group-hover:scale-110 transition-transform relative">
+                  <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400 mb-4 group-hover:scale-110 transition-transform relative">
                     <Users className="w-5 h-5" />
-                    {data?.pendingJoinRequestsCount > 0 && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse" />}
-                    </div>
-                    <h3 className="text-gray-400 dark:text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">
+                    {data?.pendingJoinRequestsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-gray-800 animate-pulse" />
+                    )}
+                  </div>
+                  <h3 className="text-gray-400 dark:text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">
                     {isRTL ? "طلبات انضمام" : "Join Requests"}
-                    </h3>
-                    <p className={`text-2xl font-black leading-none ${data?.pendingJoinRequestsCount > 0 ? "text-rose-600 dark:text-rose-400" : "text-gray-900 dark:text-white"}`}>
+                  </h3>
+                  <p
+                    className={`text-2xl font-black leading-none ${data?.pendingJoinRequestsCount > 0 ? "text-rose-600 dark:text-rose-400" : "text-gray-900 dark:text-white"}`}
+                  >
                     {data?.pendingJoinRequestsCount || 0}
-                    </p>
+                  </p>
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700/50">
-                    <Link href="/dashboard/projects" className="flex items-center justify-between text-[10px] font-black text-rose-500 uppercase tracking-wider hover:underline">
-                        {isRTL ? "المراجعة" : "Review"}
-                        <ArrowRight className={`w-3 h-3 ${isRTL ? 'rotate-180' : ''}`} />
-                    </Link>
+                  <Link
+                    href="/dashboard/projects"
+                    className="flex items-center justify-between text-[10px] font-black text-rose-500 uppercase tracking-wider hover:underline"
+                  >
+                    {isRTL ? "المراجعة" : "Review"}
+                    <ArrowRight
+                      className={`w-3 h-3 ${isRTL ? "rotate-180" : ""}`}
+                    />
+                  </Link>
                 </div>
                 <div className="absolute top-0 right-0 p-2 opacity-5 scale-150 rotate-12 -translate-x-2 translate-y-2">
-                    <Users className="w-16 h-16 text-gray-900 dark:text-white" />
+                  <Users className="w-16 h-16 text-gray-900 dark:text-white" />
                 </div>
-                </div>
+              </div>
             )}
 
             {/* Pending Invites */}
@@ -304,13 +327,18 @@ export default function WelcomePage() {
                 </p>
               </div>
               <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700/50">
-                 <Link href="/dashboard/invitations" className="flex items-center justify-between text-[10px] font-black text-amber-500 uppercase tracking-wider hover:underline">
-                    {isRTL ? "عرض الكل" : "View All"}
-                    <ArrowRight className={`w-3 h-3 ${isRTL ? 'rotate-180' : ''}`} />
-                 </Link>
+                <Link
+                  href="/dashboard/invitations"
+                  className="flex items-center justify-between text-[10px] font-black text-amber-500 uppercase tracking-wider hover:underline"
+                >
+                  {isRTL ? "عرض الكل" : "View All"}
+                  <ArrowRight
+                    className={`w-3 h-3 ${isRTL ? "rotate-180" : ""}`}
+                  />
+                </Link>
               </div>
               <div className="absolute top-0 right-0 p-2 opacity-5 scale-150 rotate-12 -translate-x-2 translate-y-2">
-                 <Mail className="w-16 h-16 text-gray-900 dark:text-white" />
+                <Mail className="w-16 h-16 text-gray-900 dark:text-white" />
               </div>
             </div>
           </div>

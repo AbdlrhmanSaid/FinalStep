@@ -42,7 +42,7 @@ export default function SearchContent() {
 
   return (
     <div
-      className={`min-h-[calc(100vh-80px)] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors ${
+      className={`min-h-[calc(100vh-80px)] bg-gradient-to-br  transition-colors ${
         isRTL ? "rtl" : "ltr"
       }`}
     >

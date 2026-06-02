@@ -152,10 +152,10 @@ export default function DashboardNav() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 w-full h-20 z-[99999] overflow-visible transition-all duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 right-0 w-full z-[99999] overflow-visible transition-all duration-300 ease-in-out ${
           scrolled
-            ? "bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm py-1"
-            : "bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 py-1.5"
+            ? "bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 shadow-lg shadow-indigo-900/5 py-2"
+            : "bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 py-3"
         } ${isRTL ? "rtl" : "ltr"}`}
       >
         <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -173,8 +173,8 @@ export default function DashboardNav() {
                     className=" object-cover h-[36px] w-[36px] m-auto"
                   />
                 </div>
-                <span className="text-2xl font-black tracking-tight bg-gradient-to-br from-blue-700 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent transition-all duration-300">
-                  FinalStep
+                <span className="text-2xl font-black text-gray-900 dark:text-white transition-colors duration-300">
+                  Final<span className="text-indigo-600 dark:text-indigo-400">Step</span>
                 </span>
               </Link>
             </div>
@@ -297,7 +297,7 @@ export default function DashboardNav() {
         </div>
       </nav>
       {/* Spacer to prevent content from going under the fixed navbar */}
-      <div className="h-20 lg:h-[72px] w-full shrink-0"></div>
+      <div className="h-[80px] w-full shrink-0"></div>
 
       {mounted &&
         isMenuOpen &&
@@ -306,7 +306,7 @@ export default function DashboardNav() {
           <div
             ref={mobileMenuPanelRef}
             id="dashboard-mobile-nav-menu"
-            className={`lg:hidden fixed top-20 left-0 right-0 z-[99998] max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain bg-white dark:bg-gray-900 shadow-xl border-b border-gray-100 dark:border-gray-800 ${isRTL ? "rtl" : "ltr"}`}
+            className={`lg:hidden fixed top-20 left-0 right-0 z-[99998] max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain bg-white dark:bg-gray-950 shadow-xl border-b border-gray-100 dark:border-gray-800 ${isRTL ? "rtl" : "ltr"}`}
           >
             <div className="px-4 py-4 flex flex-col gap-2 max-w-screen-2xl mx-auto sm:px-6">
               <Link

@@ -54,7 +54,7 @@ export default function InvitationsPage() {
   if (isLoading) return <Loading />;
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 p-4 md:p-6 lg:p-8 transition-colors">
+    <div className="min-h-screen  p-4 md:p-6 lg:p-8 transition-colors">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2 border-b border-gray-200 dark:border-gray-800 pb-6">

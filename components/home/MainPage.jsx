@@ -78,12 +78,14 @@ export default function LandingPage() {
         toggleLanguage={toggleLanguage}
         setIsMenuOpen={setIsMenuOpen}
       />
-      <Hero t={t.hero} isRTL={isRTL} />
-      <Features t={t.features} isRTL={isRTL} />
-      <AIAssistantSection t={t.aiSection} isRTL={isRTL} />
-      <CTA t={t.cta} isRTL={isRTL} />
-      <About t={t.about} isRTL={isRTL} />
-      <Contact t={t.contact} isRTL={isRTL} />
+      <main className="flex-1">
+        <Hero t={t.hero} isRTL={isRTL} />
+        <Features t={t.features} isRTL={isRTL} />
+        <AIAssistantSection t={t.aiSection} isRTL={isRTL} />
+        <CTA t={t.cta} isRTL={isRTL} />
+        <About t={t.about} isRTL={isRTL} />
+        <Contact t={t.contact} isRTL={isRTL} />
+      </main>
       <Footer t={t.footer} isRTL={isRTL} />
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Moon, Sun, Globe, Menu, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -16,16 +17,25 @@ export default function Navbar({
 }) {
   const { data: session } = useSession();
   const isSignedIn = !!session;
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 
-                  bg-white/90 dark:bg-gray-900/95 
-                  backdrop-blur-sm 
-                  shadow-lg 
-                  border-b border-gray-200 dark:border-gray-700 
-                  transition-all duration-300
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300
+                  ${
+                    scrolled
+                      ? "bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl shadow-lg shadow-indigo-900/5 border-b border-gray-200/50 dark:border-gray-800/50 py-2"
+                      : "bg-transparent py-4"
+                  }
                   ${isRTL ? "rtl" : "ltr"}`}
       >
         <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,8 +53,11 @@ export default function Navbar({
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent transition-all duration-300">
-                  FinalStep
+                <span className="text-2xl font-black text-gray-900 dark:text-white transition-colors duration-300">
+                  Final
+                  <span className="text-indigo-600 dark:text-indigo-400">
+                    Step
+                  </span>
                 </span>
               </Link>
             </div>
@@ -53,39 +66,39 @@ export default function Navbar({
             <div className="hidden md:flex items-center gap-1 p-2 flex-1 justify-center px-4 overflow-x-auto">
               <a
                 href="/"
-                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {t.Home}
               </a>
               <a
                 href="#features"
-                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {t.features}
               </a>
               <a
                 href="#about"
-                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {t.about}
               </a>
               <a
                 href="#contact"
-                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 {t.contact}
               </a>
               {isSignedIn ? (
                 <Link
                   href="/dashboard"
-                  className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   {t.dashboard}
                 </Link>
               ) : (
                 <Link
                   href="/login"
-                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   {t.login}
                 </Link>
@@ -140,33 +153,33 @@ export default function Navbar({
               <div className="px-2 pt-2 pb-4 space-y-1 border-t border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
                 <a
                   href="#features"
-                  className="block text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+                  className="block text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-base font-medium"
                 >
                   {t.features}
                 </a>
                 <a
                   href="#about"
-                  className="block text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+                  className="block text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-base font-medium"
                 >
                   {t.about}
                 </a>
                 <a
                   href="#contact"
-                  className="block text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+                  className="block text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-base font-medium"
                 >
                   {t.contact}
                 </a>
                 {isSignedIn ? (
                   <Link
                     href="/dashboard"
-                    className="block text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-base font-medium"
+                    className="block text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-base font-medium"
                   >
                     {t.dashboard}
                   </Link>
                 ) : (
                   <Link
                     href="/login"
-                    className="block text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-500 px-3 py-2 rounded-md text-base font-medium"
+                    className="block text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-500 px-3 py-2 rounded-md text-base font-medium"
                   >
                     {t.login}
                   </Link>

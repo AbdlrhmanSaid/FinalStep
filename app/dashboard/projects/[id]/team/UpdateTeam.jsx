@@ -51,7 +51,7 @@ export default function UpdateTeam() {
   return (
     <CheckUserRole projectId={id}>
       <div
-        className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 dark:text-white p-3.5 sm:p-4 md:p-8 transition-all duration-300"
+        className="min-h-screen bg-linear-to-br   dark:text-white p-3.5 sm:p-4 md:p-8 transition-all duration-300"
         dir={isRTL ? "rtl" : "ltr"}
       >
         <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">

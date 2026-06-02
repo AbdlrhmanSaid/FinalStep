@@ -5,8 +5,8 @@ export default function Footer({ t, isRTL }) {
   return (
     <footer className="relative bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-px bg-indigo-100 dark:bg-gray-800" />
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
@@ -23,7 +23,7 @@ export default function Footer({ t, isRTL }) {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent transition-all duration-300">
+              <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400 transition-colors duration-300">
                 FinalStep
               </span>
             </Link>
@@ -39,7 +39,7 @@ export default function Footer({ t, isRTL }) {
                 href="https://asportfolio-mu.vercel.app/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-full bg-gray-100 hover:bg-blue-100 dark:bg-gray-800 dark:hover:bg-blue-900/40 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110"
+                className="p-2 rounded-full bg-gray-100 hover:bg-indigo-100 dark:bg-gray-800 dark:hover:bg-indigo-900/40 text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 hover:scale-110"
               >
                 <Globe className="w-5 h-5" />
               </a>
@@ -47,7 +47,7 @@ export default function Footer({ t, isRTL }) {
                 href="https://www.linkedin.com/in/abdelrhman-saeid-95564a25a/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-full bg-gray-100 hover:bg-blue-100 dark:bg-gray-800 dark:hover:bg-blue-900/40 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110"
+                className="p-2 rounded-full bg-gray-100 hover:bg-indigo-100 dark:bg-gray-800 dark:hover:bg-indigo-900/40 text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 hover:scale-110"
               >
                 <Linkedin className="w-5 h-5" />
               </a>
@@ -55,7 +55,7 @@ export default function Footer({ t, isRTL }) {
                 href="https://github.com/AbdlrhmanSaid"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-full bg-gray-100 hover:bg-blue-100 dark:bg-gray-800 dark:hover:bg-blue-900/40 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110"
+                className="p-2 rounded-full bg-gray-100 hover:bg-indigo-100 dark:bg-gray-800 dark:hover:bg-indigo-900/40 text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300 hover:scale-110"
               >
                 <Github className="w-5 h-5" />
               </a>
@@ -71,27 +71,27 @@ export default function Footer({ t, isRTL }) {
               <li>
                 <Link
                   href="/#features"
-                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors flex items-center gap-2 group"
+                  className="text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm transition-colors flex items-center gap-2 group"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500/0 group-hover:bg-blue-500 transition-colors" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500/0 group-hover:bg-indigo-500 transition-colors" />
                   {t?.nav?.features || (isRTL ? "المميزات" : "Features")}
                 </Link>
               </li>
               <li>
                 <Link
                   href="/#about"
-                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors flex items-center gap-2 group"
+                  className="text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm transition-colors flex items-center gap-2 group"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500/0 group-hover:bg-blue-500 transition-colors" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500/0 group-hover:bg-indigo-500 transition-colors" />
                   {t?.nav?.about || (isRTL ? "عن التطبيق" : "About")}
                 </Link>
               </li>
               <li>
                 <Link
                   href="/#contact"
-                  className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors flex items-center gap-2 group"
+                  className="text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm transition-colors flex items-center gap-2 group"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500/0 group-hover:bg-blue-500 transition-colors" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500/0 group-hover:bg-indigo-500 transition-colors" />
                   {t?.nav?.contact || (isRTL ? "اتصل بنا" : "Contact")}
                 </Link>
               </li>
@@ -105,7 +105,7 @@ export default function Footer({ t, isRTL }) {
             </h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-gray-600 dark:text-gray-400 text-sm">
-                <Mail className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                <Mail className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
                 <span>abdelrhmansaid996@gmail.com</span>
               </li>
             </ul>
@@ -115,7 +115,7 @@ export default function Footer({ t, isRTL }) {
                 href="https://asportfolio-mu.vercel.app/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                 title={
                   isRTL
                     ? "تطوير بواسطة Abdelrhman Saeid"
@@ -140,14 +140,14 @@ export default function Footer({ t, isRTL }) {
           <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
             <Link
               href="/privacy"
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
             >
               {isRTL ? "سياسة الخصوصية" : "Privacy Policy"}
             </Link>
             <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700" />
             <Link
               href="/terms"
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
             >
               {isRTL ? "الشروط والأحكام" : "Terms of Service"}
             </Link>
