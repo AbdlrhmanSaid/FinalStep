@@ -34,13 +34,13 @@ export async function POST(req) {
           html: `
             <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
               <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05); text-align: center;">
-                <img src="https://final-step.vercel.app/assets/images/logo.png" alt="FinalStep Logo" style="width: 120px; margin-bottom: 20px;" />
+                <img src="https://www.finalstep.site/assets/images/logo.png" alt="FinalStep Logo" style="width: 120px; margin-bottom: 20px;" />
                 <h2 style="color: #222;">You're Invited to Join <span style="color: #3b82f6;">${projectName}</span></h2>
                 <p style="color: #555; font-size: 16px; line-height: 1.5;">
                   Hello,<br />
                   You’ve been invited to join the project <strong>${projectName}</strong> on <strong>FinalStep</strong>.
                 </p>
-                <a href="https://final-step.vercel.app/dashboard/invitations"
+                <a href="https://www.finalstep.site/dashboard/invitations"
                   style="
                     display: inline-block;
                     margin-top: 30px;

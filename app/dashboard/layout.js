@@ -26,7 +26,7 @@ const layout = async ({ children }) => {
           <div className="fixed top-0 right-0 -mr-32 -mt-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none z-0" />
           <div className="fixed bottom-0 left-0 -ml-32 -mb-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none z-0" />
           
-          <nav className="relative z-[999] w-full overflow-visible">
+          <nav className="relative z-999 w-full overflow-visible">
             <Navbar />
           </nav>
           <main className="flex-1 relative z-10">

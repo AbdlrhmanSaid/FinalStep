@@ -17,11 +17,11 @@ export const metadata = {
   openGraph: {
     title: "Final Step | منصة إدارة المشاريع",
     description: "أسهل طريقة لإدارة مشاريعك ومهامك",
-    url: "https://final-step.vercel.app",
+    url: "/",
     siteName: "Final Step",
     images: [
       {
-        url: "https://final-step.vercel.app/og-image.png",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "Final Step Platform",
@@ -35,10 +35,10 @@ export const metadata = {
     card: "summary_large_image",
     title: "Final Step | منصة إدارة المشاريع",
     description: "أسهل طريقة لإدارة مشاريعك ومهامك",
-    images: ["https://final-step.vercel.app/og-image.png"],
+    images: ["/og-image.png"],
   },
   alternates: {
-    canonical: "https://final-step.vercel.app",
+    canonical: "/",
   },
 };
 

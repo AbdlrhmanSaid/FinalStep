@@ -5,8 +5,8 @@ export default function JsonLd({ type = "WebSite" }) {
     name: "Final Step",
     description:
       "The ultimate platform for project management and team collaboration",
-    url: "https://final-step.vercel.app",
-    logo: "https://final-step.vercel.app/logo.png",
+    url: "https://www.finalstep.site",
+    logo: "https://www.finalstep.site/logo.png",
     sameAs: [
       // "https://facebook.com/finalstep",
       // "https://twitter.com/finalstep",
@@ -16,7 +16,7 @@ export default function JsonLd({ type = "WebSite" }) {
       target: {
         "@type": "EntryPoint",
         urlTemplate:
-          "https://final-step.vercel.app/search?q={search_term_string}",
+          "https://www.finalstep.site/search?q={search_term_string}",
       },
       "query-input": "required name=search_term_string",
     },
