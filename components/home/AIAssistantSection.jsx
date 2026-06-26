@@ -1,51 +1,98 @@
 import Image from "next/image";
-import { Bot, Sparkles, ArrowRight } from "lucide-react";
+import { Bot, Sparkles, ArrowRight, User } from "lucide-react";
 import Link from "next/link";
 
 export default function AIAssistantSection({ t, isRTL }) {
+  const chatMessages = isRTL
+    ? [
+        { type: "user", text: "إيه المهام اللي عليا النهارده؟" },
+        { type: "bot", text: "عندك 3 مهام مفتوحة: تسليم التقرير النهائي (أولوية عالية)، مراجعة التصميم، وتحديث التوثيق. التقرير موعده بكرة!" },
+        { type: "user", text: "مين ممكن يساعدني في التصميم؟" },
+        { type: "bot", text: "بناءً على فريقك، أحمد ومريم متاحين وعندهم خبرة في التصميم. تحب أعينهم على المهمة؟" },
+      ]
+    : [
+        { type: "user", text: "What tasks do I have today?" },
+        { type: "bot", text: "You have 3 open tasks: Submit Final Report (high priority), Review Design, and Update Docs. The report is due tomorrow!" },
+        { type: "user", text: "Who can help me with the design?" },
+        { type: "bot", text: "Based on your team, Ahmed and Mariam are available and have design experience. Would you like me to assign them?" },
+      ];
+
   return (
-    <section className="py-24 bg-white dark:bg-gray-950 overflow-hidden">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="flex flex-col lg:flex-row items-center gap-16">
-          <div className="flex-1 lg:pr-8 rtl:lg:pl-8 rtl:lg:pr-0">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-sm font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
+    <section className="landing-section bg-white dark:bg-gray-950">
+      <div className="landing-container">
+        <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-16">
+          {/* Left: Info */}
+          <div className="lg:w-5/12">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-sm font-semibold mb-4">
+              <Sparkles className="w-3.5 h-3.5" />
               <span>{t.badge}</span>
             </div>
-            
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
+
+            <h2 className="section-heading mb-3">
               {t.title}
             </h2>
-            
-            <p className="text-xl text-gray-700 dark:text-gray-300 mb-6 font-medium">
+
+            <p className="text-base text-gray-600 dark:text-gray-400 mb-3 font-medium leading-relaxed">
               {t.subtitle}
             </p>
-            
-            <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+
+            <p className="section-subheading mb-6">
               {t.description}
             </p>
-            
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 px-6 py-3 rounded-xl font-semibold transition-all hover:scale-105"
-            >
-              <Bot className="w-5 h-5" />
+
+            <Link href="/dashboard" className="btn-landing-primary">
+              <Bot className="w-4 h-4" />
               <span>{t.cta}</span>
               <ArrowRight className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`} />
             </Link>
           </div>
-          
-          <div className="flex-1 w-full max-w-md lg:max-w-none relative">
-            <div className="relative aspect-square md:aspect-video lg:aspect-square w-full rounded-3xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center p-8 overflow-hidden shadow-2xl group">
-               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/20 rounded-full blur-[80px] group-hover:scale-110 transition-transform duration-700"></div>
-               <div className="relative z-10 w-48 h-48 sm:w-64 sm:h-64 rounded-full bg-white dark:bg-gray-950 shadow-2xl flex items-center justify-center p-8 border border-gray-100 dark:border-gray-800">
-                <Image
-                  src="/assets/images/Steppi.png"
-                  alt="Steppi AI Assistant"
-                  width={200}
-                  height={200}
-                  className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
-                />
+
+          {/* Right: Chat Mockup */}
+          <div className="lg:w-7/12 w-full">
+            <div className="ai-chat-mockup shadow-lg">
+              {/* Chat Header */}
+              <div className="ai-chat-header">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center shrink-0">
+                  <Image
+                    src="/assets/images/Steppi.png"
+                    alt="Steppi"
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">Steppi</div>
+                  <div className="text-xs text-green-500 font-medium">{isRTL ? "متصل الآن" : "Online"}</div>
+                </div>
+              </div>
+
+              {/* Chat Body */}
+              <div className="ai-chat-body">
+                {chatMessages.map((msg, index) => (
+                  <div key={index} className={`ai-msg ai-msg-${msg.type === "user" ? "user" : "bot"}`}>
+                    <div
+                      className={`ai-msg-avatar ${
+                        msg.type === "user"
+                          ? "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                          : "bg-indigo-100 dark:bg-indigo-500/20 overflow-hidden"
+                      }`}
+                    >
+                      {msg.type === "user" ? (
+                        <User className="w-3.5 h-3.5" />
+                      ) : (
+                        <Image
+                          src="/assets/images/Steppi.png"
+                          alt="Steppi"
+                          width={28}
+                          height={28}
+                          className="w-full h-full object-contain"
+                        />
+                      )}
+                    </div>
+                    <div className="ai-msg-bubble">{msg.text}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import Hero from "./Hero";
 import Features from "./Features";
+import HowItWorks from "./HowItWorks";
+import RolesSection from "./RolesSection";
+import StatsSection from "./StatsSection";
 import AIAssistantSection from "./AIAssistantSection";
 import CTA from "./CTA";
 import About from "./About";
@@ -64,7 +67,7 @@ export default function LandingPage() {
 
   return (
     <div
-      className={`home-page-wrapper min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300  ${
+      className={`home-page-wrapper min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300 ${
         isRTL ? "font-arabic" : ""
       }`}
     >
@@ -80,7 +83,10 @@ export default function LandingPage() {
       />
       <main className="flex-1">
         <Hero t={t.hero} isRTL={isRTL} />
+        <StatsSection isRTL={isRTL} />
         <Features t={t.features} isRTL={isRTL} />
+        <HowItWorks isRTL={isRTL} />
+        <RolesSection isRTL={isRTL} />
         <AIAssistantSection t={t.aiSection} isRTL={isRTL} />
         <CTA t={t.cta} isRTL={isRTL} />
         <About t={t.about} isRTL={isRTL} />
